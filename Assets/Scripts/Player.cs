@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 
@@ -8,55 +9,69 @@ public class Player : MonoBehaviour, IHasHealth
 
     public enum PlayerState { Idle, Walking, Attacking, Dead }
     private PlayerState currentState = PlayerState.Idle;
+
     private float currentHealth;
+    public bool IsInvulnerable { get; private set; }
+
+
+
     public event Action OnDied;
+    public event Action<PlayerState> OnStateChanged;
+    public event Action<float> OnHealthChanged;
 
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float maxHealth = 10f;
+    [SerializeField] private float iFrameDuration = 1.5f;
+    [SerializeField] private float blinkInterval = 0.1f;
 
     [Header("References")]
     [SerializeField] private GameInput gameInput;
     [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Transform playerVisualTransform;
+    [SerializeField] private Transform pivotBottomTransform;
 
-    public float CurrentHealth => currentHealth;
-
-    public float MaxHealth => maxHealth;
-    public event Action<PlayerState> OnStateChanged;
-    public event Action<float> OnHealthChanged;
 
     private Rigidbody rb;
     private Vector3 moveDirection;
+    private Color originalColor;
+
+    public float CurrentHealth => currentHealth;
+    public float MaxHealth => maxHealth;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
 
-        // If an instance already exists (from previous Play session), destroy it
         if (Instance != null && Instance != this)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
             return;
         }
 
         Instance = this;
         currentHealth = maxHealth;
+
+        if (spriteRenderer != null)
+            originalColor = spriteRenderer.color;
     }
 
     private void Update()
     {
-        // Read input from GameInput
         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
-
         moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
-        // Flip sprite horizontally based on X movement
-        if (moveDirection.x > 0.01f) // moving right
-            spriteRenderer.flipX = false;
-        else if (moveDirection.x < -0.01f) // moving left
-            spriteRenderer.flipX = true;
+        if (currentState != PlayerState.Dead)
+        {
+            // Flip sprite
+            if (moveDirection.x > 0.01f)
+                spriteRenderer.flipX = false;
+            else if (moveDirection.x < -0.01f)
+                spriteRenderer.flipX = true;
+        }
 
 
+        // State updates
         if (IsDead())
             SetState(PlayerState.Dead);
         else if (IsAttacking())
@@ -67,47 +82,99 @@ public class Player : MonoBehaviour, IHasHealth
             SetState(PlayerState.Idle);
     }
 
-    private void SetState(PlayerState newState)
-    {
-        if (newState == currentState) return;
-        currentState = newState;
-        OnStateChanged?.Invoke(newState); // fire event
-    }
-
     private void FixedUpdate()
     {
-        if (moveDirection.magnitude > 0.01f)
+        if (moveDirection.magnitude > 0.01f && !IsDead())
         {
-            // Move the player
             Vector3 targetPosition = rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
             rb.MovePosition(targetPosition);
         }
     }
+
     public void TakeDamage(float amount)
     {
+        if (IsInvulnerable || IsDead()) return;
+
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         OnHealthChanged?.Invoke(currentHealth / maxHealth);
+
+        if (currentHealth <= 0)
+        {
+            Die();
+            return;
+        }
+
+        StartCoroutine(InvulnerabilityRoutine());
     }
-    // Dummy implementations for now
+
+    private IEnumerator InvulnerabilityRoutine()
+    {
+        IsInvulnerable = true;
+
+        float elapsed = 0f;
+        bool visible = true;
+
+        while (elapsed < iFrameDuration)
+        {
+            if (spriteRenderer != null)
+            {
+                visible = !visible;
+                spriteRenderer.color = visible
+                    ? originalColor
+                    : new Color(originalColor.r, originalColor.g, originalColor.b, 0.3f);
+            }
+
+            yield return new WaitForSeconds(blinkInterval);
+            elapsed += blinkInterval;
+        }
+
+        if (spriteRenderer != null)
+            spriteRenderer.color = originalColor;
+
+        IsInvulnerable = false;
+    }
+
+    private void SetState(PlayerState newState)
+    {
+        if (newState == currentState) return;
+        currentState = newState;
+        OnStateChanged?.Invoke(newState);
+    }
+
     public bool IsDead() => currentState == PlayerState.Dead;
     public bool IsAttacking() => false;
     public bool IsWalking() => moveDirection.magnitude > 0.01f;
 
     private void Die()
     {
-        OnDied?.Invoke();  // notify listeners
+        OnDied?.Invoke();
         SetState(PlayerState.Dead);
 
-        var lookAt = GetComponent<LookAtCamera>();
-        if (lookAt != null) lookAt.enabled = false;
+        // Disable LookAtCamera
+        var lookAt = playerVisualTransform.GetComponent<LookAtCamera>();
+        if (lookAt != null)
+            lookAt.enabled = false;
+
+        // Use pivot bottom for rotation
+        Transform pivot = pivotBottomTransform;
 
         Sequence deathSequence = DOTween.Sequence();
 
-        // Spin 720° around current Y
-        deathSequence.Append(transform.DORotate(new Vector3(0, transform.eulerAngles.y + 720f, 0), 1f, RotateMode.FastBeyond360).SetEase(Ease.OutQuart));
-        // Spin 720° around current Y
+        // Spin around Y axis 720° relative to current rotation
+        deathSequence.Append(pivot.DOLocalRotate(
+            new Vector3(0, 720f, 0),
+            1f,
+            RotateMode.LocalAxisAdd
+        ).SetEase(Ease.OutQuart));
 
-        deathSequence.Append(transform.DORotate(new Vector3(90, transform.eulerAngles.y, 0), 0.5f, RotateMode.FastBeyond360).SetEase(Ease.OutBounce));
+        // Then fall forward around X axis 90° relative to current rotation
+        deathSequence.Append(pivot.DOLocalRotate(
+            new Vector3(90f - playerVisualTransform.localRotation.eulerAngles.x, 0, 0),
+            0.5f,
+            RotateMode.LocalAxisAdd      // rotate along local axes
+        ).SetEase(Ease.OutBounce));
     }
+
+
 }
