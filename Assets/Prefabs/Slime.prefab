@@ -75,6 +75,52 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &2288868480231492249
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5585489706481073199}
+  - component: {fileID: 2650273341497606831}
+  m_Layer: 0
+  m_Name: SlimeVisual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5585489706481073199
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2288868480231492249}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.693, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2793305698977436609}
+  m_Father: {fileID: 6740652008642013100}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2650273341497606831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2288868480231492249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c153e1afdec5a304b984861ba36a8c86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LookAtCamera
+  mode: 2
 --- !u!1 &4685301376355040677
 GameObject:
   m_ObjectHideFlags: 0
@@ -161,7 +207,7 @@ GameObject:
   - component: {fileID: 6740652008642013100}
   - component: {fileID: 7245427608975472959}
   - component: {fileID: 7411170376010618127}
-  - component: {fileID: 6060556372397436420}
+  - component: {fileID: 5753296987751052509}
   m_Layer: 0
   m_Name: Slime
   m_TagString: Untagged
@@ -178,12 +224,12 @@ Transform:
   m_GameObject: {fileID: 6023850595377037570}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.05666, y: 0, z: -1.65369}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2793305698977436609}
   - {fileID: 3863158378092503957}
+  - {fileID: 5585489706481073199}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &7245427608975472959
@@ -228,7 +274,7 @@ CapsuleCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -236,7 +282,7 @@ CapsuleCollider:
   m_Height: 0.69646597
   m_Direction: 1
   m_Center: {x: -0.002855897, y: 0.8653128, z: 0}
---- !u!114 &6060556372397436420
+--- !u!114 &5753296987751052509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -249,7 +295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlimeEnemy
   data: {fileID: 11400000, guid: 7751be5be4f5e2641b1fd9503e9b1b71, type: 2}
-  animator: {fileID: 2724578037228508983}
+  slimeVisual: {fileID: 5585489706481073199}
 --- !u!1 &6577637932607379011
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,7 +413,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c153e1afdec5a304b984861ba36a8c86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LookAtCamera
-  mode: 0
+  mode: 2
 --- !u!114 &3103087916116442014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -391,11 +437,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2793305698977436609}
-  - component: {fileID: 6696915924879825947}
   - component: {fileID: 2724578037228508983}
   - component: {fileID: 684921739050060929}
   m_Layer: 0
-  m_Name: SlimeVisual
+  m_Name: Sprirte
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -409,26 +454,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7205183036597693709}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.902, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.20899999, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 6740652008642013100}
+  m_Father: {fileID: 5585489706481073199}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6696915924879825947
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7205183036597693709}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c153e1afdec5a304b984861ba36a8c86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpriteBillboard
-  mode: 2
 --- !u!95 &2724578037228508983
 Animator:
   serializedVersion: 7

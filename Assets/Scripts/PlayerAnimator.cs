@@ -4,6 +4,8 @@ using UnityEngine;
 public class PlayerAnimator : MonoBehaviour
 {
     private const string PLAYER_WALKING = "isWalking";
+    private const string PLAYER_DEAD = "die";
+
     private Animator animator;
     [SerializeField] private Player player;
 
@@ -22,6 +24,9 @@ public class PlayerAnimator : MonoBehaviour
                 break;
             case Player.PlayerState.Walking:
                 animator.SetBool(PLAYER_WALKING, true);
+                break;
+            case Player.PlayerState.Dead:
+                animator.SetTrigger(PLAYER_DEAD);
                 break;
         }
     }

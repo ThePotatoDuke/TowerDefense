@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-public abstract class EnemyBase : MonoBehaviour, IHasHealth
+public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 {
     protected float currentHealth;
 
