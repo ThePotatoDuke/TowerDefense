@@ -16,4 +16,5 @@ MonoBehaviour:
   attackRate: 1
   knockbackDistance: 0
   knockbackDuration: 0
-  swingDuration: 0.1
+  swingDuration: 2
+  attackRange: 1
