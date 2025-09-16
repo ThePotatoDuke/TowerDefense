@@ -5,94 +5,123 @@ using DG.Tweening;
 public class SlimeEnemy : EnemyBase
 {
     [SerializeField] private SlimeDataSO data;
-    [SerializeField] private Transform slimeVisual; // assign the child sprite here
+    [SerializeField] private Transform slimeVisual; // child sprite/visual
 
-    private Vector3 startPosition;
+    private Vector3 childOriginalLocalPos;
+    private Vector3 originalScale;
+    private float moveDistance;
 
     public override EnemyDataSO Data => data;
 
+    private void Awake()
+    {
+        childOriginalLocalPos = slimeVisual.localPosition;
+        originalScale = slimeVisual.localScale;
+        moveDistance = data.moveDistance;
+    }
+
     private void Start()
     {
-        startPosition = transform.position;
         StartCoroutine(BounceRoutine());
     }
 
+    // Parent-only horizontal movement (X). Safe to call while child animates.
+    private void Move()
+    {
+        float duration = 2f * data.bounceDuration;
+        // Move parent on X by moveDistance (relative to current position)
+        transform.DOMoveX(transform.position.x + moveDistance, duration)
+                 .SetEase(Ease.Linear)
+                 .SetLink(gameObject); // automatically kill if object destroyed
+    }
 
     private IEnumerator BounceRoutine()
     {
-        Vector3 originalScale = slimeVisual.localScale; // scale the sprite, not parent
-        Vector3 startPos = transform.position;
-
         while (true)
         {
             float upHeight = data.bounceHeight;
             float upDuration = data.bounceDuration;
             float downDuration = data.bounceDuration;
             float interval = data.bounceInterval;
-            float moveDistance = data.moveDistance;
 
+            // Kill old tweens
+            slimeVisual.DOKill();
             transform.DOKill();
+
+            // Move horizontally
+            Move();
 
             Sequence bounceSeq = DOTween.Sequence();
 
-            Vector3 midPos = startPos + new Vector3(moveDistance / 2f, upHeight, 0);
-            Vector3 endPos = startPos + new Vector3(moveDistance, 0, 0);
+            // --- Move UP (PARENT collider moves on Y) ---
+            bounceSeq.Append(
+                transform.DOMoveY(transform.position.y + upHeight, upDuration)
+                         .SetEase(Ease.OutQuad)
+            );
 
-
-            // Move UP + horizontal linear
-
-            bounceSeq.Append(transform.DOMoveY(midPos.y, upDuration).SetEase(Ease.OutQuad));
-            bounceSeq.Join(transform.DOMoveX(midPos.x, upDuration).SetEase(Ease.Linear));
-
-            // Stretch at takeoff (sprite only)
+            // --- Takeoff stretch (child only) ---
             float takeoffStretchY = 1.4f;
             float takeoffStretchX = 1f / takeoffStretchY;
-            bounceSeq.Join(slimeVisual.DOScale(
-                new Vector3(originalScale.x * takeoffStretchX, originalScale.y * takeoffStretchY, originalScale.z),
-                upDuration / 3f
-            ));
+            bounceSeq.Join(
+                slimeVisual.DOScale(
+                    new Vector3(originalScale.x * takeoffStretchX, originalScale.y * takeoffStretchY, originalScale.z),
+                    upDuration / 3f
+                )
+            );
 
             // Relax mid-air
-            bounceSeq.Join(slimeVisual.DOScale(originalScale, upDuration / 3f).SetDelay(upDuration / 3f));
+            bounceSeq.Join(
+                slimeVisual.DOScale(originalScale, upDuration / 3f).SetDelay(upDuration / 3f)
+            );
 
+            // --- Move DOWN (PARENT collider back to ground) ---
+            bounceSeq.Append(
+                transform.DOMoveY(transform.position.y, downDuration)
+                         .SetEase(Ease.InQuad)
+            );
 
-            // Move DOWN + horizontal linear + fall stretch
-            // -------------------------------
+            // Fall stretch
             float fallStretchY = 1.2f;
             float fallStretchX = 1f / fallStretchY;
+            bounceSeq.Join(
+                slimeVisual.DOScale(
+                    new Vector3(originalScale.x * fallStretchX, originalScale.y * fallStretchY, originalScale.z),
+                    downDuration / 1.5f
+                )
+            );
 
-            bounceSeq.Append(transform.DOMoveY(endPos.y, downDuration).SetEase(Ease.InQuad));
-            bounceSeq.Join(transform.DOMoveX(endPos.x, downDuration).SetEase(Ease.Linear));
-            bounceSeq.Join(slimeVisual.DOScale(
-                new Vector3(originalScale.x * fallStretchX, originalScale.y * fallStretchY, originalScale.z),
-                downDuration / 1.5f
-            ));
-
-            // -------------------------------
-            // Squash on landing
-            // -------------------------------
+            // --- Squash on landing ---
             float squashY = 0.6f;
             float squashX = 1f / squashY;
+            bounceSeq.Append(
+                slimeVisual.DOScale(
+                    new Vector3(originalScale.x * squashX, originalScale.y * squashY, originalScale.z),
+                    upDuration / 3f
+                )
+            );
 
-            bounceSeq.Append(slimeVisual.DOScale(
-                new Vector3(originalScale.x * squashX, originalScale.y * squashY, originalScale.z),
-                upDuration / 3f
-            ));
+            // Return to normal scale
+            bounceSeq.Append(
+                slimeVisual.DOScale(originalScale, upDuration / 3f)
+            );
 
-            // Bounce back to normal
-            bounceSeq.Append(slimeVisual.DOScale(originalScale, upDuration / 3f));
-
-            // -------------------------------
-            // Small restore and interval
-            // -------------------------------
+            // Small restore + wait interval
             bounceSeq.Append(slimeVisual.DOScale(originalScale, 0.05f));
             bounceSeq.AppendInterval(interval);
 
-            // Wait for sequence to finish
             yield return bounceSeq.WaitForCompletion();
 
-            // Update startPos for next bounce
-            startPos = endPos;
+            // Ensure reset
+            slimeVisual.localPosition = childOriginalLocalPos;
+            slimeVisual.localScale = originalScale;
         }
+    }
+
+
+    private void OnDisable()
+    {
+        // clean up tweens if object gets disabled/destroyed
+        slimeVisual.DOKill();
+        transform.DOKill();
     }
 }
