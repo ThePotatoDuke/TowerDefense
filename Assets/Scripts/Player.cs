@@ -84,12 +84,18 @@ public class Player : MonoBehaviour, IHasHealth
 
     private void FixedUpdate()
     {
-        if (moveDirection.magnitude > 0.01f && !IsDead())
+        if (!IsDead())
         {
-            Vector3 targetPosition = rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime;
-            rb.MovePosition(targetPosition);
+
+            Vector3 desiredVelocity = moveDirection * moveSpeed;
+
+            Vector3 velocity = new Vector3(desiredVelocity.x, rb.linearVelocity.y, desiredVelocity.z);
+
+            rb.linearVelocity = velocity;
         }
     }
+
+
 
     public void TakeDamage(float amount)
     {
