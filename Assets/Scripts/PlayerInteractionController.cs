@@ -6,7 +6,7 @@ using System;
 public class PlayerInteractionController : MonoBehaviour
 {
     private Player player;
-    private Rigidbody playerRb;
+
 
     [Header("Knockback Settings")]
     [SerializeField] private float knockbackDistance = 1;
@@ -17,7 +17,6 @@ public class PlayerInteractionController : MonoBehaviour
     private void Awake()
     {
         player = GetComponent<Player>();
-        playerRb = GetComponent<Rigidbody>();
     }
 
     private void OnTriggerStay(Collider other)
@@ -28,7 +27,6 @@ public class PlayerInteractionController : MonoBehaviour
             {
                 float damageAmount = enemy.ContactDamage;
 
-                // Knockback
                 Vector3 knockDir = (transform.position - other.transform.position).normalized;
                 knockDir.y = 0;
 
@@ -37,6 +35,8 @@ public class PlayerInteractionController : MonoBehaviour
             }
         }
     }
+
+
 
 
 
