@@ -1,57 +1,87 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using DG.Tweening; // You'll need this for the LINQ query
 
 public class MeleeWeapon : MonoBehaviour
 {
     private HashSet<GameObject> alreadyHitEnemies = new HashSet<GameObject>();
-    private List<GameObject> enemiesInRange = new List<GameObject>();
 
     [SerializeField] private MeleeWeaponDataSO data;
-    // [SerializeField] private Collider weaponCollider;
     [SerializeField] private TrailRenderer trail;
+    [SerializeField] public GameObject owner;
+    [SerializeField] public Transform playerHand;
 
-    [HideInInspector] public GameObject owner;
+
+    // A variable to store a reference to the Player_Body for checking distance
+    private Transform playerBodyTransform;
+
+    // The range within which the weapon will continuously look for targets
+    [SerializeField] private float autoAttackRange = 5f;
 
     private float lastAttackTime = 0f;
 
-    private void OnEnable()
+    private void Awake()
     {
-        StartCoroutine(AutoAttackRoutine());
+        // Get the Player_Body transform to calculate distance from
+        playerBodyTransform = owner.transform;
     }
 
+    private void OnEnable()
+    {
+        // Start the continuous attack routine when the script is enabled
+        // StartCoroutine(AutoAttackRoutine());
+    }
+
+    void Update()
+    {
+        RotateSwordTowardsClosestEnemy();
+    }
     private void OnDisable()
     {
         StopAllCoroutines();
     }
 
+    // This routine now actively searches for a target within a radius
     private IEnumerator AutoAttackRoutine()
     {
         while (true)
         {
-            yield return new WaitForSeconds(0.1f); // check every 0.1s
-            GameObject target = FindClosestEnemy();
+            // Wait for a small interval before checking again
+            yield return new WaitForSeconds(0.1f);
+
+            // --- The key change is here: Find the closest enemy in the world ---
+            GameObject target = FindClosestEnemyInWorld();
+
             if (target != null)
+            {
                 Attack(target);
+            }
         }
     }
 
-
-    private GameObject FindClosestEnemy()
+    private GameObject FindClosestEnemyInWorld()
     {
+        // Use a non-allocating method for performance
+        Collider[] colliders = Physics.OverlapSphere(playerBodyTransform.position, autoAttackRange);
+
         GameObject closestEnemy = null;
         float closestDistance = float.MaxValue;
 
-        // Iterate through the pre-filtered list
-        foreach (var enemy in enemiesInRange)
+        foreach (var collider in colliders)
         {
-            if (enemy == null) continue; // Handle destroyed enemies
-
-            float dist = Vector3.Distance(transform.position, enemy.transform.position);
-            if (dist < closestDistance)
+            if (collider.TryGetComponent<EnemyBase>(out var enemy))
             {
-                closestDistance = dist;
-                closestEnemy = enemy;
+                // Check that the object is not the player
+                if (collider.gameObject == owner) continue;
+
+                float dist = Vector3.Distance(playerBodyTransform.position, collider.transform.position);
+                if (dist < closestDistance)
+                {
+                    closestDistance = dist;
+                    closestEnemy = collider.gameObject;
+                }
             }
         }
         return closestEnemy;
@@ -63,91 +93,80 @@ public class MeleeWeapon : MonoBehaviour
         if (Time.time < lastAttackTime + cooldown) return;
 
         lastAttackTime = Time.time;
-        StartCoroutine(SwingCoroutine(target));
+
+        SwingWithDoTween(target); // call DoTween swing directly
+    }
+    private void RotateSwordTowardsClosestEnemy()
+    {
+        GameObject closestEnemy = FindClosestEnemyInWorld();
+        if (closestEnemy == null) return;
+
+        // Direction from hand to enemy
+        Vector3 direction = closestEnemy.transform.position - playerHand.position;
+
+        // Ignore vertical
+        direction.y = 0;
+
+        if (direction.sqrMagnitude < 0.0001f) return; // avoid zero-length
+
+        // Calculate angle in XZ plane
+        float angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
+
+        // Compensate for sprite rotated 90° on X
+        float correctedZ = angle - 90f;
+
+        // Apply rotation to the hand
+        playerHand.localRotation = Quaternion.Euler(90, 0, correctedZ);
     }
 
-    private IEnumerator SwingCoroutine(GameObject target)
-    {
-        // Clear the set of enemies hit by this swing to prevent multiple hits
-        alreadyHitEnemies.Clear();
 
-        // Enable the visual trail effect for the weapon
+
+
+
+
+
+
+    private void SwingWithDoTween(GameObject target)
+    {
         if (trail != null)
             trail.enabled = true;
 
-        // Calculate the direction to the target, ignoring any vertical difference (y-axis)
-        Vector3 dirToTarget = (target.transform.position - owner.transform.position);
-        dirToTarget.y = 0;
+        // Direction from hand to target, ignoring height
+        Vector3 dir = target.transform.position - playerHand.position;
+        dir.y = 0; // ignore vertical
+        if (dir == Vector3.zero) return;
 
-        if (dirToTarget == Vector3.zero) // Handle edge case where target is at the same position
-        {
-            yield break; // Exit the coroutine
-        }
+        // Calculate angle in XZ plane
+        float angle = Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
 
-        dirToTarget.Normalize();
+        // Our sprite is rotated 90° in X, so we swing in Z
+        float swingHalfArc = 60f; // degrees
 
-        // Determine the starting and ending rotations for the swing.
-        // The swing rotates from -60 degrees to +60 degrees relative to the target's direction.
-        Quaternion startRotation = Quaternion.LookRotation(dirToTarget) * Quaternion.Euler(0, -60f, 0);
-        Quaternion endRotation = Quaternion.LookRotation(dirToTarget) * Quaternion.Euler(0, 60f, 0);
+        float startAngle = angle - swingHalfArc;
+        float endAngle = angle + swingHalfArc;
 
-        float elapsed = 0f;
-        float hitStart = data.swingDuration * 0.3f;
-        float hitEnd = data.swingDuration * 0.6f;
+        // Set start rotation
+        playerHand.localRotation = Quaternion.Euler(90, 0, startAngle);
 
-        while (elapsed < data.swingDuration)
-        {
-            // Calculate the interpolation value (t) from 0 to 1 over the swing duration
-            float t = elapsed / data.swingDuration;
-
-            // Smoothly rotate the weapon from the starting to ending rotation
-            transform.rotation = Quaternion.Slerp(startRotation, endRotation, t);
-
-            // Activate the weapon's collider during the hit window to register damage
-            // weaponCollider.enabled = (elapsed >= hitStart && elapsed <= hitEnd);
-
-            // Wait until the next frame
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        // Ensure the swing finishes at the correct end rotation
-        transform.rotation = endRotation;
-
-        // Disable the collider and trail effect after the swing is complete
-        // weaponCollider.enabled = false;
-        if (trail != null)
-            trail.enabled = false;
+        // Tween to end rotation
+        playerHand.DOLocalRotateQuaternion(Quaternion.Euler(90, 0, endAngle), data.swingDuration)
+            .SetEase(Ease.InOutSine)
+            .OnComplete(() =>
+            {
+                if (trail != null)
+                    trail.enabled = false;
+            });
     }
 
 
 
+
+    // Keep these for damage registration
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject == owner) return;
-
-        // Check if the entering object is an enemy and add it to the list
-        if (other.TryGetComponent<EnemyBase>(out var enemy))
+        if (other.TryGetComponent<IHasHealth>(out var target) && alreadyHitEnemies.Add(other.gameObject))
         {
-            enemiesInRange.Add(enemy.gameObject);
-        }
-        if (other.TryGetComponent<IHasHealth>(out var target))
-        {
-            // Check if we've already hit this enemy in the current swing
-            if (alreadyHitEnemies.Add(other.gameObject))
-            {
-                target.TakeDamage(data.damage);
-                // ... (apply knockback logic here)
-            }
+            target.TakeDamage(data.damage);
         }
     }
-    private void OnTriggerExit(Collider other)
-    {
-        // Check if the leaving object is an enemy and remove it from the list
-        if (other.TryGetComponent<EnemyBase>(out var enemy))
-        {
-            enemiesInRange.Remove(enemy.gameObject);
-        }
-    }
-
 }

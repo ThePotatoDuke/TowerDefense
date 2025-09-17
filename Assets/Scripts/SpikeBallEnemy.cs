@@ -17,6 +17,10 @@ public class SpikeBallEnemy : EnemyBase
 
     private void Update()
     {
+        // Run base flip logic first
+        base.Update();
+
+        // --- Your spike ball movement ---
         targetX = data.targetX;
 
         float dt = Time.deltaTime;
@@ -39,11 +43,11 @@ public class SpikeBallEnemy : EnemyBase
         pos.x += velocityX * dt;
         transform.position = pos;
 
-        //rotate the ball
+        // Rotate the ball
         float rotationAmount = (velocityX * dt / (2 * Mathf.PI * data.ballRadius)) * 360f;
         spikeBallVisual.Rotate(Vector3.forward, -rotationAmount, Space.Self);
-
     }
+
 
     // Optional: call this to move target somewhere else
     public void SetTargetX(float newTarget)

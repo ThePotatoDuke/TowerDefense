@@ -196,6 +196,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &5348719935735822545
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4349951048105036122}
+  m_Layer: 0
+  m_Name: DirectionOrientation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4349951048105036122
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5348719935735822545}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.842, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6740652008642013100}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6023850595377037570
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,6 +261,7 @@ Transform:
   m_Children:
   - {fileID: 3863158378092503957}
   - {fileID: 5585489706481073199}
+  - {fileID: 4349951048105036122}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &7245427608975472959
@@ -296,6 +328,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SlimeEnemy
   data: {fileID: 11400000, guid: 7751be5be4f5e2641b1fd9503e9b1b71, type: 2}
   slimeVisual: {fileID: 5585489706481073199}
+  lookAtCamera: {fileID: 2650273341497606831}
+  orientation: {fileID: 4349951048105036122}
 --- !u!1 &6577637932607379011
 GameObject:
   m_ObjectHideFlags: 0

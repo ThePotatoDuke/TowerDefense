@@ -1,20 +1,23 @@
 using System.Collections;
 using UnityEngine;
 using DG.Tweening;
+using UnityEditor;
 
 public class SlimeEnemy : EnemyBase
 {
     [SerializeField] private SlimeDataSO data;
     [SerializeField] private Transform slimeVisual; // child sprite/visual
 
+
     private Vector3 childOriginalLocalPos;
     private Vector3 originalScale;
     private float moveDistance;
-
     public override EnemyDataSO Data => data;
+
 
     private void Awake()
     {
+
         childOriginalLocalPos = slimeVisual.localPosition;
         originalScale = slimeVisual.localScale;
         moveDistance = data.moveDistance;
@@ -22,17 +25,18 @@ public class SlimeEnemy : EnemyBase
 
     private void Start()
     {
-        StartCoroutine(BounceRoutine());
+        // StartCoroutine(BounceRoutine());
     }
 
+
     // Parent-only horizontal movement (X). Safe to call while child animates.
-    private void Move()
+    public override void Move()
     {
-        float duration = 2f * data.bounceDuration;
-        // Move parent on X by moveDistance (relative to current position)
-        transform.DOMoveX(transform.position.x + moveDistance, duration)
-                 .SetEase(Ease.Linear)
-                 .SetLink(gameObject); // automatically kill if object destroyed
+        // float duration = 2f * data.bounceDuration;
+        // // Move parent on X by moveDistance (relative to current position)
+        // transform.DOMoveX(transform.position.x + moveDistance, duration)
+        //          .SetEase(Ease.Linear)
+        //          .SetLink(gameObject); // automatically kill if object destroyed
     }
 
     private IEnumerator BounceRoutine()
