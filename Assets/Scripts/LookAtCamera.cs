@@ -9,25 +9,35 @@ public class LookAtCamera : MonoBehaviour
         CameraForward,
         CameraForwardInverted
     }
-    [SerializeField] private Mode mode;
+    public Mode mode;
+
+    public float smoothSpeed = 10f; // smoothing factor
+
     void LateUpdate()
     {
+        if (Camera.main == null) return;
+
+        Quaternion targetRot = transform.rotation;
+
         switch (mode)
         {
             case Mode.LookAt:
-                transform.LookAt(Camera.main.transform);
+                targetRot = Quaternion.LookRotation(Camera.main.transform.position - transform.position);
                 break;
             case Mode.LookAtInverted:
                 Vector3 dirFromCamera = transform.position - Camera.main.transform.position;
-                transform.LookAt(transform.position + dirFromCamera);
+                targetRot = Quaternion.LookRotation(dirFromCamera);
                 break;
             case Mode.CameraForward:
-                transform.forward = Camera.main.transform.forward;
+                targetRot = Quaternion.LookRotation(Camera.main.transform.forward);
                 break;
             case Mode.CameraForwardInverted:
-                transform.forward = -Camera.main.transform.forward;
+                targetRot = Quaternion.LookRotation(-Camera.main.transform.forward);
                 break;
-
         }
+
+        // Smoothly interpolate so flips don't snap X
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, Time.deltaTime * smoothSpeed);
     }
 }
+
