@@ -121,6 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LookAtCamera
   mode: 2
+  smoothSpeed: 10
 --- !u!1 &4685301376355040677
 GameObject:
   m_ObjectHideFlags: 0
@@ -239,6 +240,7 @@ GameObject:
   - component: {fileID: 7245427608975472959}
   - component: {fileID: 7411170376010618127}
   - component: {fileID: 5753296987751052509}
+  - component: {fileID: 4597239970770058799}
   m_Layer: 0
   m_Name: Slime
   m_TagString: Untagged
@@ -328,8 +330,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SlimeEnemy
   data: {fileID: 11400000, guid: 7751be5be4f5e2641b1fd9503e9b1b71, type: 2}
   slimeVisual: {fileID: 5585489706481073199}
-  lookAtCamera: {fileID: 2650273341497606831}
-  orientation: {fileID: 4349951048105036122}
+--- !u!114 &4597239970770058799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6023850595377037570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25c6da4d7ab7fca43856265b4463ba6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpriteFlipper
+  spriteTransform: {fileID: 2793305698977436609}
 --- !u!1 &6577637932607379011
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,6 +461,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LookAtCamera
   mode: 2
+  smoothSpeed: 10
 --- !u!114 &3103087916116442014
 MonoBehaviour:
   m_ObjectHideFlags: 0

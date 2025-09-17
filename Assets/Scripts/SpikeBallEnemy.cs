@@ -4,52 +4,70 @@ public class SpikeBallEnemy : EnemyBase
 {
     [SerializeField] private SpikeBallDataSO data;
     [SerializeField] private Transform spikeBallVisual;
+    private Vector3 lastPos;
+
 
     public override EnemyDataSO Data => data;
 
-    private float velocityX = 0f;   // current X velocity
-    private float targetX;          // where we want to go
+    private float velocityX = 0f;   // Current X velocity
+    private float targetX;          // Where we want to go
 
     private void Awake()
     {
-        targetX = 0; // initial target
+        base.Awake();
+        targetX = 0; // Initial target
     }
-
     private void Update()
     {
-        // Run base flip logic first
-        base.Update();
-
-        // --- Your spike ball movement ---
-        targetX = data.targetX;
-
         float dt = Time.deltaTime;
 
-        // Hooke's law: F = -k * x
-        float displacement = transform.position.x - targetX;
-        float force = -data.springK * displacement;
+        // --- Movement logic ---
+        Vector3 currentPos = transform.position;
 
-        // Apply damping
-        float damping = -data.damping * velocityX;
+        // Example: move toward targetX and targetZ (you can add targetZ to your data)
+        Vector3 targetPos = new Vector3(data.targetX, currentPos.y, currentPos.z);
+        Vector3 displacementVec = currentPos - targetPos;
+
+        // Hooke's law: F = -k * x
+        Vector3 force = -data.springK * displacementVec;
+
+        // Damping: F = -b * v
+        Vector3 damping = -data.damping * new Vector3(velocityX, 0f, 0f); // can extend to Z if using velocityZ
 
         // Acceleration
-        float acceleration = force + damping;
+        Vector3 acceleration = force + damping;
 
-        // Update velocity and position
-        velocityX += acceleration * dt;
+        // Update velocity (only horizontal plane)
+        velocityX += acceleration.x * dt;
         velocityX = Mathf.Clamp(velocityX, -data.maxSpeed, data.maxSpeed);
 
-        Vector3 pos = transform.position;
-        pos.x += velocityX * dt;
-        transform.position = pos;
+        // Move on X axis
+        currentPos.x += velocityX * dt;
 
-        // Rotate the ball
-        float rotationAmount = (velocityX * dt / (2 * Mathf.PI * data.ballRadius)) * 360f;
-        spikeBallVisual.Rotate(Vector3.forward, -rotationAmount, Space.Self);
+        // For Z movement, add similar velocityZ if needed
+        // currentPos.z += velocityZ * dt;
+
+        transform.position = currentPos;
+
+        // --- Rolling visual on plane ---
+        Vector3 movement = transform.position - lastPos;
+        float distanceTraveled = movement.magnitude;
+
+        if (distanceTraveled > 0.0001f)
+        {
+            // Rolling axis perpendicular to movement and plane normal
+            Vector3 rollingAxis = Vector3.Cross(Vector3.up, movement.normalized);
+
+            float rotationDegrees = (distanceTraveled / (2 * Mathf.PI * data.ballRadius)) * 360f;
+
+            spikeBallVisual.Rotate(rollingAxis, rotationDegrees, Space.World);
+        }
+
+        lastPos = transform.position;
     }
 
 
-    // Optional: call this to move target somewhere else
+    // Optional: set a new target X
     public void SetTargetX(float newTarget)
     {
         targetX = newTarget;
