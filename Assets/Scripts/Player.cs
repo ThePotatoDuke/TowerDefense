@@ -13,7 +13,7 @@ public class Player : MonoBehaviour, IHasHealth
     private float currentHealth;
     public bool IsInvulnerable { get; private set; }
 
-
+    public event Action<Vector3?> OnTakeDamage;
 
     public event Action OnDied;
     public event Action<PlayerState> OnStateChanged;
@@ -105,6 +105,7 @@ public class Player : MonoBehaviour, IHasHealth
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         OnHealthChanged?.Invoke(currentHealth / maxHealth);
 
+
         if (currentHealth <= 0)
         {
             Die();
@@ -167,19 +168,26 @@ public class Player : MonoBehaviour, IHasHealth
 
         Sequence deathSequence = DOTween.Sequence();
 
-        // Spin around Y axis 720° relative to current rotation
+
+        // Spin around Y axis 720°
         deathSequence.Append(pivot.DOLocalRotate(
             new Vector3(0, 720f, 0),
             1f,
             RotateMode.LocalAxisAdd
         ).SetEase(Ease.OutQuart));
 
-        // Then fall forward around X axis 90° relative to current rotation
+        // Assume playerVisualTransform has the idle tilt
+        float initialTiltX = playerVisualTransform.localRotation.eulerAngles.x;
+
+        // Final X should be 90° minus the tilt
+        float targetX = 90f - initialTiltX;
+
+        // Fall forward to flat
         deathSequence.Append(pivot.DOLocalRotate(
-            new Vector3(90f - playerVisualTransform.localRotation.eulerAngles.x, 0, 0),
-            0.5f,
-            RotateMode.LocalAxisAdd      // rotate along local axes
+            new Vector3(targetX, 0f, 0f),
+            0.5f
         ).SetEase(Ease.OutBounce));
+
     }
 
 

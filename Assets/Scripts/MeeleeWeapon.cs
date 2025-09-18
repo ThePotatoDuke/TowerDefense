@@ -31,13 +31,9 @@ public class MeleeWeapon : MonoBehaviour
     private void OnEnable()
     {
         // Start the continuous attack routine when the script is enabled
-        // StartCoroutine(AutoAttackRoutine());
+        StartCoroutine(AutoAttackRoutine());
     }
 
-    void Update()
-    {
-        RotateSwordTowardsClosestEnemy();
-    }
     private void OnDisable()
     {
         StopAllCoroutines();
@@ -96,34 +92,6 @@ public class MeleeWeapon : MonoBehaviour
 
         SwingWithDoTween(target); // call DoTween swing directly
     }
-    private void RotateSwordTowardsClosestEnemy()
-    {
-        GameObject closestEnemy = FindClosestEnemyInWorld();
-        if (closestEnemy == null) return;
-
-        // Direction from hand to enemy
-        Vector3 direction = closestEnemy.transform.position - playerHand.position;
-
-        // Ignore vertical
-        direction.y = 0;
-
-        if (direction.sqrMagnitude < 0.0001f) return; // avoid zero-length
-
-        // Calculate angle in XZ plane
-        float angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
-
-        // Compensate for sprite rotated 90° on X
-        float correctedZ = angle - 90f;
-
-        // Apply rotation to the hand
-        playerHand.localRotation = Quaternion.Euler(90, 0, correctedZ);
-    }
-
-
-
-
-
-
 
 
     private void SwingWithDoTween(GameObject target)
@@ -131,25 +99,26 @@ public class MeleeWeapon : MonoBehaviour
         if (trail != null)
             trail.enabled = true;
 
-        // Direction from hand to target, ignoring height
+        // Flatten direction to horizontal plane
         Vector3 dir = target.transform.position - playerHand.position;
-        dir.y = 0; // ignore vertical
+        dir.y = 0;
         if (dir == Vector3.zero) return;
 
-        // Calculate angle in XZ plane
-        float angle = Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
+        // Angle in XZ plane
+        float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
 
-        // Our sprite is rotated 90° in X, so we swing in Z
-        float swingHalfArc = 60f; // degrees
-
+        // Swing arc
+        float swingHalfArc = 60f;
         float startAngle = angle - swingHalfArc;
         float endAngle = angle + swingHalfArc;
 
-        // Set start rotation
-        playerHand.localRotation = Quaternion.Euler(90, 0, startAngle);
+        // Set starting rotation
+        Vector3 euler = playerHand.localEulerAngles;
+        euler.y = startAngle;
+        playerHand.localEulerAngles = euler;
 
-        // Tween to end rotation
-        playerHand.DOLocalRotateQuaternion(Quaternion.Euler(90, 0, endAngle), data.swingDuration)
+        // Tween Y rotation only using DOLocalRotate
+        playerHand.DOLocalRotate(new Vector3(0, endAngle, 0), data.swingDuration)
             .SetEase(Ease.InOutSine)
             .OnComplete(() =>
             {
@@ -157,6 +126,7 @@ public class MeleeWeapon : MonoBehaviour
                     trail.enabled = false;
             });
     }
+
 
 
 

@@ -9,6 +9,6 @@ public class SpikeBallDataSO : EnemyDataSO
 
     [Header("Movement")]
     public float ballRadius = 0.5f;
-    public float targetX;
+    public float targetProgress;
 }
 
