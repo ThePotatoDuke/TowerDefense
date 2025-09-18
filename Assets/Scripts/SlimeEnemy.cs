@@ -17,7 +17,7 @@ public class SlimeEnemy : EnemyBase
 
     private void Awake()
     {
-
+        base.Awake();
         childOriginalLocalPos = slimeVisual.localPosition;
         originalScale = slimeVisual.localScale;
         moveDistance = data.moveDistance;

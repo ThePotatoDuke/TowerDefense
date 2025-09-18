@@ -14,8 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SlimeDataSO
   enemyName: GreenSlime
   color: {r: 1, g: 1, b: 1, a: 1}
-  maxHealth: 1
+  maxHealth: 100
   contactDamage: 2
+  maxSpeed: 0
   bounceHeight: 4
   bounceDuration: 0.5
   bounceInterval: 2
