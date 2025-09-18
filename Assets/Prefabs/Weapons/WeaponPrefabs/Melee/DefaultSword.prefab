@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 3361131666843996156}
   - component: {fileID: 3353368788809251399}
   m_Layer: 0
-  m_Name: WeaponParent
+  m_Name: DefaultSword
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -134,14 +134,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1844188954605339139}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73c278a8226c7d5419e96a989986a66c, type: 3}
+  m_Script: {fileID: 11500000, guid: 5425b8d5401191b428bb0b372d4cffcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeWeapon
   data: {fileID: 11400000, guid: 020efb69eba96b5488112e306efe709b, type: 2}
-  trail: {fileID: 6850740347703241786}
   owner: {fileID: 0}
   playerHand: {fileID: 0}
   autoAttackRange: 5
+  weaponCollider: {fileID: 3353368788809251399}
+  data: {fileID: 0}
 --- !u!65 &3353368788809251399
 BoxCollider:
   m_ObjectHideFlags: 0

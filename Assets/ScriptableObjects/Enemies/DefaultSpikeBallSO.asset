@@ -15,7 +15,7 @@ MonoBehaviour:
   enemyName: 
   color: {r: 1, g: 1, b: 1, a: 1}
   maxHealth: 10
-  contactDamage: 3
+  contactDamage: 8
   maxSpeed: 20
   springK: 25
   damping: 1.5

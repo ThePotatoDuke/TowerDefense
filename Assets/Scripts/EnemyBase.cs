@@ -24,6 +24,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     // --- Health methods ---
     public virtual void TakeDamage(float amount)
     {
+        Debug.Log(currentHealth);
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, MaxHealth);
         OnHealthChanged?.Invoke(currentHealth / MaxHealth);

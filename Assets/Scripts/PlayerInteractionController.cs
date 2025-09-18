@@ -4,6 +4,8 @@ using DG.Tweening;
 public class PlayerInteractionController : MonoBehaviour
 {
     [SerializeField] private Player player;
+    [SerializeField] private WeaponBase currentWeapon;
+
 
     [Header("Knockback Settings")]
     [SerializeField] private float knockbackDistance = 1f;
@@ -14,22 +16,29 @@ public class PlayerInteractionController : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        // --- Enemy knockback/damage (existing code) ---
         if (other.TryGetComponent<IEnemy>(out var enemy) && !player.IsDead())
         {
             if (!player.IsInvulnerable)
             {
-                // Calculate knockback direction
                 Vector3 knockDir = (player.transform.position - other.transform.position).normalized;
                 knockDir.y = 0;
-
-                // Apply knockback immediately
                 ApplyKnockback(knockDir);
-
-                // Apply damage
                 player.TakeDamage(enemy.ContactDamage);
             }
         }
+
+        // Check if collider has a pickup component
+        if (other.TryGetComponent<WeaponPickup>(out var pickup))
+        {
+            player.EquipWeapon(pickup.weaponSO.weaponPrefab);
+
+            // Optionally destroy the pickup in the world
+            Destroy(pickup.gameObject);
+        }
     }
+
+
 
     private void ApplyKnockback(Vector3 direction)
     {

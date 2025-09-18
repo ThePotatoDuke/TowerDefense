@@ -19,6 +19,8 @@ public class Player : MonoBehaviour, IHasHealth
     public event Action<PlayerState> OnStateChanged;
     public event Action<float> OnHealthChanged;
 
+    public WeaponBase currentWeapon;       // Currently equipped weapon
+
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float maxHealth = 10f;
@@ -30,8 +32,7 @@ public class Player : MonoBehaviour, IHasHealth
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Transform playerVisualTransform;
     [SerializeField] private Transform pivotBottomTransform;
-
-
+    [SerializeField] private Transform weaponHand;
     private Rigidbody rb;
     private Vector3 moveDirection;
     private Color originalColor;
@@ -54,6 +55,15 @@ public class Player : MonoBehaviour, IHasHealth
 
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
+
+        // Assign weaponHand automatically if not assigned
+        if (weaponHand == null)
+        {
+            weaponHand = transform.Find("PlayerHand"); // Replace with actual child name
+            if (weaponHand == null)
+                Debug.LogWarning("PlayerHand transform not found!");
+        }
+
     }
 
     private void Update()
@@ -190,5 +200,16 @@ public class Player : MonoBehaviour, IHasHealth
 
     }
 
+    public void EquipWeapon(GameObject weaponPrefab)
+    {
+        // Remove old weapon
+        if (currentWeapon != null)
+            Destroy(currentWeapon.gameObject);
+
+        // Spawn new weapon
+        GameObject weaponObj = Instantiate(weaponPrefab, weaponHand.position, weaponHand.rotation, weaponHand);
+        currentWeapon = weaponObj.GetComponent<WeaponBase>();
+        currentWeapon.Initialize(gameObject, weaponHand); // <-- this is key
+    }
 
 }
