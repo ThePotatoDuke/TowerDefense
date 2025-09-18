@@ -9,67 +9,63 @@ public class SpikeBallEnemy : EnemyBase
 
     public override EnemyDataSO Data => data;
 
-    private float velocityX = 0f;   // Current X velocity
-    private float targetX;          // Where we want to go
+    private float progressVelocity = 0f;   // Current X velocity
+
 
     private void Awake()
     {
         base.Awake();
-        targetX = 0; // Initial target
+
     }
+    private float progress = 0f;        // your path progress
+
     private void Update()
     {
         float dt = Time.deltaTime;
 
-        // --- Movement logic ---
-        Vector3 currentPos = transform.position;
-
-        // Example: move toward targetX and targetZ (you can add targetZ to your data)
-        Vector3 targetPos = new Vector3(data.targetX, currentPos.y, currentPos.z);
-        Vector3 displacementVec = currentPos - targetPos;
+        // --- Movement along the path ---
+        float targetProgress = data.targetProgress;
+        float displacement = progress - targetProgress;
 
         // Hooke's law: F = -k * x
-        Vector3 force = -data.springK * displacementVec;
+        float force = -data.springK * displacement;
 
         // Damping: F = -b * v
-        Vector3 damping = -data.damping * new Vector3(velocityX, 0f, 0f); // can extend to Z if using velocityZ
+        float damping = -data.damping * progressVelocity;
 
         // Acceleration
-        Vector3 acceleration = force + damping;
+        float acceleration = force + damping;
 
-        // Update velocity (only horizontal plane)
-        velocityX += acceleration.x * dt;
-        velocityX = Mathf.Clamp(velocityX, -data.maxSpeed, data.maxSpeed);
+        // Update velocity
+        progressVelocity += acceleration * dt;
+        progressVelocity = Mathf.Clamp(progressVelocity, -data.maxSpeed, data.maxSpeed);
 
-        // Move on X axis
-        currentPos.x += velocityX * dt;
+        // Update progress
+        float previousProgress = progress;
+        progress += progressVelocity * dt;
 
-        // For Z movement, add similar velocityZ if needed
-        // currentPos.z += velocityZ * dt;
+        // --- Convert progress to actual 3D position ---
+        // For now, let's assume linear along X for testing
+        Vector3 newPos = transform.position;
+        newPos.x += progress - previousProgress;   // delta movement along X
+        transform.position = newPos;
 
-        transform.position = currentPos;
-
-        // --- Rolling visual on plane ---
+        // --- Rolling visual ---
         Vector3 movement = transform.position - lastPos;
         float distanceTraveled = movement.magnitude;
 
         if (distanceTraveled > 0.0001f)
         {
-            // Rolling axis perpendicular to movement and plane normal
             Vector3 rollingAxis = Vector3.Cross(Vector3.up, movement.normalized);
-
             float rotationDegrees = (distanceTraveled / (2 * Mathf.PI * data.ballRadius)) * 360f;
-
             spikeBallVisual.Rotate(rollingAxis, rotationDegrees, Space.World);
         }
 
         lastPos = transform.position;
     }
-
-
-    // Optional: set a new target X
-    public void SetTargetX(float newTarget)
-    {
-        targetX = newTarget;
-    }
 }
+
+
+
+
+

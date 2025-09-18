@@ -20,4 +20,4 @@ MonoBehaviour:
   springK: 25
   damping: 1.5
   ballRadius: 0.8
-  targetX: 5
+  targetProgress: 5.55
