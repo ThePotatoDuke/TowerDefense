@@ -9,6 +9,8 @@ public class SlimeEnemy : EnemyBase
 
     [Header("Visuals")]
     [SerializeField] private Transform slimeVisual;   // child sprite only
+    [Header("Helpers")]
+    [SerializeField] private Transform slimeChild;
 
     private Vector3 originalScale;
     private enum HopType { ShortForward, LongForward, Backward }
@@ -85,7 +87,7 @@ public class SlimeEnemy : EnemyBase
             // --- Bounce animation sequence ---
             Sequence bounceSeq = DOTween.Sequence();
 
-            bounceSeq.Append(slimeVisual.DOLocalMoveY(upHeight, upDuration).SetRelative(true).SetEase(Ease.OutQuad));
+            bounceSeq.Append(slimeChild.DOLocalMoveY(upHeight, upDuration).SetRelative(true).SetEase(Ease.OutQuad));
 
             // Takeoff stretch
             float takeoffStretchY = data.takeoffStretch;
@@ -98,7 +100,7 @@ public class SlimeEnemy : EnemyBase
             bounceSeq.Join(slimeVisual.DOScale(originalScale, upDuration / 3f).SetDelay(upDuration / 3f));
 
             // Move down
-            bounceSeq.Append(slimeVisual.DOLocalMoveY(-upHeight, downDuration).SetRelative(true).SetEase(Ease.InQuad));
+            bounceSeq.Append(slimeChild.DOLocalMoveY(-upHeight, downDuration).SetRelative(true).SetEase(Ease.InQuad));
 
             // Fall stretch
             float fallStretchY = data.fallStretch;
