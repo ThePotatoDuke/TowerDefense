@@ -564,6 +564,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlimeEnemy
   splineContainer: {fileID: 0}
+  enemyRoot: {fileID: 6721497490447075457}
   data: {fileID: 11400000, guid: 7751be5be4f5e2641b1fd9503e9b1b71, type: 2}
   slimeVisual: {fileID: 1552214996389105513}
 --- !u!135 &3658778431155235
