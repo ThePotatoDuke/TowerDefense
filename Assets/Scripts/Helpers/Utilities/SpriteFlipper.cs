@@ -1,11 +1,10 @@
 using UnityEngine;
 using DG.Tweening;
 
-[RequireComponent(typeof(Transform))]
 public class SpriteFlipper : MonoBehaviour
 {
     [SerializeField] private Transform spriteTransform;
-
+    [SerializeField] private float flipDuration;
 
     private Vector3 lastPos;
     private enum Facing { Right, Left }
@@ -15,6 +14,9 @@ public class SpriteFlipper : MonoBehaviour
     {
         currentFacing = Facing.Right;
         lastPos = transform.position;
+
+        if (flipDuration <= 0f)
+            flipDuration = Constants.flipDuration;
     }
 
     private void Update()
@@ -25,7 +27,7 @@ public class SpriteFlipper : MonoBehaviour
     private void HandleFlip()
     {
         Vector3 movement = transform.position - lastPos;
-        if (movement.sqrMagnitude > 0.00001f)
+        if (movement.sqrMagnitude > 0.00005f)
         {
             Facing newFacing = movement.x >= 0 ? Facing.Right : Facing.Left;
             if (newFacing != currentFacing)
@@ -40,6 +42,6 @@ public class SpriteFlipper : MonoBehaviour
     private void Flip(Facing dir)
     {
         float yRot = (dir == Facing.Right) ? 0f : 180f;
-        spriteTransform.DOLocalRotate(new Vector3(0, yRot, 0), Constants.flipDuration, RotateMode.Fast);
+        spriteTransform.DOLocalRotate(new Vector3(0, yRot, 0), flipDuration, RotateMode.Fast);
     }
 }

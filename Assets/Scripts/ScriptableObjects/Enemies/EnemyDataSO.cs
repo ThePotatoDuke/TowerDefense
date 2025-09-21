@@ -9,5 +9,4 @@ public abstract class EnemyDataSO : ScriptableObject
     public Color color = Color.white;
     public float maxHealth = 10f;
     public float contactDamage = 1f;
-    public float maxSpeed;
 }

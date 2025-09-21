@@ -15,9 +15,15 @@ MonoBehaviour:
   enemyName: GreenSlime
   color: {r: 1, g: 1, b: 1, a: 1}
   maxHealth: 100
-  contactDamage: 2
-  maxSpeed: 0
-  bounceHeight: 4
-  bounceDuration: 0.5
-  bounceInterval: 2
-  moveDistance: 2
+  contactDamage: 20
+  hopPattern: 1
+  baseHopDistance: 2
+  longHopMultiplier: 3
+  maxBackForward: 1
+  longHopWaitTime: 2
+  bounceHeight: 2
+  bounceDuration: 0.2
+  bounceInterval: 0
+  takeoffStretch: 1.4
+  fallStretch: 1.2
+  squash: 0.6

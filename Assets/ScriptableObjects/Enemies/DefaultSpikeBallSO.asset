@@ -16,8 +16,12 @@ MonoBehaviour:
   color: {r: 1, g: 1, b: 1, a: 1}
   maxHealth: 10
   contactDamage: 8
-  maxSpeed: 20
-  springK: 25
-  damping: 1.5
+  springK: 20
+  damping: 1
   ballRadius: 0.8
-  targetProgress: 5.55
+  bouncyEase: 3
+  offsetTweenDuration: 0.2
+  offsetUpdateInterval: 0.5
+  bouncyOffset: 0
+  maxSpeed: 20
+  target: 1.2

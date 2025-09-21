@@ -13,25 +13,33 @@ public class Projectile : MonoBehaviour
         if (bulletVisual == null)
             Debug.LogWarning("BulletVisual child not found!");
     }
-    public void Init(ProjectileDataSO data, Vector3 direction)
+    public void Initialize(ProjectileDataSO data, Vector3 direction)
     {
         this.data = data;
         this.direction = direction.normalized;
         pierceCount = 0;
-
+        SetDirection();
         Destroy(gameObject, data.lifetime);
+
     }
 
     [SerializeField] Transform bulletVisual;
 
-    public void SetDirection(Vector3 dir)
+    public void SetDirection()
     {
-        if (bulletVisual == null) return;
+        // root points along travel direction
+        transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
 
-        // Rotate only around local Y
-        float yAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-        bulletVisual.localEulerAngles = new Vector3(0f, yAngle, 0f);
+        // optional: add an extra Y spin to the child (e.g., aim sword/gun)
+        if (bulletVisual != null)
+        {
+            float yAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            bulletVisual.localEulerAngles += new Vector3(0f, yAngle, 0f);
+        }
     }
+
+
+
 
     private void Update()
     {

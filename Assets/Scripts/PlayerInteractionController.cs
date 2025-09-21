@@ -16,6 +16,7 @@ public class PlayerInteractionController : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+
         // --- Enemy knockback/damage (existing code) ---
         if (other.TryGetComponent<IEnemy>(out var enemy) && !player.IsDead())
         {
@@ -37,8 +38,6 @@ public class PlayerInteractionController : MonoBehaviour
             Destroy(pickup.gameObject);
         }
     }
-
-
 
     private void ApplyKnockback(Vector3 direction)
     {
