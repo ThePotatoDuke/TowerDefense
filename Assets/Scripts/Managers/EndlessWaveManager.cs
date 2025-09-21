@@ -57,15 +57,24 @@ public class EndlessSplineWaveManager : MonoBehaviour
 
             EnemyBase enemyInstance = Instantiate(enemyPrefab);
 
+            // Set enemy position to the start of the spline
+            if (splineContainer != null)
+            {
+                // Evaluate position at t = 0 (start of spline)
+                enemyInstance.transform.position = SplineUtility.EvaluatePosition(splineContainer.Spline, 0f);
+            }
+
             // Assign the common spline
             enemyInstance.AssignSpline(splineContainer);
 
-            // Scale health if needed
+            // Optionally scale health
             // enemyInstance.SetHealthMultiplier(Mathf.Pow(enemyHealthMultiplier, waveLoopIndex));
 
             yield return new WaitForSeconds(wave.spawnInterval);
         }
     }
+
+
 }
 
 [System.Serializable]

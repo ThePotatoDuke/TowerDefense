@@ -16,9 +16,8 @@ public class PlayerInteractionController : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-
-        // --- Enemy knockback/damage (existing code) ---
-        if (other.TryGetComponent<IEnemy>(out var enemy) && !player.IsDead())
+        IEnemy enemy = other.GetComponentInParent<IEnemy>();
+        if (enemy != null && !player.IsDead())
         {
             if (!player.IsInvulnerable)
             {
@@ -29,15 +28,13 @@ public class PlayerInteractionController : MonoBehaviour
             }
         }
 
-        // Check if collider has a pickup component
         if (other.TryGetComponent<WeaponPickup>(out var pickup))
         {
             player.EquipWeapon(pickup.weaponSO.weaponPrefab);
-
-            // Optionally destroy the pickup in the world
             Destroy(pickup.gameObject);
         }
     }
+
 
     private void ApplyKnockback(Vector3 direction)
     {
