@@ -13,7 +13,6 @@ public class Player : MonoBehaviour, IHasHealth
     private float currentHealth;
     public bool IsInvulnerable { get; private set; }
 
-    public event Action<Vector3?> OnTakeDamage;
 
     public event Action OnDied;
     public event Action<PlayerState> OnStateChanged;
@@ -209,7 +208,7 @@ public class Player : MonoBehaviour, IHasHealth
         // Spawn new weapon
         GameObject weaponObj = Instantiate(weaponPrefab, weaponHand.position, weaponHand.rotation, weaponHand);
         currentWeapon = weaponObj.GetComponent<WeaponBase>();
-        currentWeapon.Initialize(gameObject, weaponHand); // <-- this is key
+        currentWeapon.Initialize(gameObject, weaponHand); // <-- this is key without it, current weapon might not have weapon hand
     }
 
 }

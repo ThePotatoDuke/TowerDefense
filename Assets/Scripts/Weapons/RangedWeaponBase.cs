@@ -6,8 +6,6 @@ public abstract class RangedWeaponBase : WeaponBase
     public override WeaponDataSO Data => rangedData;
     protected RangedWeaponDataSO RangedData => rangedData;
 
-
-
     protected override void OnAttack(GameObject target)
     {
         Vector3 dir = (target.transform.position - playerHand.position).normalized;
@@ -19,10 +17,6 @@ public abstract class RangedWeaponBase : WeaponBase
 
         // Spawn projectile
         Projectile proj = Instantiate(RangedData.projectilePrefab, playerHand.position, Quaternion.identity);
-
-        // Rotate the visual child around local Y
-        proj.SetDirection(dir);
-
-        proj.Init(RangedData.projectileData, dir);
+        proj.Initialize(RangedData.projectileData, dir);
     }
 }
