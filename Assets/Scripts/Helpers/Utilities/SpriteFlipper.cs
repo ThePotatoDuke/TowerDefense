@@ -27,7 +27,7 @@ public class SpriteFlipper : MonoBehaviour
     private void HandleFlip()
     {
         Vector3 movement = transform.position - lastPos;
-        if (movement.sqrMagnitude > 0.00001f)
+        if (movement.sqrMagnitude > 0.000001f)
         {
             Facing newFacing = movement.x >= 0 ? Facing.Right : Facing.Left;
             if (newFacing != currentFacing)

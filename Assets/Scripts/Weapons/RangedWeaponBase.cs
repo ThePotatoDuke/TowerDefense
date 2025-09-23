@@ -13,30 +13,33 @@ public abstract class RangedWeaponBase : WeaponBase
         Vector3 targetPos;
 
         if (childCollider != null)
-        {
             targetPos = childCollider.bounds.center;
+        else
+            targetPos = target.transform.position; // fallback
+
+        // Direction vector from hand to target
+        Vector3 dir = targetPos - playerHand.position;
+
+        // Restrict vertical aiming if canAimUp is false
+        if (!RangedData.canAimUp)
+        {
+            dir.y = 0f; // ignore vertical difference
+            if (dir == Vector3.zero)
+                dir = playerHand.forward; // fallback
+            dir.Normalize();
         }
         else
         {
-            targetPos = target.transform.position; // fallback to parent
-        }
-
-        // Direction vector
-        Vector3 dir = (targetPos - playerHand.position).normalized;
-
-        // Clamp Y if projectile cannot aim down
-        if (!RangedData.canAimUp)
-        {
-            dir.y = Mathf.Max(dir.y, 0f);
+            if (dir == Vector3.zero)
+                dir = Vector3.forward;
             dir.Normalize();
         }
-
-        if (dir == Vector3.zero) dir = Vector3.forward;
 
         // Spawn projectile
         Projectile proj = Instantiate(RangedData.projectilePrefab, playerHand.position, Quaternion.identity);
         proj.Initialize(RangedData.projectileData, dir);
     }
+
 
 
 }
