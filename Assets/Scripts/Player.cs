@@ -14,10 +14,11 @@ public class Player : MonoBehaviour, IHasHealth
     public bool IsInvulnerable { get; private set; }
 
 
-
     public event Action OnDied;
     public event Action<PlayerState> OnStateChanged;
     public event Action<float> OnHealthChanged;
+
+    public WeaponBase currentWeapon;       // Currently equipped weapon
 
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 5f;
@@ -30,8 +31,7 @@ public class Player : MonoBehaviour, IHasHealth
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Transform playerVisualTransform;
     [SerializeField] private Transform pivotBottomTransform;
-
-
+    [SerializeField] private Transform weaponHand;
     private Rigidbody rb;
     private Vector3 moveDirection;
     private Color originalColor;
@@ -54,6 +54,15 @@ public class Player : MonoBehaviour, IHasHealth
 
         if (spriteRenderer != null)
             originalColor = spriteRenderer.color;
+
+        // Assign weaponHand automatically if not assigned
+        if (weaponHand == null)
+        {
+            weaponHand = transform.Find("PlayerHand"); // Replace with actual child name
+            if (weaponHand == null)
+                Debug.LogWarning("PlayerHand transform not found!");
+        }
+
     }
 
     private void Update()
@@ -61,39 +70,51 @@ public class Player : MonoBehaviour, IHasHealth
         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
         moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
-        if (currentState != PlayerState.Dead)
+        // Only flip sprite if player is alive AND game is in Playing state
+        if (currentState != PlayerState.Dead && GameStateManager.CurrentState == GameState.Playing)
         {
-            // Flip sprite
             if (moveDirection.x > 0.01f)
                 spriteRenderer.flipX = false;
             else if (moveDirection.x < -0.01f)
                 spriteRenderer.flipX = true;
         }
 
-
-        // State updates
-        if (IsDead())
-            SetState(PlayerState.Dead);
-        else if (IsAttacking())
-            SetState(PlayerState.Attacking);
-        else if (IsWalking())
-            SetState(PlayerState.Walking);
+        // Only update state if the game is Playing
+        if (GameStateManager.CurrentState == GameState.Playing)
+        {
+            if (IsDead())
+                SetState(PlayerState.Dead);
+            else if (IsAttacking())
+                SetState(PlayerState.Attacking);
+            else if (IsWalking())
+                SetState(PlayerState.Walking);
+            else
+                SetState(PlayerState.Idle);
+        }
         else
+        {
+            // Force idle when game over / castle destroyed
             SetState(PlayerState.Idle);
+        }
     }
+
 
     private void FixedUpdate()
     {
-        if (!IsDead())
+        if (!IsDead() && GameStateManager.CurrentState == GameState.Playing)
         {
-
             Vector3 desiredVelocity = moveDirection * moveSpeed;
-
             Vector3 velocity = new Vector3(desiredVelocity.x, rb.linearVelocity.y, desiredVelocity.z);
-
             rb.linearVelocity = velocity;
         }
+        else
+        {
+            // Stop horizontal movement but keep Y velocity (gravity/jumps)
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+        }
     }
+
+
 
 
 
@@ -104,6 +125,7 @@ public class Player : MonoBehaviour, IHasHealth
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         OnHealthChanged?.Invoke(currentHealth / maxHealth);
+
 
         if (currentHealth <= 0)
         {
@@ -154,6 +176,8 @@ public class Player : MonoBehaviour, IHasHealth
 
     private void Die()
     {
+        if (IsDead()) return; // prevent multiple triggers
+
         OnDied?.Invoke();
         SetState(PlayerState.Dead);
 
@@ -162,25 +186,45 @@ public class Player : MonoBehaviour, IHasHealth
         if (lookAt != null)
             lookAt.enabled = false;
 
-        // Use pivot bottom for rotation
         Transform pivot = pivotBottomTransform;
 
         Sequence deathSequence = DOTween.Sequence();
 
-        // Spin around Y axis 720° relative to current rotation
+        // Spin around Y axis 720°
         deathSequence.Append(pivot.DOLocalRotate(
             new Vector3(0, 720f, 0),
             1f,
             RotateMode.LocalAxisAdd
         ).SetEase(Ease.OutQuart));
 
-        // Then fall forward around X axis 90° relative to current rotation
+        // Assume playerVisualTransform has the idle tilt
+        float initialTiltX = playerVisualTransform.localRotation.eulerAngles.x;
+
+        // Final X should be 90° minus the tilt
+        float targetX = 90f - initialTiltX;
+
+        // Fall forward to flat
         deathSequence.Append(pivot.DOLocalRotate(
-            new Vector3(90f - playerVisualTransform.localRotation.eulerAngles.x, 0, 0),
-            0.5f,
-            RotateMode.LocalAxisAdd      // rotate along local axes
+            new Vector3(targetX, 0f, 0f),
+            0.5f
         ).SetEase(Ease.OutBounce));
+
+        deathSequence.AppendInterval(1f)
+             .AppendCallback(() => GameEvents.PlayerDied());
+
     }
 
+
+    public void EquipWeapon(GameObject weaponPrefab)
+    {
+        // Remove old weapon
+        if (currentWeapon != null)
+            Destroy(currentWeapon.gameObject);
+
+        // Spawn new weapon
+        GameObject weaponObj = Instantiate(weaponPrefab, weaponHand.position, weaponHand.rotation, weaponHand);
+        currentWeapon = weaponObj.GetComponent<WeaponBase>();
+        currentWeapon.Initialize(gameObject, weaponHand); // <-- this is key without it, current weapon might not have weapon hand
+    }
 
 }
