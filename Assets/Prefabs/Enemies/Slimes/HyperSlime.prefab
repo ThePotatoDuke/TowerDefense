@@ -76,7 +76,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteFlipper
   spriteTransform: {fileID: 4319452122086312995}
-  flipDuration: 0
+  flipDuration: 0.2
 --- !u!135 &5446501775651401984
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -304,7 +304,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SlimeEnemy
   splineContainer: {fileID: 0}
   data: {fileID: 11400000, guid: f69849754cf418748939b59c828fda2d, type: 2}
-  slimeVisual: {fileID: 9129673414925276990}
   slimeChild: {fileID: 6543175494851632665}
 --- !u!1 &4810219444183539672
 GameObject:
