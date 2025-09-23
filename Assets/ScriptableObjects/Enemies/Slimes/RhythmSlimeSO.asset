@@ -15,7 +15,7 @@ MonoBehaviour:
   enemyName: RhythmSLlme
   maxHealth: 80
   contactDamage: 1
-  bounceHeight: 1
+  bounceHeight: 2
   bounceDuration: 0.2
   bounceInterval: 0.1
   baseHopDistance: 3
