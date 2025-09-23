@@ -65,39 +65,55 @@ public class Player : MonoBehaviour, IHasHealth
 
     }
 
+    private void Update()
+    {
+        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+        moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
+
+        // Only flip sprite if player is alive AND game is in Playing state
+        if (currentState != PlayerState.Dead && GameStateManager.CurrentState == GameState.Playing)
+        {
+            if (moveDirection.x > 0.01f)
+                spriteRenderer.flipX = false;
+            else if (moveDirection.x < -0.01f)
+                spriteRenderer.flipX = true;
+        }
+
+        // Only update state if the game is Playing
+        if (GameStateManager.CurrentState == GameState.Playing)
+        {
+            if (IsDead())
+                SetState(PlayerState.Dead);
+            else if (IsAttacking())
+                SetState(PlayerState.Attacking);
+            else if (IsWalking())
+                SetState(PlayerState.Walking);
+            else
+                SetState(PlayerState.Idle);
+        }
+        else
+        {
+            // Force idle when game over / castle destroyed
+            SetState(PlayerState.Idle);
+        }
+    }
 
 
     private void FixedUpdate()
     {
-        if (GameStateManager.CurrentState != GameState.Playing || IsDead())
+        if (!IsDead() && GameStateManager.CurrentState == GameState.Playing)
         {
-            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
-            SetState(PlayerState.Idle);
-            return;
+            Vector3 desiredVelocity = moveDirection * moveSpeed;
+            Vector3 velocity = new Vector3(desiredVelocity.x, rb.linearVelocity.y, desiredVelocity.z);
+            rb.linearVelocity = velocity;
         }
-
-        // Read input here instead of Update
-        Vector2 inputVector = gameInput.GetMovementVectorNormalized();
-        moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
-
-        // Apply movement
-        Vector3 desiredVelocity = moveDirection * moveSpeed;
-        rb.linearVelocity = new Vector3(desiredVelocity.x, rb.linearVelocity.y, desiredVelocity.z);
-
-        // Update state
-        if (IsAttacking())
-            SetState(PlayerState.Attacking);
-        else if (IsWalking())
-            SetState(PlayerState.Walking);
         else
-            SetState(PlayerState.Idle);
-
-        // Flip sprite if moving
-        if (moveDirection.x > 0.01f)
-            spriteRenderer.flipX = false;
-        else if (moveDirection.x < -0.01f)
-            spriteRenderer.flipX = true;
+        {
+            // Stop horizontal movement but keep Y velocity (gravity/jumps)
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+        }
     }
+
 
 
 
