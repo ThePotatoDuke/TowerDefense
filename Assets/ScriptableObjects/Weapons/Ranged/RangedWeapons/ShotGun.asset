@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75f30b438f87ae94c9e63b1d435e7a9c, type: 3}
+  m_Name: ShotGun
+  m_EditorClassIdentifier: Assembly-CSharp::RangedWeaponDataSO
+  attackRate: 3
+  knockbackDistance: 1
+  knockbackDuration: 0.2
+  range: 9
+  projectilePrefab: {fileID: 2230866318655405364, guid: da16e4a5970e7bd4c99044beddbd9288, type: 3}
+  projectileData: {fileID: 11400000, guid: 6b3d5e335b450c14b9bc8508d9a2618f, type: 2}
+  canAimUp: 0

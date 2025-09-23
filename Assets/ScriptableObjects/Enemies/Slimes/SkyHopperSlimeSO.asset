@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6581b9137f8dbfe4f81630b0859c74d9, type: 3}
+  m_Name: SkyHopperSlimeSO
+  m_EditorClassIdentifier: Assembly-CSharp::SlimeDataSO
+  enemyName: SkyHopperSlime
+  maxHealth: 80
+  contactDamage: 1
+  bounceHeight: 6
+  bounceDuration: 0.4
+  bounceInterval: 0.3
+  baseHopDistance: 2
+  longHopDistanceMultiplier: 2
+  hopPattern: 0
+  maxBackForward: 3
+  minBackForward: 0
+  longHopWaitTime: 0.5
+  backChance: 0.5
+  longForwardChance: 0.5
+  longHopHeightMultiplier: 1.5
+  longHopDurationMultiplier: 1.3
+  takeoffStretch: 1.4
+  fallStretch: 1.2
+  squash: 0.6

@@ -1,72 +1,87 @@
 using UnityEngine;
 using DG.Tweening;
-using System;
 
-[RequireComponent(typeof(Player))]
 public class PlayerInteractionController : MonoBehaviour
 {
-    private Player player;
-    private Rigidbody playerRb;
+    [SerializeField] private Player player;
+    [SerializeField] private WeaponBase currentWeapon;
+
 
     [Header("Knockback Settings")]
-    [SerializeField] private float knockbackDistance = 1;
+    [SerializeField] private float knockbackDistance = 1f;
     [SerializeField] private float knockbackDuration = 0.2f;
     [SerializeField] private float bounceHeight = 1f;
 
-
-    private void Awake()
-    {
-        player = GetComponent<Player>();
-        playerRb = GetComponent<Rigidbody>();
-    }
+    private Sequence currentKnockbackSeq;
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.TryGetComponent<IEnemy>(out var enemy))
+        IEnemy enemy = other.GetComponentInParent<IEnemy>();
+        if (enemy != null && !player.IsDead())
         {
-            if (!player.IsInvulnerable && !player.IsDead())
+            if (!player.IsInvulnerable)
             {
-                float damageAmount = enemy.ContactDamage;
-
-                // Knockback
-                Vector3 knockDir = (transform.position - other.transform.position).normalized;
+                Vector3 knockDir = (player.transform.position - other.transform.position).normalized;
                 knockDir.y = 0;
-
                 ApplyKnockback(knockDir);
-                player.TakeDamage(damageAmount);
+                player.TakeDamage(enemy.ContactDamage);
             }
         }
+
+        if (other.TryGetComponent<WeaponPickup>(out var pickup))
+        {
+            player.EquipWeapon(pickup.weaponSO.weaponPrefab);
+            Destroy(pickup.gameObject);
+        }
     }
 
 
-
-    //Used dotween here cuz i want to keep my player rigidbody kinematic lol it is a lot snappier also
     private void ApplyKnockback(Vector3 direction)
     {
-        Vector3 startPos = transform.position;
+        // Kill any existing knockback sequence safely
+        if (currentKnockbackSeq != null && currentKnockbackSeq.IsActive())
+            currentKnockbackSeq.Kill(true);
+
+        Rigidbody playerRb = player.GetComponent<Rigidbody>();
+        if (playerRb != null)
+            playerRb.isKinematic = true;
+
+        Vector3 startPos = player.transform.position;
         Vector3 intendedTarget = startPos + direction.normalized * knockbackDistance;
 
-        // BoxCast parameters: match your player collider
+        // Prevent clipping into walls
         Vector3 boxHalfExtents = player.GetComponent<Collider>().bounds.extents;
-        RaycastHit hit;
-
-        if (Physics.BoxCast(startPos, boxHalfExtents, direction.normalized, out hit, Quaternion.identity, knockbackDistance))
-        {
-            // Stop slightly before the wall
+        if (Physics.BoxCast(startPos, boxHalfExtents, direction.normalized, out RaycastHit hit, Quaternion.identity, knockbackDistance))
             intendedTarget = hit.point - direction.normalized * 0.05f;
-        }
-        Sequence knockbackSeq = DOTween.Sequence();
+
+        currentKnockbackSeq = DOTween.Sequence();
 
         // Horizontal movement
-        knockbackSeq.Append(transform.DOMove(intendedTarget, knockbackDuration).SetEase(Ease.OutQuad));
+        currentKnockbackSeq.Append(player.transform.DOMove(intendedTarget, knockbackDuration)
+            .SetEase(Ease.OutQuad)
+            .SetUpdate(true));
 
         // Vertical bounce (up)
-        knockbackSeq.Join(transform.DOMoveY(intendedTarget.y + bounceHeight, knockbackDuration / 2f).SetEase(Ease.OutQuad));
+        currentKnockbackSeq.Join(player.transform.DOMoveY(intendedTarget.y + bounceHeight, knockbackDuration / 2f)
+            .SetEase(Ease.OutQuad)
+            .SetUpdate(true));
 
         // Vertical bounce (down)
-        knockbackSeq.Join(transform.DOMoveY(intendedTarget.y, knockbackDuration / 2f)
+        currentKnockbackSeq.Join(player.transform.DOMoveY(intendedTarget.y, knockbackDuration / 2f)
             .SetEase(Ease.InQuad)
-            .SetDelay(knockbackDuration / 2f));
-    }
+            .SetDelay(knockbackDuration / 2f)
+            .SetUpdate(true));
 
+        currentKnockbackSeq.OnComplete(() =>
+        {
+            if (playerRb != null)
+                playerRb.isKinematic = false;
+
+            // Reset y position to ground
+            Vector3 finalPos = player.transform.position;
+            player.transform.position = new Vector3(finalPos.x, startPos.y, finalPos.z);
+
+            currentKnockbackSeq = null;
+        });
+    }
 }

@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a168a77833c94bf42b529066b0d3f1fb, type: 3}
+  m_Name: AggressiveSpikeBallSO
+  m_EditorClassIdentifier: Assembly-CSharp::WalkerDataSO
+  enemyName: AggressiveSpikeBall
+  maxHealth: 150
+  contactDamage: 2
+  springK: 55
+  damping: 16
+  ballRadius: 0.8
+  bouncyEase: 6
+  offsetTweenDuration: 0.15
+  offsetUpdateInterval: 0.4
+  bouncyOffset: 0.12
+  maxSpeed: 15
+  target: 1.2
