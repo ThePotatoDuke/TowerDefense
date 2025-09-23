@@ -16,11 +16,11 @@ MonoBehaviour:
   maxHealth: 150
   contactDamage: 2
   springK: 55
-  damping: 16
+  damping: 15
   ballRadius: 0.8
   bouncyEase: 6
   offsetTweenDuration: 0.15
   offsetUpdateInterval: 0.4
-  bouncyOffset: 0.12
+  bouncyOffset: 0.1
   maxSpeed: 15
   target: 1.2

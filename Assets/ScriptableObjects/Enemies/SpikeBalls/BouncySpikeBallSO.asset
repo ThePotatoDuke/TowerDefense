@@ -12,15 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a168a77833c94bf42b529066b0d3f1fb, type: 3}
   m_Name: BouncySpikeBallSO
   m_EditorClassIdentifier: Assembly-CSharp::WalkerDataSO
-  enemyName: SpikeBallBlack
+  enemyName: SpikeBallYellow
   maxHealth: 150
   contactDamage: 2
-  springK: 50
-  damping: 18
+  springK: 150
+  damping: 2
   ballRadius: 0.8
-  bouncyEase: 27
+  bouncyEase: 30
   offsetTweenDuration: 0.2
-  offsetUpdateInterval: 0.5
-  bouncyOffset: 0.07
+  offsetUpdateInterval: 3
+  bouncyOffset: 0.04
   maxSpeed: 10
   target: 1.2
