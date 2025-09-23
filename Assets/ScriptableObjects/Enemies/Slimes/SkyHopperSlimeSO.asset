@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: SkyHopperSlimeSO
   m_EditorClassIdentifier: Assembly-CSharp::SlimeDataSO
   enemyName: SkyHopperSlime
-  maxHealth: 80
+  maxHealth: 140
   contactDamage: 1
   bounceHeight: 6
   bounceDuration: 0.4
-  bounceInterval: 0.3
+  bounceInterval: 0.2
   baseHopDistance: 2
   longHopDistanceMultiplier: 2
   hopPattern: 0
