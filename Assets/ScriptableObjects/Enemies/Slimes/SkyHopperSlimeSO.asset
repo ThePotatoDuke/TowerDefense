@@ -18,7 +18,7 @@ MonoBehaviour:
   bounceHeight: 6
   bounceDuration: 0.4
   bounceInterval: 0.2
-  baseHopDistance: 2
+  baseHopDistance: 4
   longHopDistanceMultiplier: 2
   hopPattern: 0
   maxBackForward: 3
