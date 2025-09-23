@@ -19,9 +19,14 @@ public class EndlessWaveManager : MonoBehaviour
     [Header("Weapon Drops")]
     [SerializeField] private List<GameObject> weaponPrefabs;
 
+    [Header("Player Reference")]
+    [SerializeField] private Transform playerTransform;
+    [SerializeField] private Vector3 dropOffset = new Vector3(1f, 0f, 0f);
 
     private int totalWaveCount = 0;
     private int waveLoopIndex = 0;
+
+    private Coroutine currentWaveCoroutine;
 
     // Events
     public event Action<int> OnWaveChanged;
@@ -32,6 +37,15 @@ public class EndlessWaveManager : MonoBehaviour
         StartCoroutine(RunEndlessWaves());
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.E) && currentWaveCoroutine != null)
+        {
+            StopCoroutine(currentWaveCoroutine);
+            Wave currentWave = waves[totalWaveCount - 1];
+            currentWaveCoroutine = StartCoroutine(SpawnWave(currentWave, true));
+        }
+    }
     private IEnumerator RunEndlessWaves()
     {
         while (true)
@@ -41,9 +55,14 @@ public class EndlessWaveManager : MonoBehaviour
                 totalWaveCount++;
                 OnWaveChanged?.Invoke(totalWaveCount);
 
-                yield return StartCoroutine(SpawnWave(wave));
+                // Start spawning enemies
+                currentWaveCoroutine = StartCoroutine(SpawnWave(wave));
+                yield return currentWaveCoroutine;
 
-                // Spawn a random weapon at the end of the wave
+                // Wait until all enemies in scene are dead
+                yield return new WaitUntil(() => EnemyManager.Instance.GetAllEnemies().Count == 0);
+
+                // Spawn weapon after wave is fully cleared
                 SpawnRandomWeapon();
             }
 
@@ -51,11 +70,10 @@ public class EndlessWaveManager : MonoBehaviour
         }
     }
 
-    private IEnumerator SpawnWave(Wave wave)
-    {
-        int aliveEnemies = 0;
 
-        // 1️⃣ Build weighted list for extra/random selection
+    private IEnumerator SpawnWave(Wave wave, bool spawnAllInstantly = false)
+    {
+        // Build weighted list for extra/random enemies
         List<EnemyBase> weightedList = new List<EnemyBase>();
         foreach (var entry in wave.enemies)
         {
@@ -64,18 +82,17 @@ public class EndlessWaveManager : MonoBehaviour
                 weightedList.Add(entry.enemyPrefab);
         }
 
+        // Build combined spawn list
         List<EnemyBase> spawnList = new List<EnemyBase>();
 
         // Add guaranteed base counts
         foreach (var entry in wave.enemies)
-        {
             for (int i = 0; i < entry.baseCount; i++)
                 spawnList.Add(entry.enemyPrefab);
-        }
 
         // Add extra enemies (random amount)
-        int minExtra = 1; // minimum extras to always spawn
-        int maxExtra = Mathf.Max(minExtra, waveLoopIndex * enemiesPerWaveIncrement + minExtra); // scale with waveLoopIndex
+        int minExtra = 1;
+        int maxExtra = Mathf.Max(minExtra, waveLoopIndex * enemiesPerWaveIncrement + minExtra);
         int extraEnemies = UnityEngine.Random.Range(minExtra, maxExtra + 1);
 
         for (int i = 0; i < extraEnemies; i++)
@@ -84,6 +101,7 @@ public class EndlessWaveManager : MonoBehaviour
             spawnList.Add(prefab);
         }
 
+        // Shuffle spawn list
         for (int i = spawnList.Count - 1; i > 0; i--)
         {
             int j = UnityEngine.Random.Range(0, i + 1);
@@ -92,19 +110,16 @@ public class EndlessWaveManager : MonoBehaviour
             spawnList[j] = temp;
         }
 
+        // Spawn enemies
         foreach (var enemy in spawnList)
         {
-            SpawnEnemy(enemy, () => aliveEnemies--);
-            aliveEnemies++;
-            yield return new WaitForSeconds(RandomInterval(wave));
+            SpawnEnemy(enemy);
+            if (!spawnAllInstantly)
+                yield return new WaitForSeconds(RandomInterval(wave));
         }
-
-        while (aliveEnemies > 0)
-            yield return null;
     }
 
-
-    private void SpawnEnemy(EnemyBase prefab, Action onDeath)
+    private void SpawnEnemy(EnemyBase prefab)
     {
         EnemyBase instance = Instantiate(prefab);
         instance.AssignSpline(splineContainer);
@@ -115,29 +130,23 @@ public class EndlessWaveManager : MonoBehaviour
         instance.SetHealthMultiplier(1f);
         OnEnemySpawned?.Invoke(instance);
 
-        // Subscribe to the enemy's death
-        instance.OnDied += onDeath;
+        // Unregister on death
+        instance.OnDied += () => EnemyManager.Instance.UnregisterEnemy(instance);
     }
 
     private float RandomInterval(Wave wave)
     {
         float interval = UnityEngine.Random.Range(wave.spawnIntervalMin, wave.spawnIntervalMax);
         if (UnityEngine.Random.value < wave.burstChance)
-            interval *= 0.5f; // small burst chance
+            interval *= 0.5f;
         return interval;
     }
-
-    [Header("Player Reference")]
-    [SerializeField] private Transform playerTransform; // assign your player here
-    [SerializeField] private Vector3 dropOffset = new Vector3(1f, 0f, 0f); // offset from player
 
     private void SpawnRandomWeapon()
     {
         if (weaponPrefabs.Count == 0 || playerTransform == null) return;
 
         GameObject prefab = weaponPrefabs[UnityEngine.Random.Range(0, weaponPrefabs.Count)];
-
-        // Spawn next to player with some random offset
         Vector3 spawnPosition = playerTransform.position + dropOffset;
         Instantiate(prefab, spawnPosition, Quaternion.identity);
     }
@@ -146,30 +155,18 @@ public class EndlessWaveManager : MonoBehaviour
 [System.Serializable]
 public class Wave
 {
-    [Tooltip("Enemies available for this wave.")]
     public List<EnemySpawnEntry> enemies;
-
-    [Tooltip("Minimum time between each enemy spawn in seconds.")]
     public float spawnIntervalMin = 0.3f;
-
-    [Tooltip("Maximum time between each enemy spawn in seconds.")]
     public float spawnIntervalMax = 0.7f;
-
     [Range(0f, 1f)]
-    [Tooltip("Chance that the next enemy spawns in a small burst (half interval).")]
     public float burstChance = 0.2f;
 }
 
 [System.Serializable]
 public class EnemySpawnEntry
 {
-    [Tooltip("Enemy prefab to spawn.")]
     public EnemyBase enemyPrefab;
-
     [Range(0f, 1f)]
-    [Tooltip("Relative likelihood to spawn this enemy. Higher = more likely.")]
     public float spawnWeight = 1f;
-
-    [Tooltip("Number of this enemy to spawn per wave (before scaling).")]
     public int baseCount = 1;
 }
