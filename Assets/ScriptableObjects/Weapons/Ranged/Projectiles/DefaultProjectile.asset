@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DefaultProjectile
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileDataSO
   speed: 15
-  damage: 5
+  damage: 7
   lifetime: 5
   pierces: 0
   maxPierceCount: 0

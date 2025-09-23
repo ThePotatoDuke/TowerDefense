@@ -18,4 +18,4 @@ MonoBehaviour:
   range: 2
   swingDuration: 0.15
   attackRange: 1
-  damage: 30
+  damage: 40
