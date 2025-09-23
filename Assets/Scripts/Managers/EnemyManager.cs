@@ -36,7 +36,7 @@ public class EnemyManager : MonoBehaviour
     public float GetAverageProgress()
     {
         if (activeEnemies.Count == 0) return 0f;
-        return activeEnemies.Average(e => e.Progress);
+        return activeEnemies.Average(e => e.DistancePercentage);
     }
 
     public List<IEnemy> GetAllEnemies()

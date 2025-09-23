@@ -48,18 +48,24 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent<IHasHealth>(out var target))
+        IEnemy enemy = other.GetComponentInParent<IEnemy>();
+        if (enemy != null)
         {
-            target.TakeDamage(data.damage);
+            IHasHealth health = enemy as IHasHealth;
+            if (health != null)
+            {
+                health.TakeDamage(data.damage);
 
-            if (!data.pierces || pierceCount >= data.maxPierceCount)
-            {
-                Destroy(gameObject);
-            }
-            else
-            {
-                pierceCount++;
+                if (!data.pierces || pierceCount >= data.maxPierceCount)
+                {
+                    Destroy(gameObject);
+                }
+                else
+                {
+                    pierceCount++;
+                }
             }
         }
     }
+
 }

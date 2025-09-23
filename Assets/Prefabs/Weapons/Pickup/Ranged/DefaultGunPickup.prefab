@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2718172821821650026}
   - component: {fileID: 5857309238409744970}
+  - component: {fileID: 5347492916484489879}
   m_Layer: 0
   m_Name: PickupVisual
   m_TagString: Untagged
@@ -90,6 +91,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &5347492916484489879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1850935692843278216}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c153e1afdec5a304b984861ba36a8c86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LookAtCamera
+  mode: 2
 --- !u!1 &4263633414892788626
 GameObject:
   m_ObjectHideFlags: 0
@@ -136,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a8bee5e75df22749b53c2ce40aae2bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponPickup
-  weaponSO: {fileID: 0}
+  weaponSO: {fileID: 11400000, guid: 1b59f9767d247fa46bf530b4d680a52d, type: 2}
 --- !u!135 &6086372238287979821
 SphereCollider:
   m_ObjectHideFlags: 0

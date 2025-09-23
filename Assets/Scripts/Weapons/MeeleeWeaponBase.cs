@@ -41,13 +41,28 @@ public abstract class MeleeWeaponBase : WeaponBase
 
     protected virtual void OnTriggerEnter(Collider other)
     {
+        // Avoid hitting the same enemy multiple times per swing
         if (alreadyHitEnemies.Contains(other.gameObject)) return;
 
-        if (other.TryGetComponent<IHasHealth>(out var target))
-        {
-            target.TakeDamage(MeleeData.damage);
-            alreadyHitEnemies.Add(other.gameObject);
-        }
+        // Look for IHasHealth on the collider or any of its parents
+        IHasHealth target = other.GetComponentInParent<IHasHealth>();
+        if (target == null) return;
+
+        // Ignore the owner (player)
+        MonoBehaviour targetMB = target as MonoBehaviour;
+        if (targetMB != null && targetMB.gameObject == owner) return;
+
+        Debug.Log("hit with sword");
+
+        target.TakeDamage(MeleeData.damage);
+
+        // Track the enemy to avoid multiple hits
+        if (targetMB != null)
+            alreadyHitEnemies.Add(targetMB.gameObject);
     }
+
+
+
+
 
 }

@@ -38,19 +38,24 @@ public abstract class WeaponBase : MonoBehaviour
         float closestDistance = float.MaxValue;
         GameObject closest = null;
 
+        if (owner == null) return null;
+
         Collider[] colliders = Physics.OverlapSphere(owner.transform.position, Data.range);
         foreach (var c in colliders)
         {
-            if (c.TryGetComponent<EnemyBase>(out var enemy))
+            var enemy = c.GetComponentInParent<EnemyBase>();
+            if (enemy != null)
             {
-                float dist = Vector3.Distance(owner.transform.position, c.transform.position);
+                float dist = Vector3.Distance(owner.transform.position, enemy.transform.position);
                 if (dist < closestDistance)
                 {
                     closestDistance = dist;
-                    closest = c.gameObject;
+                    closest = enemy.gameObject;
                 }
             }
         }
+
         return closest;
     }
+
 }

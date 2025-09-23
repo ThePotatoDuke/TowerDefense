@@ -12,11 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 536530d1febf0404e920b46613fcb06d, type: 3}
   m_Name: DefaultSwordSO
   m_EditorClassIdentifier: Assembly-CSharp::MeleeWeaponDataSO
-  damage: 0.2
   attackRate: 2
   knockbackDistance: 0
   knockbackDuration: 0
   range: 2
-  meleeDamage: 1
-  swingDuration: 0.2
+  swingDuration: 0.15
   attackRange: 1
+  damage: 30

@@ -70,39 +70,51 @@ public class Player : MonoBehaviour, IHasHealth
         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
         moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
-        if (currentState != PlayerState.Dead)
+        // Only flip sprite if player is alive AND game is in Playing state
+        if (currentState != PlayerState.Dead && GameStateManager.CurrentState == GameState.Playing)
         {
-            // Flip sprite
             if (moveDirection.x > 0.01f)
                 spriteRenderer.flipX = false;
             else if (moveDirection.x < -0.01f)
                 spriteRenderer.flipX = true;
         }
 
-
-        // State updates
-        if (IsDead())
-            SetState(PlayerState.Dead);
-        else if (IsAttacking())
-            SetState(PlayerState.Attacking);
-        else if (IsWalking())
-            SetState(PlayerState.Walking);
+        // Only update state if the game is Playing
+        if (GameStateManager.CurrentState == GameState.Playing)
+        {
+            if (IsDead())
+                SetState(PlayerState.Dead);
+            else if (IsAttacking())
+                SetState(PlayerState.Attacking);
+            else if (IsWalking())
+                SetState(PlayerState.Walking);
+            else
+                SetState(PlayerState.Idle);
+        }
         else
+        {
+            // Force idle when game over / castle destroyed
             SetState(PlayerState.Idle);
+        }
     }
+
 
     private void FixedUpdate()
     {
-        if (!IsDead())
+        if (!IsDead() && GameStateManager.CurrentState == GameState.Playing)
         {
-
             Vector3 desiredVelocity = moveDirection * moveSpeed;
-
             Vector3 velocity = new Vector3(desiredVelocity.x, rb.linearVelocity.y, desiredVelocity.z);
-
             rb.linearVelocity = velocity;
         }
+        else
+        {
+            // Stop horizontal movement but keep Y velocity (gravity/jumps)
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+        }
     }
+
+
 
 
 
@@ -164,6 +176,8 @@ public class Player : MonoBehaviour, IHasHealth
 
     private void Die()
     {
+        if (IsDead()) return; // prevent multiple triggers
+
         OnDied?.Invoke();
         SetState(PlayerState.Dead);
 
@@ -172,11 +186,9 @@ public class Player : MonoBehaviour, IHasHealth
         if (lookAt != null)
             lookAt.enabled = false;
 
-        // Use pivot bottom for rotation
         Transform pivot = pivotBottomTransform;
 
         Sequence deathSequence = DOTween.Sequence();
-
 
         // Spin around Y axis 720°
         deathSequence.Append(pivot.DOLocalRotate(
@@ -197,7 +209,11 @@ public class Player : MonoBehaviour, IHasHealth
             0.5f
         ).SetEase(Ease.OutBounce));
 
+        deathSequence.AppendInterval(1f)
+             .AppendCallback(() => GameEvents.PlayerDied());
+
     }
+
 
     public void EquipWeapon(GameObject weaponPrefab)
     {
