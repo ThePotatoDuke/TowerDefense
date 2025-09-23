@@ -15,7 +15,6 @@ This project is a **prototype Tower Defense game** built in Unity. It demonstrat
 - Weighted spawn: higher `spawnWeight` increases the likelihood an enemy appears in extra spawns.  
 - Extra enemies are randomized per wave but **guarantee at least a few** even in early waves.  
 - Weapon drops are always spawned next to the player after wave completion.  
-- Skip wave feature (`E key`) immediately spawns all remaining enemies in the current wave.  
 - The spline system is used for enemy pathing; enemies follow the predefined path smoothly.  
 - Player movement and basic combat are implemented as part of the prototype.
 
