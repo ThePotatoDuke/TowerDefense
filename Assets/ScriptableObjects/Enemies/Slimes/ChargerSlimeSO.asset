@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ChargerSlimeSO
   m_EditorClassIdentifier: Assembly-CSharp::SlimeDataSO
   enemyName: ChargerSlime
-  maxHealth: 50
+  maxHealth: 100
   contactDamage: 1.2
   bounceHeight: 3
   bounceDuration: 0.25

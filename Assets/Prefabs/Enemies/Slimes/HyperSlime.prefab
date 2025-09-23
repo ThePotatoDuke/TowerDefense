@@ -76,7 +76,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpriteFlipper
   spriteTransform: {fileID: 4319452122086312995}
-  flipDuration: 0.2
+  flipDuration: 0.15
 --- !u!135 &5446501775651401984
 SphereCollider:
   m_ObjectHideFlags: 0
