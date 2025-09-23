@@ -2,7 +2,6 @@ using UnityEngine;
 using Unity.Cinemachine;
 using System.Collections;
 using UnityEngine.Playables;
-
 public class GameManager : MonoBehaviour
 {
     [Header("Cameras")]
@@ -12,12 +11,18 @@ public class GameManager : MonoBehaviour
     [Header("UI")]
     [SerializeField] private GameObject gameOverPopup;
 
-    private bool isGameOver = false;
+    [SerializeField] private PlayableDirector gameOverTimeline;
+
+    public GameState CurrentState { get; private set; }
 
     private void Awake()
     {
+        // Hide GameOver popup at start
         if (gameOverPopup != null)
             gameOverPopup.SetActive(false);
+
+        // Set game state to Playing
+        SetGameState(GameState.Playing);
     }
 
     private void OnEnable()
@@ -32,10 +37,34 @@ public class GameManager : MonoBehaviour
         GameEvents.OnCastleDied -= HandleCastleDeath;
     }
 
+    public void SetGameState(GameState newState)
+    {
+        CurrentState = newState;
+
+        switch (newState)
+        {
+            case GameState.Playing:
+                Time.timeScale = 1f;
+                if (gameOverPopup != null)
+                    gameOverPopup.SetActive(false);
+                break;
+            case GameState.PlayerDead:
+            case GameState.CastleDestroyed:
+                Time.timeScale = 1f; // keep normal so coroutines work
+                if (newState == GameState.CastleDestroyed && castleCamera != null)
+                    CameraManager.SwitchCamera(castleCamera);
+                break;
+            case GameState.Paused:
+                Time.timeScale = 0f;
+                break;
+        }
+    }
+
     private void HandlePlayerDeath()
     {
-        if (isGameOver) return;
-        isGameOver = true;
+        if (CurrentState != GameState.Playing) return;
+
+        SetGameState(GameState.PlayerDead);
 
         if (gameOverPopup != null)
             gameOverPopup.SetActive(true);
@@ -43,29 +72,22 @@ public class GameManager : MonoBehaviour
         Debug.Log("Player died! Game Over popup shown.");
     }
 
-    [SerializeField] private PlayableDirector gameOverTimeline;
-
     private void HandleCastleDeath()
     {
-        if (isGameOver) return;
-        isGameOver = true;
+        if (CurrentState != GameState.Playing) return;
 
-        // Switch to castle camera
-        CameraManager.SwitchCamera(castleCamera);
+        SetGameState(GameState.CastleDestroyed);
 
-        // Show popup after a short delay (e.g., 1 second)
+        // Show popup after delay
         StartCoroutine(ShowPopupAfterDelay(3f));
     }
 
     private IEnumerator ShowPopupAfterDelay(float delay)
     {
-        yield return new WaitForSeconds(delay);
-
+        yield return new WaitForSecondsRealtime(delay); // ignore timeScale
         if (gameOverPopup != null)
             gameOverPopup.SetActive(true);
 
         Debug.Log("Castle died! Game Over popup shown after delay.");
     }
-
-
 }
