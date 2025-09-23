@@ -25,10 +25,8 @@ public class SpikeBallEnemy : EnemyBase
         // EnemyManager.Instance?.RegisterEnemy(this); // optional
     }
 
-    private void OnDisable()
+    protected override void OnDisable()
     {
-        // EnemyManager.Instance?.UnregisterEnemy(this); // optional
-        DOTween.Kill(this); // cancel all tweens related to this enemy
     }
 
     protected override void Update()
