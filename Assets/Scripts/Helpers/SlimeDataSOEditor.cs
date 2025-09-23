@@ -1,122 +1,109 @@
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(SlimeDataSO))]
 public class SlimeDataSOEditor : Editor
 {
-    SerializedProperty enemyNameProp;
-    SerializedProperty colorProp;
-    SerializedProperty maxHealthProp;
-    SerializedProperty contactDamageProp;
-
-    SerializedProperty hopPatternProp;
-    SerializedProperty baseHopDistanceProp;
-    SerializedProperty longHopMultiplierProp;
-    SerializedProperty longHopWaitTimeProp;
-    SerializedProperty minBackForwardProp;
-    SerializedProperty maxBackForwardProp;
-    SerializedProperty backChanceProp;
-    SerializedProperty longForwardChanceProp;
-    SerializedProperty leapHeightMultiplierProp;
-    SerializedProperty leapDurationMultiplierProp;
-
-    SerializedProperty bounceHeightProp;
-    SerializedProperty bounceDurationProp;
-    SerializedProperty bounceIntervalProp;
-
-    SerializedProperty takeoffStretchProp;
-    SerializedProperty fallStretchProp;
-    SerializedProperty squashProp;
-
-    private void OnEnable()
-    {
-        enemyNameProp = serializedObject.FindProperty("enemyName");
-        colorProp = serializedObject.FindProperty("color");
-        maxHealthProp = serializedObject.FindProperty("maxHealth");
-        contactDamageProp = serializedObject.FindProperty("contactDamage");
-
-        hopPatternProp = serializedObject.FindProperty("hopPattern");
-        baseHopDistanceProp = serializedObject.FindProperty("baseHopDistance");
-        longHopMultiplierProp = serializedObject.FindProperty("longHopMultiplier");
-        longHopWaitTimeProp = serializedObject.FindProperty("longHopWaitTime");
-        minBackForwardProp = serializedObject.FindProperty("minBackForward");
-        maxBackForwardProp = serializedObject.FindProperty("maxBackForward");
-        backChanceProp = serializedObject.FindProperty("backChance");
-        longForwardChanceProp = serializedObject.FindProperty("longForwardChance");
-        leapHeightMultiplierProp = serializedObject.FindProperty("leapHeightMultiplier");
-        leapDurationMultiplierProp = serializedObject.FindProperty("leapDurationMultiplier");
-
-        bounceHeightProp = serializedObject.FindProperty("bounceHeight");
-        bounceDurationProp = serializedObject.FindProperty("bounceDuration");
-        bounceIntervalProp = serializedObject.FindProperty("bounceInterval");
-
-        takeoffStretchProp = serializedObject.FindProperty("takeoffStretch");
-        fallStretchProp = serializedObject.FindProperty("fallStretch");
-        squashProp = serializedObject.FindProperty("squash");
-    }
+    private bool showGeneralSettings = true;
+    private bool showBounceSettings = true;
+    private bool showHopDistances = true;
+    private bool showHopPattern = true;
+    private bool showLongHopTweaks = true;
+    private bool showStretchSquash = true;
 
     public override void OnInspectorGUI()
     {
-        serializedObject.Update();
+        SlimeDataSO data = (SlimeDataSO)target;
 
-        // General
-        EditorGUILayout.LabelField("General Settings", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(enemyNameProp);
-        EditorGUILayout.PropertyField(colorProp);
-        EditorGUILayout.PropertyField(maxHealthProp);
-        EditorGUILayout.PropertyField(contactDamageProp);
+        EditorGUI.BeginChangeCheck();
 
-        EditorGUILayout.Space();
-
-        // Movement
-        EditorGUILayout.LabelField("Movement", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(hopPatternProp);
-        EditorGUILayout.PropertyField(baseHopDistanceProp);
-
-        SlimeDataSO.HopPattern pattern = (SlimeDataSO.HopPattern)hopPatternProp.enumValueIndex;
-        switch (pattern)
+        // --- Base Enemy Fields ---
+        showGeneralSettings = EditorGUILayout.Foldout(showGeneralSettings, "General Settings", true);
+        if (showGeneralSettings)
         {
-            case SlimeDataSO.HopPattern.Regular:
-                // Only base hop, no extras
-                break;
-
-            case SlimeDataSO.HopPattern.ShortShortLong:
-                EditorGUILayout.PropertyField(longHopMultiplierProp);
-                EditorGUILayout.PropertyField(longHopWaitTimeProp);
-                break;
-
-            case SlimeDataSO.HopPattern.BackAndForward:
-                EditorGUILayout.PropertyField(minBackForwardProp);
-                EditorGUILayout.PropertyField(maxBackForwardProp);
-                EditorGUILayout.PropertyField(backChanceProp);
-
-                EditorGUILayout.Space();
-                EditorGUILayout.LabelField("Leap Forward Tweaks", EditorStyles.boldLabel);
-                EditorGUILayout.PropertyField(longHopMultiplierProp);
-                EditorGUILayout.PropertyField(leapHeightMultiplierProp);
-                EditorGUILayout.PropertyField(leapDurationMultiplierProp);
-
-                EditorGUILayout.PropertyField(longForwardChanceProp,
-                    new GUIContent("Long Forward Chance", "Chance that a forward hop after backward hop will be long."));
-                break;
+            EditorGUILayout.LabelField("Base Enemy Settings", EditorStyles.boldLabel);
+            data.enemyName = EditorGUILayout.TextField("Enemy Name", data.enemyName);
+            data.maxHealth = EditorGUILayout.FloatField("Max Health", data.maxHealth);
+            data.contactDamage = EditorGUILayout.FloatField("Contact Damage", data.contactDamage);
+            EditorGUILayout.Space();
         }
 
-        EditorGUILayout.Space();
+        // --- Bounce Settings ---
+        showBounceSettings = EditorGUILayout.Foldout(showBounceSettings, "Bounce Settings", true);
+        if (showBounceSettings)
+        {
+            data.bounceHeight = EditorGUILayout.FloatField("Bounce Height", data.bounceHeight);
+            data.bounceDuration = EditorGUILayout.FloatField("Bounce Duration", data.bounceDuration);
+            data.bounceInterval = EditorGUILayout.FloatField("Bounce Interval", data.bounceInterval);
+            EditorGUILayout.Space();
+        }
 
-        // Bounce
-        EditorGUILayout.LabelField("Bounce", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(bounceHeightProp);
-        EditorGUILayout.PropertyField(bounceDurationProp);
-        EditorGUILayout.PropertyField(bounceIntervalProp);
+        // --- Hop Pattern ---
+        showHopPattern = EditorGUILayout.Foldout(showHopPattern, "Hop Pattern", true);
+        if (showHopPattern)
+        {
+            data.hopPattern = (SlimeDataSO.HopPattern)EditorGUILayout.EnumPopup("Hop Pattern", data.hopPattern);
 
-        EditorGUILayout.Space();
+            EditorGUILayout.Space();
+        }
 
-        // Visual
-        EditorGUILayout.LabelField("Visual", EditorStyles.boldLabel);
-        EditorGUILayout.PropertyField(takeoffStretchProp);
-        EditorGUILayout.PropertyField(fallStretchProp);
-        EditorGUILayout.PropertyField(squashProp);
+        // --- Hop Distances & Pattern-Specific Fields ---
+        showHopDistances = EditorGUILayout.Foldout(showHopDistances, "Hop Distances", true);
+        if (showHopDistances)
+        {
+            switch (data.hopPattern)
+            {
+                case SlimeDataSO.HopPattern.Regular:
+                    data.baseHopDistance = EditorGUILayout.FloatField("Base Hop Distance", data.baseHopDistance);
+                    break;
 
-        serializedObject.ApplyModifiedProperties();
+                case SlimeDataSO.HopPattern.ShortShortLong:
+                    data.baseHopDistance = EditorGUILayout.FloatField("Base Hop Distance", data.baseHopDistance);
+                    data.longHopDistanceMultiplier = EditorGUILayout.FloatField("Long Hop Distance Multiplier", data.longHopDistanceMultiplier);
+                    data.longHopWaitTime = EditorGUILayout.FloatField("Long Hop Wait Time", data.longHopWaitTime);
+                    break;
+
+                case SlimeDataSO.HopPattern.BackAndForward:
+                    data.baseHopDistance = EditorGUILayout.FloatField("Base Hop Distance", data.baseHopDistance);
+                    data.longHopDistanceMultiplier = EditorGUILayout.FloatField("Long Hop Distance Multiplier", data.longHopDistanceMultiplier);
+                    data.minBackForward = EditorGUILayout.IntField("Min BackForward", data.minBackForward);
+                    data.maxBackForward = EditorGUILayout.IntField("Max BackForward", data.maxBackForward);
+                    data.backChance = EditorGUILayout.Slider("Back Chance", data.backChance, 0f, 1f);
+                    data.longForwardChance = EditorGUILayout.Slider("Long Forward Chance", data.longForwardChance, 0f, 1f);
+                    break;
+            }
+
+            EditorGUILayout.Space();
+        }
+
+        // --- Long Hop Tweaks ---
+        showLongHopTweaks = EditorGUILayout.Foldout(showLongHopTweaks, "Long Hop Tweaks", true);
+        if (showLongHopTweaks)
+        {
+            if (data.hopPattern != SlimeDataSO.HopPattern.Regular)
+            {
+                data.longHopHeightMultiplier = EditorGUILayout.FloatField("Long Hop Height Multiplier", data.longHopHeightMultiplier);
+                data.longHopDurationMultiplier = EditorGUILayout.FloatField("Long Hop Duration Multiplier", data.longHopDurationMultiplier);
+            }
+            EditorGUILayout.Space();
+        }
+
+        // --- Stretch/Squash ---
+        showStretchSquash = EditorGUILayout.Foldout(showStretchSquash, "Stretch/Squash", true);
+        if (showStretchSquash)
+        {
+            data.takeoffStretch = EditorGUILayout.FloatField("Takeoff Stretch", data.takeoffStretch);
+            data.fallStretch = EditorGUILayout.FloatField("Fall Stretch", data.fallStretch);
+            data.squash = EditorGUILayout.FloatField("Squash", data.squash);
+            EditorGUILayout.Space();
+        }
+
+        // Mark dirty if anything changed
+        if (EditorGUI.EndChangeCheck())
+        {
+            EditorUtility.SetDirty(target);
+        }
     }
 }
+#endif

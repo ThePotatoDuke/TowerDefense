@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3d9516d9f9240b4cb0c37db4c1f48a0, type: 3}
   m_Name: DefaultProjectile
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileDataSO
-  speed: 2
-  damage: 2
+  speed: 15
+  damage: 5
   lifetime: 5
   pierces: 0
   maxPierceCount: 0

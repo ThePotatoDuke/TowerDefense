@@ -43,7 +43,8 @@ public class CastleHealth : MonoBehaviour, IHasHealth
 
     private void Die()
     {
-        Debug.Log("Castle destroyed! Game Over.");
-        // TODO: trigger your game-over logic here
+        GameEvents.CastleDied();
+        GameStateManager.SetState(GameState.CastleDestroyed);
     }
+
 }

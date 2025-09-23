@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f30b438f87ae94c9e63b1d435e7a9c, type: 3}
   m_Name: DefaultGun
   m_EditorClassIdentifier: Assembly-CSharp::RangedWeaponDataSO
-  attackRate: 2
+  attackRate: 10
   knockbackDistance: 1
   knockbackDuration: 0.2
   range: 9
   projectilePrefab: {fileID: 2230866318655405364, guid: d96f0772d5a5d0f4da65cbc5611ba48a, type: 3}
   projectileData: {fileID: 11400000, guid: 877cde919b65b114399bad975ab28077, type: 2}
-  canAimUp: 0
+  canAimUp: 1

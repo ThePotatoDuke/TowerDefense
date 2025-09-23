@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04bd757dbc9f3cd4eb7b210edcdb25c9, type: 3}
+  m_Name: BasicSwordPickup
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponPickupSO
+  weaponPrefab: {fileID: 8568078451993988180, guid: 3b70faf7c25aefe47a11e6f810bb3923, type: 3}
+  displayName: BacisSwrod

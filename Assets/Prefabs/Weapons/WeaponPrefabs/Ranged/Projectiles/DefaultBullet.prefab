@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4005813848107663920}
   - component: {fileID: 2230866318655405364}
+  - component: {fileID: 1448208389593937452}
   m_Layer: 0
   m_Name: DefaultBullet
   m_TagString: Untagged
@@ -46,6 +47,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
   bulletVisual: {fileID: 4527425689669763166}
+--- !u!135 &1448208389593937452
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5132288420110466287}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.09261545
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5407269020931598439
 GameObject:
   m_ObjectHideFlags: 0

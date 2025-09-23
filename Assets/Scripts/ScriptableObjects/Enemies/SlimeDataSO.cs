@@ -17,36 +17,36 @@ public class SlimeDataSO : EnemyDataSO
     [Tooltip("Base distance of a short hop.")]
     public float baseHopDistance = 1f;
 
-    [Tooltip("Multiplier applied to base hop distance for long hops.")]
-    public float longHopMultiplier = 2f;
+    [Tooltip("Multiplier applied to base hop distance for long forward hops.")]
+    public float longHopDistanceMultiplier = 2f;
 
     [Header("Hop Pattern")]
     [Tooltip("Pattern for hop sequence.")]
     public HopPattern hopPattern = HopPattern.Regular;
 
-    [Tooltip("Maximum consecutive back+forward hops before forcing a leap.")]
+    [Tooltip("Maximum consecutive back+forward hops before forcing a long hop.")]
     public int maxBackForward = 3;
 
-    [Tooltip("Minimum consecutive back+forward hops before allowing a long leap.")]
+    [Tooltip("Minimum consecutive back+forward hops before allowing a long hop.")]
     public int minBackForward = 1;
 
     [Tooltip("Wait time after a long hop in ShortShortLong pattern.")]
     public float longHopWaitTime = 0.5f;
 
-    [Tooltip("Chance of performing a backward hop after front hop(0 = never, 1 = always).")]
+    [Tooltip("Chance of performing a backward hop after front hop (0 = never, 1 = always).")]
     [Range(0f, 1f)]
     public float backChance = 0.5f;
 
-    [Tooltip("Chance of performing a forward leap after back hop (0 = never, 1 = always).")]
+    [Tooltip("Chance of performing a forward long hop after back hop (0 = never, 1 = always).")]
     [Range(0f, 1f)]
     public float longForwardChance = 0.5f;
 
-    [Header("Leap Forward Tweaks")]
+    [Header("Long Hop Tweaks")]
     [Tooltip("Height multiplier for long forward hops.")]
-    public float leapHeightMultiplier = 1.5f;
+    public float longHopHeightMultiplier = 1.5f;
 
     [Tooltip("Duration multiplier for long forward hops.")]
-    public float leapDurationMultiplier = 1.3f;
+    public float longHopDurationMultiplier = 1.3f;
 
     [Header("Stretch/Squash")]
     [Tooltip("Vertical stretch when taking off.")]

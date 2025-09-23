@@ -8,7 +8,7 @@ public class SlimeEnemy : EnemyBase
     [SerializeField] private SlimeDataSO data;
 
     [Header("Visuals")]
-    [SerializeField] private Transform slimeVisual;   // child sprite only
+
     [Header("Helpers")]
     [SerializeField] private Transform slimeChild;
 
@@ -25,16 +25,16 @@ public class SlimeEnemy : EnemyBase
     protected override void Awake()
     {
         base.Awake();
-        if (slimeVisual == null)
-            slimeVisual = transform.Find("SlimeVisual");
+        if (visual == null)
+            visual = transform.Find("SlimeVisual");
 
-        originalScale = slimeVisual.localScale;
+        originalScale = visual.localScale;
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
-        slimeVisual.DOKill();
+        visual.DOKill();
     }
 
     private void Start()
@@ -59,7 +59,7 @@ public class SlimeEnemy : EnemyBase
     {
         while (true)
         {
-            // Get next hop
+            // Determine next hop distance
             currentHopDistance = GetNextHop();
 
             // Base bounce parameters
@@ -68,18 +68,18 @@ public class SlimeEnemy : EnemyBase
             float downDuration = data.bounceDuration;
             float interval = data.bounceInterval;
 
-            // Apply leap multipliers only for LongForward hops
+            // Apply multipliers for LongForward hops
             if (currentHopType == HopType.LongForward)
             {
-                upHeight *= data.leapHeightMultiplier;
-                upDuration *= data.leapDurationMultiplier;
-                downDuration *= data.leapDurationMultiplier;
+                upHeight *= data.longHopHeightMultiplier;
+                upDuration *= data.longHopDurationMultiplier;
+                downDuration *= data.longHopDurationMultiplier;
             }
 
-            // Store upDuration for Move()
+            // Store upDuration for spline movement in Move()
             currentUpDuration = upDuration;
 
-            slimeVisual.DOKill();
+            visual.DOKill();
 
             // Move along spline
             Move();
@@ -87,44 +87,50 @@ public class SlimeEnemy : EnemyBase
             // --- Bounce animation sequence ---
             Sequence bounceSeq = DOTween.Sequence();
 
-            bounceSeq.Append(slimeChild.DOLocalMoveY(upHeight, upDuration).SetRelative(true).SetEase(Ease.OutQuad));
+            // Move slimeChild upward (bounce)
+            bounceSeq.Append(slimeChild.DOLocalMoveY(upHeight, upDuration)
+                              .SetRelative(true)
+                              .SetEase(Ease.OutQuad));
 
-            // Takeoff stretch
+            // Takeoff stretch for visual squash/stretch effect
             float takeoffStretchY = data.takeoffStretch;
             float takeoffStretchX = 1f / takeoffStretchY;
-            bounceSeq.Join(slimeVisual.DOScale(
+            bounceSeq.Join(visual.DOScale(
                 new Vector3(originalScale.x * takeoffStretchX, originalScale.y * takeoffStretchY, originalScale.z),
                 upDuration / 3f));
 
             // Relax mid-air
-            bounceSeq.Join(slimeVisual.DOScale(originalScale, upDuration / 3f).SetDelay(upDuration / 3f));
+            bounceSeq.Join(visual.DOScale(originalScale, upDuration / 3f)
+                              .SetDelay(upDuration / 3f));
 
             // Move down
-            bounceSeq.Append(slimeChild.DOLocalMoveY(-upHeight, downDuration).SetRelative(true).SetEase(Ease.InQuad));
+            bounceSeq.Append(slimeChild.DOLocalMoveY(-upHeight, downDuration)
+                              .SetRelative(true)
+                              .SetEase(Ease.InQuad));
 
-            // Fall stretch
+            // Fall stretch for visual effect
             float fallStretchY = data.fallStretch;
             float fallStretchX = 1f / fallStretchY;
-            bounceSeq.Join(slimeVisual.DOScale(
+            bounceSeq.Join(visual.DOScale(
                 new Vector3(originalScale.x * fallStretchX, originalScale.y * fallStretchY, originalScale.z),
                 downDuration / 1.5f));
 
             // Squash on landing
             float squashY = data.squash;
             float squashX = 1f / squashY;
-            bounceSeq.Append(slimeVisual.DOScale(
+            bounceSeq.Append(visual.DOScale(
                 new Vector3(originalScale.x * squashX, originalScale.y * squashY, originalScale.z),
                 upDuration / 3f));
 
-            // Return to normal
-            bounceSeq.Append(slimeVisual.DOScale(originalScale, upDuration / 3f));
+            // Return to normal scale
+            bounceSeq.Append(visual.DOScale(originalScale, upDuration / 3f));
 
-            // Wait interval
+            // Wait interval before next hop
             bounceSeq.AppendInterval(interval);
 
             yield return bounceSeq.WaitForCompletion();
 
-            // Handle long hop wait for ShortShortLong pattern
+            // Special wait for ShortShortLong pattern
             if (data.hopPattern == SlimeDataSO.HopPattern.ShortShortLong &&
                 lastHop == HopType.LongForward && shortHopCounter == 0)
             {
@@ -136,7 +142,7 @@ public class SlimeEnemy : EnemyBase
     private float GetNextHop()
     {
         float shortHop = data.baseHopDistance;
-        float longHop = data.baseHopDistance * data.longHopMultiplier;
+        float longHop = data.baseHopDistance * data.longHopDistanceMultiplier;
         float backHop = -shortHop;
 
         switch (data.hopPattern)
