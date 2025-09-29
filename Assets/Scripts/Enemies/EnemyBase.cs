@@ -27,7 +27,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 
     protected bool hasReachedEnd = false;
     protected float attackInterval = 1f; // seconds between attacks
-    private float attackTimer = 0f;
+    protected float attackTimer = 0f;
 
     // --- Helpers ---
     public void AssignSpline(SplineContainer container)

@@ -7,7 +7,6 @@ public class SpikeBallEnemy : EnemyBase
     [SerializeField] private Transform spikeBallVisual;
 
     private Vector3 lastPos;
-    private float progress = 0f;             // current spline progress
     private float progressVelocity = 0f;     // velocity along spline
     private float currentTargetProgress = 0f;// tweened target
     private float offsetTimer = 0f;
@@ -17,24 +16,30 @@ public class SpikeBallEnemy : EnemyBase
     protected override void Awake()
     {
         base.Awake();
-        lastPos = transform.position; // initialize lastPos
+        lastPos = transform.position;
     }
 
     protected override void OnEnable()
     {
-        // EnemyManager.Instance?.RegisterEnemy(this); // optional
+        base.OnEnable();
+        progressVelocity = 0f;
+        currentTargetProgress = distancePercentage;
     }
 
     protected override void OnDisable()
     {
+        base.OnDisable();
+        DOTween.Kill(this);
     }
 
     protected override void Update()
     {
-        base.Update();
         UpdateTargetProgress();
         Move();
         HandleRollingVisual();
+
+        // Let EnemyBase handle the "attack castle" tick
+        base.Update();
     }
 
     private void UpdateTargetProgress()
@@ -50,8 +55,10 @@ public class SpikeBallEnemy : EnemyBase
         float randomOffset = Random.Range(-data.bouncyOffset, data.bouncyOffset);
         float newTarget = Mathf.Clamp01(averageProgress + randomOffset);
 
-        // Tween smoothly to the new target progress
-        DOTween.To(() => currentTargetProgress, x => currentTargetProgress = x, newTarget, data.offsetTweenDuration)
+        DOTween.To(() => currentTargetProgress,
+                   x => currentTargetProgress = x,
+                   newTarget,
+                   data.offsetTweenDuration)
                .SetEase(data.bouncyEase)
                .SetId(this);
     }
@@ -60,8 +67,8 @@ public class SpikeBallEnemy : EnemyBase
     {
         float dt = Time.deltaTime;
 
-        // spring movement toward the current target
-        float displacement = progress - currentTargetProgress;
+        // spring-damper toward target
+        float displacement = distancePercentage - currentTargetProgress;
         float force = -data.springK * displacement;
         float damping = -data.damping * progressVelocity;
         float acceleration = force + damping;
@@ -69,19 +76,23 @@ public class SpikeBallEnemy : EnemyBase
         progressVelocity += acceleration * dt;
         progressVelocity = Mathf.Clamp(progressVelocity, -data.maxSpeed, data.maxSpeed);
 
-        float previousProgress = progress;
-        progress += progressVelocity * dt;
+        float previousProgress = distancePercentage;
+        distancePercentage = Mathf.Clamp01(distancePercentage + progressVelocity * dt);
 
         if (splineContainer != null)
         {
             Vector3 startPos = splineContainer.EvaluatePosition(previousProgress);
-            Vector3 endPos = splineContainer.EvaluatePosition(progress);
+            Vector3 endPos = splineContainer.EvaluatePosition(distancePercentage);
             transform.position += endPos - startPos;
         }
         else
         {
-            transform.position += new Vector3(progress - previousProgress, 0f, 0f);
+            transform.position += new Vector3(distancePercentage - previousProgress, 0f, 0f);
         }
+
+        // End detection
+        if (!hasReachedEnd && distancePercentage >= 0.999f)
+            ReachEnd();
     }
 
     private void HandleRollingVisual()
