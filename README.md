@@ -1,7 +1,7 @@
 # Endless Wave Tower Defense Prototype
 
 ## Overview
-This project is a **prototype Tower Defense game** built in Unity. It demonstrates a wave-based enemy spawning system, multiple enemy types, and a weapon change mechanic.
+This project is a **prototype Tower Defense game** built in Unity. It demonstrates a wave-based enemy spawning system, multiple enemy types, and a weapon change mechanic. Be sure to check the built game in the releases section.
 
 ---
 ## Engine & Version
