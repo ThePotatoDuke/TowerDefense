@@ -67,6 +67,9 @@ public class Player : MonoBehaviour, IHasHealth
 
     private void Update()
     {
+        // Dead is final; don't let the game-over branch below reset it to Idle
+        if (IsDead()) return;
+
         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
         moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
@@ -101,6 +104,9 @@ public class Player : MonoBehaviour, IHasHealth
 
     private void FixedUpdate()
     {
+        // Knockback moves the body kinematically; velocity can't be set then
+        if (rb.isKinematic) return;
+
         if (!IsDead() && GameStateManager.CurrentState == GameState.Playing)
         {
             Vector3 desiredVelocity = moveDirection * moveSpeed;

@@ -10,8 +10,13 @@ public class SpikeBallEnemy : EnemyBase
     private float progressVelocity = 0f;     // velocity along spline
     private float currentTargetProgress = 0f;// tweened target
     private float offsetTimer = 0f;
+    private int wavesSurvived = 0;
 
     public override EnemyDataSO Data => data;
+
+    // Spike balls only shield other enemies: they don't hold up the next wave or hit the castle
+    public override bool BlocksWaveProgress => false;
+    protected override bool DamagesCastle => false;
 
     protected override void Awake()
     {
@@ -24,12 +29,24 @@ public class SpikeBallEnemy : EnemyBase
         base.OnEnable();
         progressVelocity = 0f;
         currentTargetProgress = distancePercentage;
+        GameEvents.OnWaveCleared += HandleWaveCleared;
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
+        GameEvents.OnWaveCleared -= HandleWaveCleared;
         DOTween.Kill(this);
+    }
+
+    private void HandleWaveCleared()
+    {
+        wavesSurvived++;
+        if (wavesSurvived < data.wavesToSurvive) return;
+
+        Die();
+        if (spikeBallVisual != null)
+            spikeBallVisual.DOScale(Vector3.zero, 0.1f).SetLink(gameObject);
     }
 
     protected override void Update()

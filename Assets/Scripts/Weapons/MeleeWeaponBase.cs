@@ -15,12 +15,13 @@ public abstract class MeleeWeaponBase : WeaponBase
     protected void SwingWeapon(Vector3 targetPosition, float swingDuration, float swingArc)
     {
 
-        if (weaponCollider != null) weaponCollider.enabled = true;
         alreadyHitEnemies.Clear();
 
         Vector3 dir = targetPosition - playerHand.position;
         dir.y = 0;
         if (dir == Vector3.zero) return;
+
+        if (weaponCollider != null) weaponCollider.enabled = true;
 
         float angle = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
         float startAngle = angle - swingArc;
@@ -41,9 +42,6 @@ public abstract class MeleeWeaponBase : WeaponBase
 
     protected virtual void OnTriggerEnter(Collider other)
     {
-        // Avoid hitting the same enemy multiple times per swing
-        if (alreadyHitEnemies.Contains(other.gameObject)) return;
-
         // Look for IHasHealth on the collider or any of its parents
         IHasHealth target = other.GetComponentInParent<IHasHealth>();
         if (target == null) return;
@@ -52,7 +50,8 @@ public abstract class MeleeWeaponBase : WeaponBase
         MonoBehaviour targetMB = target as MonoBehaviour;
         if (targetMB != null && targetMB.gameObject == owner) return;
 
-        Debug.Log("hit with sword");
+        // Avoid hitting the same enemy multiple times per swing (keyed by the health owner, not the child collider)
+        if (targetMB != null && alreadyHitEnemies.Contains(targetMB.gameObject)) return;
 
         target.TakeDamage(MeleeData.damage);
 

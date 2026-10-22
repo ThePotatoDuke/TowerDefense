@@ -48,11 +48,12 @@ public class SlimeEnemy : EnemyBase
     {
         if (hasReachedEnd) return;
 
-        float stepPercentage = currentHopDistance / splineContainer.CalculateLength();
+        float stepPercentage = currentHopDistance / splineLength;
         float targetPercentage = Mathf.Clamp01(distancePercentage + stepPercentage);
 
         DOTween.To(() => distancePercentage, x => distancePercentage = x, targetPercentage, currentUpDuration * 2f)
-               .SetEase(Ease.Linear);
+               .SetEase(Ease.Linear)
+               .SetLink(gameObject);
     }
 
     private IEnumerator BounceRoutine()
@@ -85,7 +86,8 @@ public class SlimeEnemy : EnemyBase
             Move();
 
             // --- Bounce animation sequence ---
-            Sequence bounceSeq = DOTween.Sequence();
+            // Linked so the whole sequence dies with the slime (nested tweens can't be killed via DOKill)
+            Sequence bounceSeq = DOTween.Sequence().SetLink(gameObject);
 
             // Move slimeChild upward (bounce)
             bounceSeq.Append(slimeChild.DOLocalMoveY(upHeight, upDuration)

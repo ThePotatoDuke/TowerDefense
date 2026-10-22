@@ -26,11 +26,22 @@ public class EndlessWaveManager : MonoBehaviour
     private int totalWaveCount = 0;
     private int waveLoopIndex = 0;
 
-    private Coroutine currentWaveCoroutine;
+    private bool isSpawning;
+    private bool spawnRemainingInstantly;
 
     // Events
     public event Action<int> OnWaveChanged;
     public event Action<EnemyBase> OnEnemySpawned;
+
+    private void OnEnable()
+    {
+        GameStateManager.OnGameStateChanged += HandleGameStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameStateManager.OnGameStateChanged -= HandleGameStateChanged;
+    }
 
     private void Start()
     {
@@ -39,13 +50,18 @@ public class EndlessWaveManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && currentWaveCoroutine != null)
-        {
-            StopCoroutine(currentWaveCoroutine);
-            Wave currentWave = waves[totalWaveCount - 1];
-            currentWaveCoroutine = StartCoroutine(SpawnWave(currentWave, true));
-        }
+        // Debug: spawn the rest of the current wave immediately
+        if (Input.GetKeyDown(KeyCode.E) && isSpawning)
+            spawnRemainingInstantly = true;
     }
+
+    private void HandleGameStateChanged(GameState state)
+    {
+        // Stop spawning once the run is over
+        if (state == GameState.CastleDestroyed || state == GameState.PlayerDead)
+            StopAllCoroutines();
+    }
+
     private IEnumerator RunEndlessWaves()
     {
         while (true)
@@ -55,12 +71,13 @@ public class EndlessWaveManager : MonoBehaviour
                 totalWaveCount++;
                 OnWaveChanged?.Invoke(totalWaveCount);
 
-                // Start spawning enemies
-                currentWaveCoroutine = StartCoroutine(SpawnWave(wave));
-                yield return currentWaveCoroutine;
+                // Spawn enemies
+                yield return SpawnWave(wave);
 
-                // Wait until all enemies in scene are dead
-                yield return new WaitUntil(() => EnemyManager.Instance.GetAllEnemies().Count == 0);
+                // Wait until all wave-blocking enemies are dead (spike balls don't count)
+                yield return new WaitUntil(() => EnemyManager.Instance.GetWaveBlockingEnemyCount() == 0);
+
+                GameEvents.WaveCleared();
 
                 // Spawn weapon after wave is fully cleared
                 SpawnRandomWeapon();
@@ -71,7 +88,7 @@ public class EndlessWaveManager : MonoBehaviour
     }
 
 
-    private IEnumerator SpawnWave(Wave wave, bool spawnAllInstantly = false)
+    private IEnumerator SpawnWave(Wave wave)
     {
         // Build weighted list for extra/random enemies
         List<EnemyBase> weightedList = new List<EnemyBase>();
@@ -95,7 +112,8 @@ public class EndlessWaveManager : MonoBehaviour
         int maxExtra = Mathf.Max(minExtra, waveLoopIndex * enemiesPerWaveIncrement + minExtra);
         int extraEnemies = UnityEngine.Random.Range(minExtra, maxExtra + 1);
 
-        for (int i = 0; i < extraEnemies; i++)
+        // Skip extras if every entry has spawnWeight 0
+        for (int i = 0; i < extraEnemies && weightedList.Count > 0; i++)
         {
             EnemyBase prefab = weightedList[UnityEngine.Random.Range(0, weightedList.Count)];
             spawnList.Add(prefab);
@@ -111,12 +129,15 @@ public class EndlessWaveManager : MonoBehaviour
         }
 
         // Spawn enemies
+        isSpawning = true;
+        spawnRemainingInstantly = false;
         foreach (var enemy in spawnList)
         {
             SpawnEnemy(enemy);
-            if (!spawnAllInstantly)
+            if (!spawnRemainingInstantly)
                 yield return new WaitForSeconds(RandomInterval(wave));
         }
+        isSpawning = false;
     }
 
     private void SpawnEnemy(EnemyBase prefab)

@@ -13,7 +13,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private PlayableDirector gameOverTimeline;
 
-    public GameState CurrentState { get; private set; }
+    // GameStateManager is the single source of truth; GameManager drives it
+    public GameState CurrentState => GameStateManager.CurrentState;
 
     private void Awake()
     {
@@ -39,7 +40,7 @@ public class GameManager : MonoBehaviour
 
     public void SetGameState(GameState newState)
     {
-        CurrentState = newState;
+        GameStateManager.SetState(newState);
 
         switch (newState)
         {

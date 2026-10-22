@@ -1,7 +1,5 @@
 using UnityEngine;
 
-public enum EnemyMovementType { Walking, Bouncing }
-
 public abstract class EnemyDataSO : ScriptableObject
 {
     [Header("General Settings")]

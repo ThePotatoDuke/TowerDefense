@@ -34,7 +34,9 @@ public class SpikeBallDataSO : EnemyDataSO
     [Tooltip("Small random offset added to average enemy progress. Typically between -0.05 and 0.05.")]
     public float bouncyOffset = 0.03f;
     public float maxSpeed;
-    public float target;
 
+    [Header("Lifetime")]
+    [Tooltip("Number of cleared waves after which the spike ball destroys itself.")]
+    public int wavesToSurvive = 2;
 }
 

@@ -44,4 +44,9 @@ public class EnemyManager : MonoBehaviour
         return activeEnemies.ToList();
     }
 
+    public int GetWaveBlockingEnemyCount()
+    {
+        return activeEnemies.Count(e => e.BlocksWaveProgress);
+    }
+
 }

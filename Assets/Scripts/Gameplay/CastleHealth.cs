@@ -28,6 +28,8 @@ public class CastleHealth : MonoBehaviour, IHasHealth
 
     public void TakeDamage(float amount)
     {
+        if (currentHealth <= 0) return; // already destroyed
+
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         OnHealthChanged?.Invoke(currentHealth / maxHealth);
@@ -43,8 +45,8 @@ public class CastleHealth : MonoBehaviour, IHasHealth
 
     private void Die()
     {
+        // GameManager handles the state change
         GameEvents.CastleDied();
-        GameStateManager.SetState(GameState.CastleDestroyed);
     }
 
 }

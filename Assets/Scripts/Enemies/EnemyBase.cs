@@ -7,10 +7,17 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 {
     // --- Health ---
     protected float currentHealth;
+    private float healthMultiplier = 1f;
+    protected bool isDead = false;
     public abstract EnemyDataSO Data { get; }
     public float CurrentHealth => currentHealth;
-    public float MaxHealth => Data.maxHealth;
+    public float MaxHealth => Data.maxHealth * healthMultiplier;
     public float ContactDamage => Data.contactDamage;
+    public bool IsDead => isDead;
+
+    // Support enemies (e.g. spike balls) override these
+    public virtual bool BlocksWaveProgress => true;
+    protected virtual bool DamagesCastle => true;
 
     public event Action<float> OnHealthChanged;
     public event Action OnDied;
@@ -23,6 +30,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     [Header("Spline Movement")]
     [SerializeField] protected SplineContainer splineContainer;
     protected float distancePercentage = 0f;
+    protected float splineLength = 1f;
     public float DistancePercentage => distancePercentage;
 
     protected bool hasReachedEnd = false;
@@ -33,13 +41,15 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     public void AssignSpline(SplineContainer container)
     {
         splineContainer = container;
+        splineLength = container != null ? container.CalculateLength() : 1f;
         distancePercentage = 0f;
         hasReachedEnd = false;
     }
 
     public void SetHealthMultiplier(float multiplier)
     {
-        currentHealth = MaxHealth * multiplier;
+        healthMultiplier = multiplier;
+        currentHealth = MaxHealth;
     }
 
     // --- Unity ---
@@ -106,7 +116,8 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
             if (attackTimer >= attackInterval)
             {
                 attackTimer = 0f;
-                OnEnemyReachedEnd?.Invoke(this);
+                if (DamagesCastle)
+                    OnEnemyReachedEnd?.Invoke(this);
             }
         }
     }
@@ -122,6 +133,8 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     // --- Health ---
     public virtual void TakeDamage(float amount)
     {
+        if (isDead) return;
+
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, MaxHealth);
         OnHealthChanged?.Invoke(currentHealth / MaxHealth);
@@ -138,17 +151,22 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         if (spriteRenderer != null)
         {
             spriteRenderer.DOColor(Color.red, duration)
+                         .SetLink(gameObject)
                          .OnComplete(() => spriteRenderer.color = originalColor);
         }
         else if (meshRenderer != null)
         {
             meshRenderer.material.DOColor(Color.red, duration)
+                        .SetLink(gameObject)
                         .OnComplete(() => meshRenderer.material.color = originalColor);
         }
     }
 
     protected virtual void Die()
     {
+        if (isDead) return;
+        isDead = true;
+
         StopAllTweens();
         OnDied?.Invoke();
         Destroy(gameObject, 0.1f);

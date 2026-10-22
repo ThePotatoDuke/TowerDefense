@@ -43,5 +43,5 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 01e44567b37357848b4b8057aaa77493, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DefaultGun
+  m_EditorClassIdentifier: Assembly-CSharp::ShotGun
   rangedData: {fileID: 11400000, guid: d44a086d2c6888f4ca56c6d0b608d405, type: 2}

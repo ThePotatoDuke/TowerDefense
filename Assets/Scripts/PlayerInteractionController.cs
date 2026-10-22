@@ -4,7 +4,6 @@ using DG.Tweening;
 public class PlayerInteractionController : MonoBehaviour
 {
     [SerializeField] private Player player;
-    [SerializeField] private WeaponBase currentWeapon;
 
 
     [Header("Knockback Settings")]
@@ -17,7 +16,7 @@ public class PlayerInteractionController : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         IEnemy enemy = other.GetComponentInParent<IEnemy>();
-        if (enemy != null && !player.IsDead())
+        if (enemy != null && !player.IsDead() && GameStateManager.CurrentState == GameState.Playing)
         {
             if (!player.IsInvulnerable)
             {
@@ -51,7 +50,8 @@ public class PlayerInteractionController : MonoBehaviour
 
         // Prevent clipping into walls
         Vector3 boxHalfExtents = player.GetComponent<Collider>().bounds.extents;
-        if (Physics.BoxCast(startPos, boxHalfExtents, direction.normalized, out RaycastHit hit, Quaternion.identity, knockbackDistance))
+        if (Physics.BoxCast(startPos, boxHalfExtents, direction.normalized, out RaycastHit hit, Quaternion.identity, knockbackDistance,
+                Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
             intendedTarget = hit.point - direction.normalized * 0.05f;
 
         currentKnockbackSeq = DOTween.Sequence();

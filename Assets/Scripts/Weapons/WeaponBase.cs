@@ -17,6 +17,8 @@ public abstract class WeaponBase : MonoBehaviour
 
     private void Update()
     {
+        if (GameStateManager.CurrentState != GameState.Playing) return;
+
         GameObject target = FindClosestEnemy();
         if (target != null)
             TryAttack(target);
@@ -44,7 +46,7 @@ public abstract class WeaponBase : MonoBehaviour
         foreach (var c in colliders)
         {
             var enemy = c.GetComponentInParent<EnemyBase>();
-            if (enemy != null)
+            if (enemy != null && !enemy.IsDead)
             {
                 float dist = Vector3.Distance(owner.transform.position, enemy.transform.position);
                 if (dist < closestDistance)

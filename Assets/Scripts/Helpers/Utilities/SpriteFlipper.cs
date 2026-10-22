@@ -42,6 +42,7 @@ public class SpriteFlipper : MonoBehaviour
     private void Flip(Facing dir)
     {
         float yRot = (dir == Facing.Right) ? 0f : 180f;
-        spriteTransform.DOLocalRotate(new Vector3(0, yRot, 0), flipDuration, RotateMode.Fast);
+        spriteTransform.DOLocalRotate(new Vector3(0, yRot, 0), flipDuration, RotateMode.Fast)
+                       .SetLink(gameObject);
     }
 }

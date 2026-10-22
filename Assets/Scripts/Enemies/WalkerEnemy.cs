@@ -17,7 +17,7 @@ public class WalkerEnemy : EnemyBase
     {
         if (hasReachedEnd || splineContainer == null) return;
 
-        float step = data.moveSpeed * Time.deltaTime / splineContainer.CalculateLength();
+        float step = data.moveSpeed * Time.deltaTime / splineLength;
         distancePercentage = Mathf.Clamp01(distancePercentage + step);
     }
 }
