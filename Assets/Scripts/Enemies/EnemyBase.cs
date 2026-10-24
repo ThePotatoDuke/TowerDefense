@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Splines;
+using Unity.Mathematics;
 using DG.Tweening;
 
 public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
@@ -18,6 +19,10 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     // Support enemies (e.g. spike balls) override these
     public virtual bool BlocksWaveProgress => true;
     protected virtual bool DamagesCastle => true;
+    // Flying enemies (bats) can only be hit by weapons that aim up
+    public virtual bool IsFlying => false;
+    // Enemies hop over rollers in their way; things already in the air or that are rollers themselves don't
+    public virtual bool CanDodge => !IsFlying;
 
     public event Action<float> OnHealthChanged;
     public event Action OnDied;
@@ -26,11 +31,18 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     private Color originalColor;
     private Renderer meshRenderer;
     private SpriteRenderer spriteRenderer;
+    private SpriteFX spriteFX;
+
+    // Direct child holding the visual; lifted when dodging so the spline-following root stays on the path
+    private Transform jumpRoot;
+    private Sequence dodgeSequence;
+    public bool IsDodging => dodgeSequence != null && dodgeSequence.IsActive();
 
     [Header("Spline Movement")]
     [SerializeField] protected SplineContainer splineContainer;
     protected float distancePercentage = 0f;
     protected float splineLength = 1f;
+    private bool splineAssigned;
     public float DistancePercentage => distancePercentage;
 
     protected bool hasReachedEnd = false;
@@ -41,6 +53,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     public void AssignSpline(SplineContainer container)
     {
         splineContainer = container;
+        splineAssigned = true;
         splineLength = container != null ? container.CalculateLength() : 1f;
         distancePercentage = 0f;
         hasReachedEnd = false;
@@ -78,6 +91,23 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
                 }
             }
         }
+
+        // Sprite enemies get shader-driven hit flash, death dissolve and a ground shadow
+        if (spriteRenderer != null)
+        {
+            spriteFX = gameObject.GetOrAddComponent<SpriteFX>();
+            gameObject.GetOrAddComponent<BlobShadow>();
+        }
+
+        jumpRoot = FindJumpRoot();
+    }
+
+    private Transform FindJumpRoot()
+    {
+        Transform current = visual;
+        while (current != null && current.parent != transform)
+            current = current.parent;
+        return current;
     }
 
     protected virtual void OnEnable()
@@ -97,6 +127,11 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 
     protected virtual void Update()
     {
+        // Frozen in place while the death effect plays
+        if (isDead) return;
+
+        FindPathIfUnassigned();
+
         // Update position along spline
         if (splineContainer != null)
         {
@@ -122,6 +157,23 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         }
     }
 
+    // Enemies dragged into the scene by hand (for testing) aren't spawned by the wave manager,
+    // so they find the path themselves and start from the closest point on it
+    private void FindPathIfUnassigned()
+    {
+        if (splineAssigned) return;
+        splineAssigned = true;
+
+        if (splineContainer == null)
+            splineContainer = FindAnyObjectByType<SplineContainer>();
+        if (splineContainer == null) return;
+
+        splineLength = splineContainer.CalculateLength();
+        float3 localPoint = splineContainer.transform.InverseTransformPoint(transform.position);
+        SplineUtility.GetNearestPoint(splineContainer.Spline, localPoint, out _, out float t);
+        distancePercentage = t;
+    }
+
     // --- Reached end logic ---
     protected void ReachEnd()
     {
@@ -145,10 +197,31 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
             Die();
     }
 
+    // --- Dodging ---
+    public void Dodge(float height, float duration)
+    {
+        if (isDead || !CanDodge || IsDodging || jumpRoot == null) return;
+
+        Transform root = jumpRoot;
+        float restY = root.localPosition.y;
+        dodgeSequence = DOTween.Sequence().SetLink(gameObject)
+            .Append(root.DOLocalMoveY(restY + height, duration * 0.5f).SetEase(Ease.OutQuad))
+            .Append(root.DOLocalMoveY(restY, duration * 0.5f).SetEase(Ease.InQuad))
+            .OnKill(() =>
+            {
+                if (root != null)
+                    root.localPosition = new Vector3(root.localPosition.x, restY, root.localPosition.z);
+            });
+    }
+
     // --- Hit flash ---
     public virtual void Flash(float duration = 0.1f)
     {
-        if (spriteRenderer != null)
+        if (spriteFX != null && spriteFX.IsReady)
+        {
+            spriteFX.Flash();
+        }
+        else if (spriteRenderer != null)
         {
             spriteRenderer.DOColor(Color.red, duration)
                          .SetLink(gameObject)
@@ -169,7 +242,21 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 
         StopAllTweens();
         OnDied?.Invoke();
-        Destroy(gameObject, 0.1f);
+
+        // No more contact damage or hits while the death effect plays
+        foreach (Collider col in GetComponentsInChildren<Collider>())
+            col.enabled = false;
+
+        // Sprites dissolve; meshes (spike balls) shrink away
+        float deathDuration = spriteFX != null ? spriteFX.Dissolve() : 0f;
+        if (deathDuration <= 0f)
+        {
+            deathDuration = 0.15f;
+            if (visual != null)
+                visual.DOScale(Vector3.zero, deathDuration).SetLink(gameObject);
+        }
+
+        Destroy(gameObject, deathDuration);
     }
 
     // --- Tween cleanup ---

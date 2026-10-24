@@ -6,6 +6,7 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected GameObject owner;
     protected Transform playerHand;
+    private Player ownerPlayer;
 
     private float lastAttackTime;
 
@@ -13,16 +14,24 @@ public abstract class WeaponBase : MonoBehaviour
     {
         this.owner = owner;
         playerHand = hand;
+        ownerPlayer = owner.GetComponent<Player>();
     }
 
     private void Update()
     {
         if (GameStateManager.CurrentState != GameState.Playing) return;
+        // No attacks during the death animation, before the game-over state kicks in
+        if (ownerPlayer != null && ownerPlayer.IsDead()) return;
 
         GameObject target = FindClosestEnemy();
+        if (target == null)
+            target = FindIdleTarget();
         if (target != null)
             TryAttack(target);
     }
+
+    // Something to attack when no enemy is in range (the sword mows grass)
+    protected virtual GameObject FindIdleTarget() => null;
 
     public void TryAttack(GameObject target)
     {
@@ -35,6 +44,9 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected abstract void OnAttack(GameObject target);
 
+    // Skip enemies this weapon can't reach, so it doesn't waste attacks on them
+    protected virtual bool CanTarget(EnemyBase enemy) => true;
+
     private GameObject FindClosestEnemy()
     {
         float closestDistance = float.MaxValue;
@@ -46,7 +58,7 @@ public abstract class WeaponBase : MonoBehaviour
         foreach (var c in colliders)
         {
             var enemy = c.GetComponentInParent<EnemyBase>();
-            if (enemy != null && !enemy.IsDead)
+            if (enemy != null && !enemy.IsDead && CanTarget(enemy))
             {
                 float dist = Vector3.Distance(owner.transform.position, enemy.transform.position);
                 if (dist < closestDistance)

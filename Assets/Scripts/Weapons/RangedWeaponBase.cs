@@ -6,6 +6,9 @@ public abstract class RangedWeaponBase : WeaponBase
     public override WeaponDataSO Data => rangedData;
     protected RangedWeaponDataSO RangedData => rangedData;
 
+    // Flat-shooting guns fire under flying enemies
+    protected override bool CanTarget(EnemyBase enemy) => RangedData.canAimUp || !enemy.IsFlying;
+
     protected override void OnAttack(GameObject target)
     {
         // Try to find a collider in the children

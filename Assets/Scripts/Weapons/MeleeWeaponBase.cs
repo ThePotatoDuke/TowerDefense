@@ -11,6 +11,26 @@ public abstract class MeleeWeaponBase : WeaponBase
     [SerializeField] protected Collider weaponCollider;
 
     protected HashSet<GameObject> alreadyHitEnemies = new HashSet<GameObject>();
+    private SwordTrail swordTrail;
+    private Collider blade;
+
+    protected virtual void Awake()
+    {
+        // weaponCollider may be unassigned on the prefab; the trail only needs the blade shape
+        blade = weaponCollider != null ? weaponCollider : GetComponent<Collider>();
+        swordTrail = gameObject.GetOrAddComponent<SwordTrail>();
+        swordTrail.Setup(blade as BoxCollider);
+    }
+
+    // Swings stay at hand height, below flying enemies
+    protected override bool CanTarget(EnemyBase enemy) => !enemy.IsFlying;
+
+    // With no enemy around, swing at nearby grass instead
+    protected override GameObject FindIdleTarget()
+    {
+        if (GroundDecorator.Instance == null || owner == null) return null;
+        return GroundDecorator.Instance.FindStandingTuft(owner.transform.position, Data.range);
+    }
 
     protected void SwingWeapon(Vector3 targetPosition, float swingDuration, float swingArc)
     {
@@ -30,12 +50,23 @@ public abstract class MeleeWeaponBase : WeaponBase
         Vector3 euler = playerHand.localEulerAngles;
         euler.y = startAngle;
         playerHand.localEulerAngles = euler;
+        swordTrail.Begin();
 
         playerHand.DOLocalRotate(new Vector3(0, endAngle, 0), swingDuration)
             .SetEase(Ease.InOutSine)
+            .OnUpdate(() =>
+            {
+                // Mow any grass the blade passes through
+                if (blade != null && GroundDecorator.Instance != null)
+                    GroundDecorator.Instance.CutGrass(blade);
+            })
             .OnComplete(() =>
             {
+                // A tuft swung at always falls, even if it sat just past the blade's tip
+                if (GroundDecorator.Instance != null)
+                    GroundDecorator.Instance.CutTuftAt(targetPosition, blade != null ? blade.transform.position : targetPosition);
 
+                if (swordTrail != null) swordTrail.End();
                 if (weaponCollider != null) weaponCollider.enabled = false;
             });
     }

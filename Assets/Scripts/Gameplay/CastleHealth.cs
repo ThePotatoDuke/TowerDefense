@@ -14,6 +14,7 @@ public class CastleHealth : MonoBehaviour, IHasHealth
     private void Awake()
     {
         currentHealth = maxHealth;
+        gameObject.GetOrAddComponent<CastleHitFX>();
     }
 
     private void OnEnable()

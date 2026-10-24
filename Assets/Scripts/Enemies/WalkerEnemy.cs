@@ -15,7 +15,7 @@ public class WalkerEnemy : EnemyBase
 
     public override void Move()
     {
-        if (hasReachedEnd || splineContainer == null) return;
+        if (isDead || hasReachedEnd || splineContainer == null) return;
 
         float step = data.moveSpeed * Time.deltaTime / splineLength;
         distancePercentage = Mathf.Clamp01(distancePercentage + step);

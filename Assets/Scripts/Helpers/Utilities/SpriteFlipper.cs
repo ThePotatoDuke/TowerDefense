@@ -5,6 +5,8 @@ public class SpriteFlipper : MonoBehaviour
 {
     [SerializeField] private Transform spriteTransform;
     [SerializeField] private float flipDuration;
+    [Tooltip("Transform whose movement decides the facing. Defaults to this one; bats use their root so weaving doesn't flip them.")]
+    [SerializeField] private Transform motionSource;
 
     private Vector3 lastPos;
     private enum Facing { Right, Left }
@@ -12,8 +14,11 @@ public class SpriteFlipper : MonoBehaviour
 
     private void Awake()
     {
+        if (motionSource == null)
+            motionSource = transform;
+
         currentFacing = Facing.Right;
-        lastPos = transform.position;
+        lastPos = motionSource.position;
 
         if (flipDuration <= 0f)
             flipDuration = Constants.flipDuration;
@@ -26,7 +31,7 @@ public class SpriteFlipper : MonoBehaviour
 
     private void HandleFlip()
     {
-        Vector3 movement = transform.position - lastPos;
+        Vector3 movement = motionSource.position - lastPos;
         if (movement.sqrMagnitude > 0.0000001f)
         {
             Facing newFacing = movement.x >= 0 ? Facing.Right : Facing.Left;
@@ -36,7 +41,7 @@ public class SpriteFlipper : MonoBehaviour
                 Flip(currentFacing);
             }
         }
-        lastPos = transform.position;
+        lastPos = motionSource.position;
     }
 
     private void Flip(Facing dir)

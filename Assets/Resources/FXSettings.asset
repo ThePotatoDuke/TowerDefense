@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85b126e49aa34985a233030039d3e9d5, type: 3}
+  m_Name: FXSettings
+  m_EditorClassIdentifier: Assembly-CSharp::FXSettings
+  spriteFXShader: {fileID: 4800000, guid: 45230fd3765241f381e600a38f3ff58c, type: 3}
+  blobShadowShader: {fileID: 4800000, guid: dc7ee8b20de844e0af6190db56cc5a53, type: 3}
+  unlitShader: {fileID: 4800000, guid: 70712243099648c896f3844b21e3c701, type: 3}
+  pixelImposterShader: {fileID: 4800000, guid: 2208202144e7405fac84397f187cf6c2, type: 3}
+  pixelTrailShader: {fileID: 4800000, guid: 7c0936dbcf4c4ee7b403370f4f738060, type: 3}
+  flashColor: {r: 2, g: 2, b: 2, a: 1}
+  flashDuration: 0.12
+  dissolveEdgeColor: {r: 4, g: 1.6, b: 0.4, a: 1}
+  dissolveEdgeWidth: 0.12
+  dissolveDuration: 0.45
+  shadowColor: {r: 0, g: 0, b: 0, a: 0.50980395}
+  shadowSizeMultiplier: 0.7
+  shadowMaxHeight: 2
+  shadowAnchor: 1
+  castleShakeDuration: 0.25
+  castleShakeStrength: 0.15
+  castleDebrisCount: 16
+  castleDebrisSize: 0.12
+  castleDebrisColorA: {r: 0.62, g: 0.6, b: 0.56, a: 1}
+  castleDebrisColorB: {r: 0.32, g: 0.29, b: 0.27, a: 1}
+  castleLowHealthColor: {r: 1.6, g: 0.15, b: 0.1, a: 1}
+  castleLowHealthThreshold: 0.3
+  shineColor: {r: 2.5, g: 2.5, b: 2.5, a: 1}
+  shineSpeed: 40
+  shineSpacing: 60
+  shineWidth: 4
+  projectileEmission: 2.5
+  projectileTrailColor: {r: 3, g: 2.2, b: 0.8, a: 1}
+  projectileTrailTime: 0.12
+  projectileTrailWidth: 0.08
+  swooshColor: {r: 2, g: 2, b: 2, a: 1}
+  swooshTime: 0.2
+  swooshWidth: 0.8
+  batTrailTime: 1.5
+  batTrailWidth: 0.2
+  batTrailAlpha: 1
+  batTrailPixelSize: 0.0625
+  batTrailAlphaSteps: 8
+  batPixelDensity: 4
+  batPixelSize: 0.1
+  batPixelLifetime: 0.6
+  pixelArtLayer: 9
+  imposterPixelsPerUnit: 20
+  imposterOutlineColor: {r: 0.08, g: 0.06, b: 0.1, a: 1}

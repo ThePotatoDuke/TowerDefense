@@ -8,6 +8,8 @@ public class EnemyManager : MonoBehaviour
 
     // All active enemies in the scene
     private readonly List<IEnemy> activeEnemies = new();
+    // Read-only view for per-frame checks that shouldn't allocate a copy
+    public IReadOnlyList<IEnemy> ActiveEnemies => activeEnemies;
 
 
     private void Awake()

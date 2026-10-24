@@ -22,6 +22,11 @@ public class SpikeBallEnemy : EnemyBase
     {
         base.Awake();
         lastPos = transform.position;
+
+        // Draw the 3D ball as outlined pixel art, with a ground shadow like the sprites
+        MeshRenderer model = GetComponentInChildren<MeshRenderer>(); // before the imposter adds its quad
+        gameObject.GetOrAddComponent<PixelImposter>();
+        gameObject.GetOrAddComponent<BlobShadow>().Source = model;
     }
 
     protected override void OnEnable()
@@ -45,12 +50,12 @@ public class SpikeBallEnemy : EnemyBase
         if (wavesSurvived < data.wavesToSurvive) return;
 
         Die();
-        if (spikeBallVisual != null)
-            spikeBallVisual.DOScale(Vector3.zero, 0.1f).SetLink(gameObject);
     }
 
     protected override void Update()
     {
+        if (isDead) return;
+
         UpdateTargetProgress();
         Move();
         HandleRollingVisual();

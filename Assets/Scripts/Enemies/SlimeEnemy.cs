@@ -41,6 +41,12 @@ public class SlimeEnemy : EnemyBase
     {
         StartCoroutine(BounceRoutine());
     }
+
+    protected override void Die()
+    {
+        StopAllCoroutines(); // no new hops while dissolving
+        base.Die();
+    }
     private float currentHopDistance;   // distance for Move()
     private float currentUpDuration;     // duration for spline movement
 

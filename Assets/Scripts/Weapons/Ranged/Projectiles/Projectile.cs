@@ -5,6 +5,7 @@ public class Projectile : MonoBehaviour
     private ProjectileDataSO data;
     private Vector3 direction;
     private int pierceCount;
+    private ProjectileFX fx;
 
     private void Awake()
     {
@@ -12,6 +13,8 @@ public class Projectile : MonoBehaviour
         bulletVisual = transform.Find("BulletVisual");
         if (bulletVisual == null)
             Debug.LogWarning("BulletVisual child not found!");
+
+        fx = gameObject.GetOrAddComponent<ProjectileFX>();
     }
     public void Initialize(ProjectileDataSO data, Vector3 direction)
     {
@@ -58,6 +61,7 @@ public class Projectile : MonoBehaviour
 
                 if (!data.pierces || pierceCount >= data.maxPierceCount)
                 {
+                    fx.ReleaseTrail();
                     Destroy(gameObject);
                 }
                 else

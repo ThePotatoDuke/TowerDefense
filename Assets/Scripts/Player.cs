@@ -35,6 +35,8 @@ public class Player : MonoBehaviour, IHasHealth
     private Rigidbody rb;
     private Vector3 moveDirection;
     private Color originalColor;
+    private SpriteFX spriteFX;
+    private PlayerDeathFX deathFX;
 
     public float CurrentHealth => currentHealth;
     public float MaxHealth => maxHealth;
@@ -62,6 +64,10 @@ public class Player : MonoBehaviour, IHasHealth
             if (weaponHand == null)
                 Debug.LogWarning("PlayerHand transform not found!");
         }
+
+        spriteFX = gameObject.GetOrAddComponent<SpriteFX>();
+        gameObject.GetOrAddComponent<BlobShadow>();
+        deathFX = gameObject.GetOrAddComponent<PlayerDeathFX>();
 
     }
 
@@ -131,7 +137,7 @@ public class Player : MonoBehaviour, IHasHealth
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         OnHealthChanged?.Invoke(currentHealth / maxHealth);
-
+        spriteFX.Flash();
 
         if (currentHealth <= 0)
         {
@@ -186,6 +192,9 @@ public class Player : MonoBehaviour, IHasHealth
 
         OnDied?.Invoke();
         SetState(PlayerState.Dead);
+
+        // Freeze frame, zoom and shake; the death animation below then plays in slow motion
+        deathFX.Play();
 
         // Disable LookAtCamera
         var lookAt = playerVisualTransform.GetComponent<LookAtCamera>();
