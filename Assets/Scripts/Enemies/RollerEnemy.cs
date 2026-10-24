@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Spiked cylinder that rolls back and forth along the path. Reaching either end turns it around,
-// two rollers that meet bounce apart in a shower of sparks, and enemies in its way hop over it.
+// two rollers that meet bounce apart in a shower of sparks, enemies in its way hop over it, and
+// ground enemies that still end up touching it take a little damage.
 public class RollerEnemy : EnemyBase
 {
     private static readonly List<RollerEnemy> activeRollers = new();
@@ -14,6 +15,8 @@ public class RollerEnemy : EnemyBase
     private int direction = 1; // +1 toward the castle, -1 back toward the spawn
     private float spinAngle;
     private int wavesSurvived = 0;
+    private float halfLength; // half the cylinder's length along its axis
+    private readonly Dictionary<EnemyBase, float> lastTouchTimes = new();
 
     public override EnemyDataSO Data => data;
 
@@ -30,6 +33,10 @@ public class RollerEnemy : EnemyBase
         MeshRenderer model = GetComponentInChildren<MeshRenderer>(); // before the imposter adds its quad
         gameObject.GetOrAddComponent<PixelImposter>();
         gameObject.GetOrAddComponent<BlobShadow>().Source = model;
+
+        // The capsule collider runs along the axis and spans the whole cylinder
+        CapsuleCollider capsule = rollerVisual != null ? rollerVisual.GetComponent<CapsuleCollider>() : null;
+        halfLength = capsule != null ? capsule.height * 0.5f * rollerVisual.lossyScale.x : data.radius;
     }
 
     protected override void OnEnable()
@@ -62,7 +69,52 @@ public class RollerEnemy : EnemyBase
         Move();
         BounceOffOtherRollers();
         MakeEnemiesVault();
+        DamageTouchingEnemies();
         UpdateVisual();
+    }
+
+    // Ground enemies touching the cylinder's body take a little damage, at most once per interval each.
+    // Measured in world space against the whole length of the cylinder, so it also catches enemies on
+    // another stretch of the path that the roller sweeps across (e.g. where the path loops past itself).
+    private void DamageTouchingEnemies()
+    {
+        if (EnemyManager.Instance == null || rollerVisual == null) return;
+
+        Vector3 axis = rollerVisual.right;
+        axis.y = 0f;
+        if (axis.sqrMagnitude < 0.0001f) return;
+        axis.Normalize();
+
+        // Forget enemies that died or haven't been hit for a while
+        if (lastTouchTimes.Count > 32)
+        {
+            var stale = new List<EnemyBase>();
+            foreach (var entry in lastTouchTimes)
+            {
+                if (entry.Key == null || Time.time - entry.Value > data.touchDamageInterval)
+                    stale.Add(entry.Key);
+            }
+            foreach (EnemyBase enemy in stale)
+                lastTouchTimes.Remove(enemy);
+        }
+
+        foreach (IEnemy candidate in EnemyManager.Instance.GetAllEnemies())
+        {
+            // Only enemies on the ground: not flyers, other rollers, or anything mid-hop over it
+            if (candidate is not EnemyBase enemy || enemy.IsDead || !enemy.CanDodge || enemy.IsDodging) continue;
+
+            // Flat distance from the enemy to the nearest point on the cylinder's axis
+            Vector3 offset = enemy.transform.position - rollerVisual.position;
+            offset.y = 0f;
+            float along = Mathf.Clamp(Vector3.Dot(offset, axis), -halfLength, halfLength);
+            if ((offset - axis * along).magnitude > data.radius + enemy.BodyRadius) continue;
+
+            if (lastTouchTimes.TryGetValue(enemy, out float lastTouch) && Time.time - lastTouch < data.touchDamageInterval)
+                continue;
+
+            lastTouchTimes[enemy] = Time.time;
+            enemy.TakeDamage(data.touchDamage);
+        }
     }
 
     public override void Move()

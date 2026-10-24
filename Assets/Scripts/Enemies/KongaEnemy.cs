@@ -34,23 +34,6 @@ public class KongaEnemy : EnemyBase
 
         base.Update(); // follow the spline, castle damage
         Move();
-        Weave();
-    }
-
-    // Weaving variants swing from side to side. The offset depends only on the spot along the path,
-    // so every Konga in a line passes through the same curve, snaking like the line in Zuma.
-    private void Weave()
-    {
-        if (data.waveAmplitude <= 0f || splineContainer == null) return;
-
-        Vector3 tangent = splineContainer.EvaluateTangent(distancePercentage);
-        tangent.y = 0f;
-        if (tangent.sqrMagnitude < 0.0001f) return;
-
-        Vector3 side = Vector3.Cross(Vector3.up, tangent.normalized);
-        float phase = distancePercentage * splineLength / Mathf.Max(0.01f, data.waveLength);
-        Vector3 onPath = splineContainer.EvaluatePosition(distancePercentage);
-        transform.position = onPath + side * (Mathf.Sin(phase * Mathf.PI * 2f) * data.waveAmplitude);
     }
 
     public override void Move()

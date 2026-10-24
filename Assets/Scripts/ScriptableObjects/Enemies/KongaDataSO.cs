@@ -19,10 +19,4 @@ public class KongaDataSO : EnemyDataSO
     public float brakeDistance = 1.2f;
     [Tooltip("Kongas further apart than this don't chain; the one behind leads its own line.")]
     public float maxChainGap = 8f;
-
-    [Header("Weaving (0 amplitude walks straight)")]
-    [Tooltip("How far it swings to each side of the path. A whole line snakes through the same curve.")]
-    public float waveAmplitude = 0f;
-    [Tooltip("Distance along the path for one full side-to-side swing.")]
-    public float waveLength = 4f;
 }

@@ -24,69 +24,13 @@ public static class KongaPrefabSetup
     private const string DataFolder = "Assets/ScriptableObjects/Enemies/Konga";
     private const string DataPath = DataFolder + "/KongaSO.asset";
 
-    // Weaving variant: snakes from side to side and only chains with its own kind
-    private const string WeaverPrefabPath = PrefabFolder + "/WeaverKonga.prefab";
-    private const string WeaverDataPath = DataFolder + "/WeaverKongaSO.asset";
-    private static readonly Color WeaverTint = new Color(0.55f, 0.5f, 0.75f, 1f);
-
     static KongaPrefabSetup()
     {
         EditorApplication.delayCall += () =>
         {
             if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) == null)
                 Run();
-            if (AssetDatabase.LoadAssetAtPath<GameObject>(WeaverPrefabPath) == null)
-                SetupWeaver();
         };
-    }
-
-    [MenuItem("Tools/Setup Weaver Konga Prefab")]
-    public static void SetupWeaver()
-    {
-        KongaDataSO baseData = AssetDatabase.LoadAssetAtPath<KongaDataSO>(DataPath);
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) == null || baseData == null)
-        {
-            Debug.LogError("Weaver Konga setup: set up the Konga first (Tools > Setup Konga Prefab).");
-            return;
-        }
-
-        KongaDataSO data = AssetDatabase.LoadAssetAtPath<KongaDataSO>(WeaverDataPath);
-        if (data == null)
-        {
-            data = Object.Instantiate(baseData);
-            data.enemyName = "WeaverKonga";
-            data.waveAmplitude = 1f;
-            data.waveLength = 4f;
-            AssetDatabase.CreateAsset(data, WeaverDataPath);
-            AssetDatabase.SaveAssets();
-        }
-
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(WeaverPrefabPath) == null && !AssetDatabase.CopyAsset(PrefabPath, WeaverPrefabPath))
-        {
-            Debug.LogError($"Weaver Konga setup: couldn't copy {PrefabPath}");
-            return;
-        }
-
-        GameObject root = PrefabUtility.LoadPrefabContents(WeaverPrefabPath);
-        try
-        {
-            root.name = "WeaverKonga";
-
-            var serialized = new SerializedObject(root.GetComponent<KongaEnemy>());
-            serialized.FindProperty("data").objectReferenceValue = data;
-            serialized.ApplyModifiedPropertiesWithoutUndo();
-
-            SpriteRenderer spriteRenderer = root.GetComponentInChildren<SpriteRenderer>();
-            if (spriteRenderer != null)
-                spriteRenderer.color = WeaverTint;
-
-            PrefabUtility.SaveAsPrefabAsset(root, WeaverPrefabPath);
-            Debug.Log($"Weaver Konga setup: created {WeaverPrefabPath}");
-        }
-        finally
-        {
-            PrefabUtility.UnloadPrefabContents(root);
-        }
     }
 
     [MenuItem("Tools/Setup Konga Prefab")]
