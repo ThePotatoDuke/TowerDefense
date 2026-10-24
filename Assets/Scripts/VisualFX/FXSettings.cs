@@ -23,6 +23,7 @@ public class FXSettings : ScriptableObject
     public Shader unlitShader;
     public Shader pixelImposterShader;
     public Shader pixelTrailShader;
+    public Shader imposterSourceShader;
 
     [Header("Hit Flash")]
     [ColorUsage(false, true)] public Color flashColor = new Color(2f, 2f, 2f, 1f);
@@ -111,8 +112,11 @@ public class FXSettings : ScriptableObject
     public Color imposterOutlineColor = new Color(0.08f, 0.06f, 0.1f, 1f);
 
     [Header("Roller Sparks")]
-    public int sparkCount = 18;
-    public float sparkSize = 0.1f;
+    public int sparkCount = 45;
+    public float sparkSize = 0.2f;
+    public float sparkSpeed = 10f;
+    [Tooltip("Size of the bright flash at the point of impact.")]
+    public float sparkFlashSize = 1.4f;
     public Color sparkColorA = new Color(1f, 0.95f, 0.7f, 1f);
     public Color sparkColorB = new Color(1f, 0.55f, 0.15f, 1f);
     [Tooltip("HDR multiplier on top of the spark colors so they glow with bloom.")]

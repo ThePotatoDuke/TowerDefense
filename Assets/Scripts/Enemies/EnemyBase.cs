@@ -36,6 +36,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     // Direct child holding the visual; lifted when dodging so the spline-following root stays on the path
     private Transform jumpRoot;
     private Sequence dodgeSequence;
+    private float dodgePathVelocity; // units per second along the path while vaulting
     public bool IsDodging => dodgeSequence != null && dodgeSequence.IsActive();
 
     [Header("Spline Movement")]
@@ -44,6 +45,12 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     protected float splineLength = 1f;
     private bool splineAssigned;
     public float DistancePercentage => distancePercentage;
+
+    // Smoothed speed along the path in units per second (negative when moving back toward the spawn)
+    private float lastProgress = -1f;
+    public float PathSpeed { get; private set; }
+    // Half the enemy's footprint along the ground, from its colliders
+    public float BodyRadius { get; private set; } = 0.3f;
 
     protected bool hasReachedEnd = false;
     protected float attackInterval = 1f; // seconds between attacks
@@ -100,6 +107,11 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         }
 
         jumpRoot = FindJumpRoot();
+
+        Collider body = GetComponentInChildren<Collider>();
+        float bodyRadius = body != null ? Mathf.Max(body.bounds.extents.x, body.bounds.extents.z) : 0f;
+        if (bodyRadius > 0.01f) // bounds can be empty this early on some setups; keep the default then
+            BodyRadius = bodyRadius;
     }
 
     private Transform FindJumpRoot()
@@ -124,6 +136,23 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 
     // --- Movement ---
     public abstract void Move(); // Each enemy implements its own movement logic
+
+    // Runs after every enemy's own movement this frame
+    private void LateUpdate()
+    {
+        if (isDead || Time.deltaTime <= 0f) return;
+
+        if (lastProgress >= 0f)
+        {
+            // Mid-vault the jump decides where the enemy goes, whatever its own movement did this frame
+            if (IsDodging)
+                distancePercentage = Mathf.Clamp01(lastProgress + dodgePathVelocity * Time.deltaTime / splineLength);
+
+            float speed = (distancePercentage - lastProgress) * splineLength / Time.deltaTime;
+            PathSpeed = Mathf.Lerp(PathSpeed, speed, 1f - Mathf.Exp(-12f * Time.deltaTime));
+        }
+        lastProgress = distancePercentage;
+    }
 
     protected virtual void Update()
     {
@@ -198,10 +227,12 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     }
 
     // --- Dodging ---
-    public void Dodge(float height, float duration)
+    // Vault: a jump with the given height and air time, moving along the path at pathVelocity meanwhile
+    public void Dodge(float height, float duration, float pathVelocity)
     {
         if (isDead || !CanDodge || IsDodging || jumpRoot == null) return;
 
+        dodgePathVelocity = pathVelocity;
         Transform root = jumpRoot;
         float restY = root.localPosition.y;
         dodgeSequence = DOTween.Sequence().SetLink(gameObject)

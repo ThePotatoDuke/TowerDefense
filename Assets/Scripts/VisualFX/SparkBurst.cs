@@ -3,7 +3,8 @@ using UnityEngine;
 // One-shot burst of glowing pixel sparks, e.g. when two rollers crash into each other.
 public static class SparkBurst
 {
-    private const float MaxLifetime = 0.45f;
+    private const float MaxLifetime = 0.8f;
+    private const float FlashLifetime = 0.1f;
 
     public static void Play(Vector3 position)
     {
@@ -19,11 +20,11 @@ public static class SparkBurst
         var main = system.main;
         main.loop = false;
         main.playOnAwake = false;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(0.2f, MaxLifetime);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(4f, 8f);
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, MaxLifetime);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(settings.sparkSpeed * 0.4f, settings.sparkSpeed);
         main.startSize = new ParticleSystem.MinMaxCurve(settings.sparkSize * 0.6f, settings.sparkSize);
         main.startColor = new ParticleSystem.MinMaxGradient(settings.sparkColorA, settings.sparkColorB);
-        main.gravityModifier = 1.5f;
+        main.gravityModifier = 2f;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.maxParticles = 100;
 
@@ -49,6 +50,18 @@ public static class SparkBurst
 
         system.Play();
         system.Emit(settings.sparkCount);
+
+        // One big white pixel that blinks at the point of impact
+        var flash = new ParticleSystem.EmitParams
+        {
+            position = position,
+            velocity = Vector3.zero,
+            startSize = settings.sparkFlashSize,
+            startLifetime = FlashLifetime,
+            startColor = Color.white,
+            applyShapeToPosition = false
+        };
+        system.Emit(flash, 1);
         Object.Destroy(sparksObject, MaxLifetime + 0.1f);
     }
 }

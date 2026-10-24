@@ -61,7 +61,7 @@ public class RollerEnemy : EnemyBase
         base.Update(); // follow the spline
         Move();
         BounceOffOtherRollers();
-        WarnEnemiesAhead();
+        MakeEnemiesVault();
         UpdateVisual();
     }
 
@@ -106,23 +106,52 @@ public class RollerEnemy : EnemyBase
             if (other.direction == -(int)side)
                 other.direction = -other.direction;
 
-            SparkBurst.Play((GetVisualCenter() + other.GetVisualCenter()) * 0.5f);
+            // Burst a bit toward the camera, so the rollers themselves don't hide it
+            Vector3 impact = (GetVisualCenter() + other.GetVisualCenter()) * 0.5f;
+            if (Camera.main != null)
+                impact += (Camera.main.transform.position - impact).normalized * data.radius * 2f;
+            SparkBurst.Play(impact);
         }
     }
 
-    // Enemies just ahead of the roller hop so they're at the top of the jump when it passes underneath
-    private void WarnEnemiesAhead()
+    // --- Making enemies vault over the roller ---
+    // Everything is measured along the path. An enemy in the roller's way jumps toward and across it, so
+    // during the jump the pair's relative speed is always the roller's speed plus the vault speed. That
+    // makes the jump the same every time: high enough to clear the roller while they overlap, under
+    // normal gravity. The enemy takes off when the gap is half the distance they cover relative to each
+    // other in the air, so the roller passes under the top of the jump.
+    private void MakeEnemiesVault()
     {
         if (EnemyManager.Instance == null) return;
 
-        float reach = data.moveSpeed * data.dodgeJumpDuration * 0.5f + data.radius;
+        float rollerVelocity = direction * data.moveSpeed;
+        float crossingSpeed = data.moveSpeed + data.vaultSpeed;
+
         foreach (IEnemy candidate in EnemyManager.Instance.ActiveEnemies)
         {
-            if (candidate is not EnemyBase enemy || enemy.IsDead || !enemy.CanDodge) continue;
+            if (candidate is not EnemyBase enemy || enemy.IsDead || !enemy.CanDodge || enemy.IsDodging) continue;
 
-            float ahead = (enemy.DistancePercentage - distancePercentage) * splineLength * direction;
-            if (ahead > -data.radius && ahead < reach)
-                enemy.Dodge(data.dodgeJumpHeight, data.dodgeJumpDuration);
+            // Gap from roller to enemy (+ when the enemy is further along) and how fast it changes right now
+            float gap = (enemy.DistancePercentage - distancePercentage) * splineLength;
+            float relativeVelocity = enemy.PathSpeed - rollerVelocity;
+            float reach = data.radius + enemy.BodyRadius;
+
+            // Feet above the roller's top for the whole time the two overlap
+            float clearHeight = 2f * data.radius + data.vaultClearance;
+            float overlapHalfTime = reach / crossingSpeed;
+            float height = clearHeight + 0.5f * data.vaultGravity * overlapHalfTime * overlapHalfTime;
+            float airTime = 2f * Mathf.Sqrt(2f * height / data.vaultGravity);
+            float takeoffGap = crossingSpeed * airTime * 0.5f;
+
+            bool touching = Mathf.Abs(gap) < reach;
+            bool closing = gap * relativeVelocity < 0f;
+            // Take off this frame if the gap would be inside the takeoff distance by the next one
+            bool inRange = Mathf.Abs(gap) - Mathf.Abs(relativeVelocity) * Time.deltaTime <= takeoffGap;
+            if (!touching && !(closing && inRange)) continue;
+
+            // Leap across toward the other side of the roller
+            float side = gap >= 0f ? 1f : -1f;
+            enemy.Dodge(height, airTime, rollerVelocity - side * crossingSpeed);
         }
     }
 

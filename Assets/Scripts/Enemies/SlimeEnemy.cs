@@ -49,6 +49,16 @@ public class SlimeEnemy : EnemyBase
     }
     private float currentHopDistance;   // distance for Move()
     private float currentUpDuration;     // duration for spline movement
+    private Tween moveTween;
+
+    protected override void Update()
+    {
+        base.Update();
+
+        // A vault moves the slime itself; drop the current hop so the next one starts from where it lands
+        if (IsDodging && moveTween != null && moveTween.IsActive())
+            moveTween.Kill();
+    }
 
     public override void Move()
     {
@@ -57,7 +67,7 @@ public class SlimeEnemy : EnemyBase
         float stepPercentage = currentHopDistance / splineLength;
         float targetPercentage = Mathf.Clamp01(distancePercentage + stepPercentage);
 
-        DOTween.To(() => distancePercentage, x => distancePercentage = x, targetPercentage, currentUpDuration * 2f)
+        moveTween = DOTween.To(() => distancePercentage, x => distancePercentage = x, targetPercentage, currentUpDuration * 2f)
                .SetEase(Ease.Linear)
                .SetLink(gameObject);
     }

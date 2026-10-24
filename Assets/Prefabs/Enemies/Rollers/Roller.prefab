@@ -84,6 +84,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5585489706481073199}
+  - component: {fileID: 3935358292409425502}
   m_Layer: 0
   m_Name: RollerVisual
   m_TagString: Untagged
@@ -104,9 +105,32 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
-  - {fileID: 1292164392685028576}
+  - {fileID: 8302006244697057787}
   m_Father: {fileID: 6740652008642013100}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &3935358292409425502
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2288868480231492249}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.45
+  m_Height: 4.453998
+  m_Direction: 0
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4685301376355040677
 GameObject:
   m_ObjectHideFlags: 0
@@ -192,7 +216,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6740652008642013100}
   - component: {fileID: 7245427608975472959}
-  - component: {fileID: 1044422342795145494}
   - component: {fileID: 1563687534648878750}
   m_Layer: 0
   m_Name: Roller
@@ -245,27 +268,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!135 &1044422342795145494
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6023850595377037570}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.45
-  m_Center: {x: 0, y: 0.45, z: 0}
 --- !u!114 &1563687534648878750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -414,7 +416,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HealthBar
   hasHealthGameobject: {fileID: 6023850595377037570}
   barImage: {fileID: 7599354881073012754}
---- !u!1001 &1613425382304457483
+--- !u!1001 &8411633169023061520
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -487,8 +489,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 431cb5e12b47ec740974dcf2ca33d32e, type: 3}
---- !u!4 &1292164392685028576 stripped
+--- !u!4 &8302006244697057787 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 431cb5e12b47ec740974dcf2ca33d32e, type: 3}
-  m_PrefabInstance: {fileID: 1613425382304457483}
+  m_PrefabInstance: {fileID: 8411633169023061520}
   m_PrefabAsset: {fileID: 0}

@@ -2508,9 +2508,12 @@ MonoBehaviour:
     - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
       spawnWeight: 0.66
       baseCount: 3
-    spawnIntervalMin: 0.3
-    spawnIntervalMax: 0.7
-    burstChance: 0.2
+    - enemyPrefab: {fileID: 1563687534648878750, guid: 5aa8c86cf783e9844b2df1eaf65443cb, type: 3}
+      spawnWeight: 0
+      baseCount: 3
+    spawnIntervalMin: 1
+    spawnIntervalMax: 1.8
+    burstChance: 0
   - enemies:
     - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
       spawnWeight: 0.856

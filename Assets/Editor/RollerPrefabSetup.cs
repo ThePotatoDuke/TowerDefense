@@ -25,6 +25,7 @@ public static class RollerPrefabSetup
             MeshRenderer model = prefab.GetComponentInChildren<MeshRenderer>();
             RollerDataSO data = AssetDatabase.LoadAssetAtPath<RollerDataSO>(DataPath);
             bool needsSetup = prefab.GetComponent<SpikeBallEnemy>() != null
+                || prefab.GetComponentInChildren<CapsuleCollider>() == null
                 || data == null
                 || !Mathf.Approximately(data.radius, Radius)
                 || model == null
@@ -88,12 +89,16 @@ public static class RollerPrefabSetup
             serialized.FindProperty("rollerVisual").objectReferenceValue = visual;
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
+            // Capsule along the cylinder's axis on RollerVisual, so it turns with the path like the model
             if (root.TryGetComponent(out SphereCollider sphere))
-            {
-                sphere.isTrigger = true;
-                sphere.center = new Vector3(0f, Radius, 0f);
-                sphere.radius = Radius;
-            }
+                Object.DestroyImmediate(sphere);
+            if (!visual.TryGetComponent(out CapsuleCollider capsule))
+                capsule = visual.gameObject.AddComponent<CapsuleCollider>();
+            capsule.isTrigger = true;
+            capsule.direction = 0; // X
+            capsule.center = Vector3.zero;
+            capsule.radius = Radius;
+            capsule.height = GetLocalBounds(cylinder.transform, visual).size.x;
 
             PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
             Debug.Log("Roller setup: prefab updated. Check that the cylinder rolls forward, not sideways.");
