@@ -204,6 +204,21 @@ public class GroundDecorator : MonoBehaviour
         return closest != null ? closest.root.gameObject : null;
     }
 
+    // Cuts every standing tuft within the radius (explosions), throwing the clippings outward
+    public void CutGrassInRadius(Vector3 center, float radius)
+    {
+        float radiusSqr = radius * radius;
+        foreach (Tuft tuft in tufts)
+        {
+            if (tuft.isCut) continue;
+
+            float dx = tuft.root.position.x - center.x;
+            float dz = tuft.root.position.z - center.z;
+            if (dx * dx + dz * dz <= radiusSqr)
+                Cut(tuft, center);
+        }
+    }
+
     // Cuts the standing tuft rooted at this exact spot, if any (the one a swing was aimed at)
     public void CutTuftAt(Vector3 rootPosition, Vector3 bladePosition)
     {

@@ -15,12 +15,12 @@ MonoBehaviour:
   enemyName: LazySpikeBall
   maxHealth: 200
   contactDamage: 2
-  springK: 45
-  damping: 12
+  springK: 3
+  damping: 3.2
   ballRadius: 1
   bouncyEase: 4
   offsetTweenDuration: 0.25
   offsetUpdateInterval: 0.6
   bouncyOffset: 0.05
-  maxSpeed: 3
+  maxSpeed: 1.5
   target: 0

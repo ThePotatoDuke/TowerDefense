@@ -2,11 +2,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Spiked cylinder that rolls back and forth along the path. Reaching either end turns it around,
-// two rollers that meet bounce apart in a shower of sparks, enemies in its way hop over it, and
-// ground enemies that still end up touching it take a little damage.
+// two rollers that meet bounce apart in a shower of sparks, enemies in its way hop over it,
+// ground enemies that still end up touching it take a little damage, and it mows the grass.
 public class RollerEnemy : EnemyBase
 {
     private static readonly List<RollerEnemy> activeRollers = new();
+
+    // Extra path distance beyond the vault range before an enemy counts as being on another stretch of path
+    private const float CrossingPathGap = 1f;
+    // Slowest an enemy can close in on the cylinder's line and still be treated as crossing it
+    private const float MinCrossingSpeed = 1f;
 
     [SerializeField] private RollerDataSO data;
     [Tooltip("Child holding the model, centered on the cylinder. The cylinder's axis must lie along this child's local X.")]
@@ -16,6 +21,7 @@ public class RollerEnemy : EnemyBase
     private float spinAngle;
     private int wavesSurvived = 0;
     private float halfLength; // half the cylinder's length along its axis
+    private CapsuleCollider body;
     private readonly Dictionary<EnemyBase, float> lastTouchTimes = new();
 
     public override EnemyDataSO Data => data;
@@ -35,8 +41,8 @@ public class RollerEnemy : EnemyBase
         gameObject.GetOrAddComponent<BlobShadow>().Source = model;
 
         // The capsule collider runs along the axis and spans the whole cylinder
-        CapsuleCollider capsule = rollerVisual != null ? rollerVisual.GetComponent<CapsuleCollider>() : null;
-        halfLength = capsule != null ? capsule.height * 0.5f * rollerVisual.lossyScale.x : data.radius;
+        body = rollerVisual != null ? rollerVisual.GetComponent<CapsuleCollider>() : null;
+        halfLength = body != null ? body.height * 0.5f * rollerVisual.lossyScale.x : data.radius;
     }
 
     protected override void OnEnable()
@@ -71,6 +77,10 @@ public class RollerEnemy : EnemyBase
         MakeEnemiesVault();
         DamageTouchingEnemies();
         UpdateVisual();
+
+        // Flattens the grass it rolls over, like a sword swing does
+        if (GroundDecorator.Instance != null && body != null)
+            GroundDecorator.Instance.CutGrass(body);
     }
 
     // Ground enemies touching the cylinder's body take a little damage, at most once per interval each.
@@ -172,6 +182,8 @@ public class RollerEnemy : EnemyBase
     // makes the jump the same every time: high enough to clear the roller while they overlap, under
     // normal gravity. The enemy takes off when the gap is half the distance they cover relative to each
     // other in the air, so the roller passes under the top of the jump.
+    // Where the path loops over itself, an enemy on another stretch can be right next to the roller in the
+    // world while far from it along the path; those are handled in world space by VaultAtCrossing.
     private void MakeEnemiesVault()
     {
         if (EnemyManager.Instance == null) return;
@@ -199,12 +211,84 @@ public class RollerEnemy : EnemyBase
             bool closing = gap * relativeVelocity < 0f;
             // Take off this frame if the gap would be inside the takeoff distance by the next one
             bool inRange = Mathf.Abs(gap) - Mathf.Abs(relativeVelocity) * Time.deltaTime <= takeoffGap;
-            if (!touching && !(closing && inRange)) continue;
-
-            // Leap across toward the other side of the roller
-            float side = gap >= 0f ? 1f : -1f;
-            enemy.Dodge(height, airTime, rollerVelocity - side * crossingSpeed);
+            if (touching || (closing && inRange))
+            {
+                // Leap across toward the other side of the roller
+                float side = gap >= 0f ? 1f : -1f;
+                enemy.Dodge(height, airTime, rollerVelocity - side * crossingSpeed);
+            }
+            else if (Mathf.Abs(gap) > reach + takeoffGap + CrossingPathGap)
+            {
+                // Clearly on another stretch of path, so only a crossing can bring them together
+                VaultAtCrossing(enemy, rollerVelocity);
+            }
         }
+    }
+
+    // An enemy on another stretch of path, about to cross the roller where the path crosses itself.
+    // Measured in world space from both their directions of travel: the enemy hops so the top of its jump
+    // comes as it passes over the cylinder, and keeps going along its own path at its own speed meanwhile.
+    private void VaultAtCrossing(EnemyBase enemy, float rollerVelocity)
+    {
+        if (rollerVisual == null || splineContainer == null) return;
+
+        Vector3 axis = FlatDirection(rollerVisual.right);
+        if (axis == Vector3.zero) return;
+        Vector3 across = Vector3.Cross(Vector3.up, axis); // the roller's direction of travel, flat
+
+        // Velocity of the enemy relative to the roller, on the ground plane
+        Vector3 rollerMotion = FlatDirection(splineContainer.EvaluateTangent(distancePercentage)) * rollerVelocity;
+        Vector3 enemyMotion = FlatDirection(splineContainer.EvaluateTangent(enemy.DistancePercentage)) * enemy.PathSpeed;
+        Vector3 relativeMotion = enemyMotion - rollerMotion;
+
+        Vector3 offset = enemy.transform.position - rollerVisual.position;
+        offset.y = 0f;
+
+        // How fast it closes in on the cylinder's line, and when it gets there
+        float side = Vector3.Dot(offset, across);
+        float closingSpeed = -Mathf.Sign(side) * Vector3.Dot(relativeMotion, across);
+        // Sliding along the cylinder rather than across it: no jump would clear it, so don't try
+        if (closingSpeed < MinCrossingSpeed) return;
+        float timeToCross = Mathf.Abs(side) / closingSpeed;
+
+        // Where along the cylinder it crosses; past either end it just walks by
+        float along = Vector3.Dot(offset + relativeMotion * timeToCross, axis);
+        if (Mathf.Abs(along) > halfLength + enemy.BodyRadius) return;
+
+        // Never higher than the usual vault: a slow, shallow crossing would otherwise need a huge jump
+        float jumpSpeed = Mathf.Max(closingSpeed, data.moveSpeed + data.vaultSpeed);
+        float reach = data.radius + enemy.BodyRadius;
+        float clearHeight = 2f * data.radius + data.vaultClearance;
+        float overlapHalfTime = reach / jumpSpeed;
+        float height = clearHeight + 0.5f * data.vaultGravity * overlapHalfTime * overlapHalfTime;
+        float airTime = 2f * Mathf.Sqrt(2f * height / data.vaultGravity);
+
+        // Take off this frame if the crossing would be within half the air time by the next one
+        if (timeToCross - Time.deltaTime > airTime * 0.5f) return;
+
+        enemy.Dodge(height, airTime, enemy.PathSpeed);
+    }
+
+    // Flat distance from a point to the surface of the cylinder (its axis clamped to its length, minus
+    // its radius). World space, so it also works across the loop where the path passes over itself.
+    public float DistanceTo(Vector3 point)
+    {
+        Vector3 center = rollerVisual != null ? rollerVisual.position : transform.position;
+        Vector3 offset = point - center;
+        offset.y = 0f;
+
+        Vector3 axis = rollerVisual != null ? FlatDirection(rollerVisual.right) : Vector3.zero;
+        if (axis == Vector3.zero)
+            return offset.magnitude - data.radius;
+
+        float along = Mathf.Clamp(Vector3.Dot(offset, axis), -halfLength, halfLength);
+        return (offset - axis * along).magnitude - data.radius;
+    }
+
+    private static Vector3 FlatDirection(Vector3 direction)
+    {
+        direction.y = 0f;
+        return direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector3.zero;
     }
 
     // Face along the path and spin around the cylinder's axis to match the distance rolled

@@ -2514,6 +2514,21 @@ MonoBehaviour:
     - enemyPrefab: {fileID: 4604603393713018748, guid: 446363c2f16e1584d9c0748bfd2b6bb3, type: 3}
       spawnWeight: 0
       baseCount: 6
+    - enemyPrefab: {fileID: 393906862470325017, guid: 62c8d32682fae324cbd5452357cea808, type: 3}
+      spawnWeight: 0
+      baseCount: 3
+    - enemyPrefab: {fileID: 393906862470325017, guid: a6635cd98be91e8408093dcbe51d9b45, type: 3}
+      spawnWeight: 0
+      baseCount: 2
+    - enemyPrefab: {fileID: 393906862470325017, guid: da532ca4ac906c04598b011e0baafae6, type: 3}
+      spawnWeight: 0
+      baseCount: 2
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
+      spawnWeight: 0
+      baseCount: 2
+    - enemyPrefab: {fileID: 7894610099254780872, guid: 04cd67e1f4f025c44a78d7fb8122869a, type: 3}
+      spawnWeight: 0
+      baseCount: 1
     spawnIntervalMin: 0.5
     spawnIntervalMax: 0.9
     burstChance: 0

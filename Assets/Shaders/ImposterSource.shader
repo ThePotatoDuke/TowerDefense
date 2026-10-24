@@ -8,6 +8,7 @@ Shader "TowerDefense/ImposterSource"
     {
         [MainTexture] _BaseMap ("Texture", 2D) = "white" {}
         [MainColor] _BaseColor ("Color", Color) = (1, 1, 1, 1)
+        [HDR] _EmissionColor ("Emission (e.g. a fuse glow)", Color) = (0, 0, 0, 1)
     }
 
     SubShader
@@ -32,6 +33,7 @@ Shader "TowerDefense/ImposterSource"
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 half4 _BaseColor;
+                half4 _EmissionColor;
             CBUFFER_END
 
             // Set globally by PixelImposter just before each imposter camera renders its own model
@@ -75,7 +77,7 @@ Shader "TowerDefense/ImposterSource"
                 float distanceFromCamera = distance(input.positionWS, _WorldSpaceCameraPos);
                 half depth01 = saturate((distanceFromCamera - _ImposterNear) / max(0.001, _ImposterFar - _ImposterNear));
 
-                return half4(albedo.rgb * lighting, 0.5 + 0.5 * depth01);
+                return half4(albedo.rgb * lighting + _EmissionColor.rgb, 0.5 + 0.5 * depth01);
             }
             ENDHLSL
         }

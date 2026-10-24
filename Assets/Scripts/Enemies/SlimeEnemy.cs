@@ -29,6 +29,13 @@ public class SlimeEnemy : EnemyBase
             visual = transform.Find("SlimeVisual");
 
         originalScale = visual.localScale;
+
+        // Hops move the child of slimeChild that holds the sprite, so they never fight a roller vault,
+        // which lifts slimeChild itself
+        hopRoot = visual;
+        while (hopRoot.parent != null && hopRoot.parent != slimeChild && hopRoot.parent != transform)
+            hopRoot = hopRoot.parent;
+        hopRestY = hopRoot.localPosition.y;
     }
 
     protected override void OnDisable()
@@ -50,14 +57,29 @@ public class SlimeEnemy : EnemyBase
     private float currentHopDistance;   // distance for Move()
     private float currentUpDuration;     // duration for spline movement
     private Tween moveTween;
+    private Sequence bounceSeq;
+    private Transform hopRoot;
+    private float hopRestY;
 
     protected override void Update()
     {
         base.Update();
 
         // A vault moves the slime itself; drop the current hop so the next one starts from where it lands
-        if (IsDodging && moveTween != null && moveTween.IsActive())
-            moveTween.Kill();
+        if (IsDodging)
+        {
+            if (moveTween != null && moveTween.IsActive())
+                moveTween.Kill();
+
+            // Settle out of any hop in progress, so it doesn't hop in mid-air during the vault
+            if (bounceSeq != null && bounceSeq.IsActive())
+            {
+                bounceSeq.Kill();
+                visual.DOKill();
+                hopRoot.DOLocalMoveY(hopRestY, 0.1f).SetLink(gameObject);
+                visual.DOScale(originalScale, 0.1f).SetLink(gameObject);
+            }
+        }
     }
 
     public override void Move()
@@ -76,6 +98,10 @@ public class SlimeEnemy : EnemyBase
     {
         while (true)
         {
+            // No new hop while vaulting over a roller
+            while (IsDodging)
+                yield return null;
+
             // Determine next hop distance
             currentHopDistance = GetNextHop();
 
@@ -97,17 +123,17 @@ public class SlimeEnemy : EnemyBase
             currentUpDuration = upDuration;
 
             visual.DOKill();
+            hopRoot.DOKill();
 
             // Move along spline
             Move();
 
             // --- Bounce animation sequence ---
             // Linked so the whole sequence dies with the slime (nested tweens can't be killed via DOKill)
-            Sequence bounceSeq = DOTween.Sequence().SetLink(gameObject);
+            bounceSeq = DOTween.Sequence().SetLink(gameObject);
 
-            // Move slimeChild upward (bounce)
-            bounceSeq.Append(slimeChild.DOLocalMoveY(upHeight, upDuration)
-                              .SetRelative(true)
+            // Bounce up, to a fixed height above rest so hops can never drift
+            bounceSeq.Append(hopRoot.DOLocalMoveY(hopRestY + upHeight, upDuration)
                               .SetEase(Ease.OutQuad));
 
             // Takeoff stretch for visual squash/stretch effect
@@ -122,8 +148,7 @@ public class SlimeEnemy : EnemyBase
                               .SetDelay(upDuration / 3f));
 
             // Move down
-            bounceSeq.Append(slimeChild.DOLocalMoveY(-upHeight, downDuration)
-                              .SetRelative(true)
+            bounceSeq.Append(hopRoot.DOLocalMoveY(hopRestY, downDuration)
                               .SetEase(Ease.InQuad));
 
             // Fall stretch for visual effect

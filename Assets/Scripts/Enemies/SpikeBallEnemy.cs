@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using DG.Tweening;
 
@@ -7,7 +8,7 @@ public class SpikeBallEnemy : EnemyBase
     [SerializeField] private Transform spikeBallVisual;
 
     private Vector3 lastPos;
-    private float progressVelocity = 0f;     // velocity along spline
+    private float progressVelocity = 0f;     // speed along the path, units per second
     private float currentTargetProgress = 0f;// tweened target
     private float offsetTimer = 0f;
     private int wavesSurvived = 0;
@@ -52,6 +53,82 @@ public class SpikeBallEnemy : EnemyBase
         Die();
     }
 
+    // Destroyed by damage (not by outliving its waves), a ball with a spike burst warns where the
+    // spikes will fly, then fires them before it goes
+    protected override float PlayDeathEffect()
+    {
+        bool killed = currentHealth <= 0f;
+        if (!killed || data.deathSpikeCount <= 0 || data.spikeSprite == null)
+            return base.PlayDeathEffect();
+
+        StartCoroutine(SpikeBurst());
+        return -1f; // destroyed after the burst
+    }
+
+    private IEnumerator SpikeBurst()
+    {
+        Vector3 center = spikeBallVisual != null ? spikeBallVisual.position : transform.position + Vector3.up * data.ballRadius;
+        Vector3 groundPoint = new Vector3(center.x, transform.position.y, center.z);
+
+        // Equal angles all the way round, starting at a random one
+        int count = data.deathSpikeCount;
+        float startAngle = Random.Range(0f, 360f);
+        var lines = new Transform[count];
+        var lineMaterials = new Material[count];
+        var spikes = new SpikeProjectile[count];
+        float spikeStart = data.ballRadius * 0.8f; // spikes wait just outside the ball, pointing out
+        for (int i = 0; i < count; i++)
+        {
+            Vector3 direction = Quaternion.Euler(0f, startAngle + 360f * i / count, 0f) * Vector3.forward;
+            lines[i] = GroundLine.Create(groundPoint, direction, data.spikeRange, data.spikeWarningColor, out lineMaterials[i]);
+            spikes[i] = SpikeProjectile.Create(center + direction * spikeStart, direction, data.spikeSprite, data.spikeMaterial,
+                                               data.spikeSpeed, data.spikeRange - spikeStart, data.spikeDamage);
+        }
+
+        // Warn: the spikes wait faintly at the start of their paths while dashed lines run outward along
+        // them and the ball swells and flashes
+        Transform ball = visual != null ? visual : transform;
+        ball.DOScale(ball.localScale * 1.25f, data.spikeWarningTime).SetEase(Ease.InQuad).SetLink(gameObject);
+
+        float elapsed = 0f;
+        float nextFlash = 0f;
+        while (elapsed < data.spikeWarningTime)
+        {
+            if (elapsed >= nextFlash)
+            {
+                Flash();
+                nextFlash += 0.15f;
+            }
+
+            float blink = (int)(elapsed * 10f) % 2 == 0 ? 1f : 0.5f;
+            foreach (Material lineMaterial in lineMaterials)
+            {
+                if (lineMaterial == null) continue;
+                GroundLine.MarchDashes(lineMaterial, elapsed, 30f);
+                lineMaterial.SetColor("_Color", data.spikeWarningColor * blink);
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        for (int i = 0; i < count; i++)
+        {
+            if (lines[i] != null)
+                Destroy(lines[i].gameObject);
+            if (lineMaterials[i] != null)
+                Destroy(lineMaterials[i]);
+            if (spikes[i] != null)
+                spikes[i].Launch();
+        }
+
+        // Then pop like any other spike ball
+        ball.DOKill();
+        Destroy(gameObject, PlayDefaultDeathEffect());
+    }
+
+    private float PlayDefaultDeathEffect() => base.PlayDeathEffect();
+
     protected override void Update()
     {
         if (isDead) return;
@@ -89,8 +166,9 @@ public class SpikeBallEnemy : EnemyBase
     {
         float dt = Time.deltaTime;
 
-        // spring-damper toward target
-        float displacement = distancePercentage - currentTargetProgress;
+        // Spring-damper toward the target, in real distances along the path (units, units per second),
+        // so the stiffness, damping and speed limit mean the same however long the path is
+        float displacement = (distancePercentage - currentTargetProgress) * splineLength;
         float force = -data.springK * displacement;
         float damping = -data.damping * progressVelocity;
         float acceleration = force + damping;
@@ -99,7 +177,7 @@ public class SpikeBallEnemy : EnemyBase
         progressVelocity = Mathf.Clamp(progressVelocity, -data.maxSpeed, data.maxSpeed);
 
         float previousProgress = distancePercentage;
-        distancePercentage = Mathf.Clamp01(distancePercentage + progressVelocity * dt);
+        distancePercentage = Mathf.Clamp01(distancePercentage + progressVelocity * dt / splineLength);
 
         if (splineContainer != null)
         {

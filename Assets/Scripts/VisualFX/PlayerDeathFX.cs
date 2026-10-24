@@ -9,8 +9,6 @@ using UnityEngine.Rendering.Universal;
 // Everything runs on unscaled time so it keeps moving while the game is frozen.
 public class PlayerDeathFX : MonoBehaviour
 {
-    private const int ImpulseChannel = 1;
-
     public void Play()
     {
         FXSettings settings = FXSettings.Instance;
@@ -24,10 +22,8 @@ public class PlayerDeathFX : MonoBehaviour
 
         CinemachineCamera vcam = CameraManager.activeCamera;
         if (vcam != null)
-        {
             ZoomIn(vcam, settings);
-            Shake(vcam, settings);
-        }
+        CameraShake.Shake(transform.position, settings.deathShakeForce, settings.deathShakeDuration);
 
         DrainScreen(settings);
         FreezeThenSlowMotion(settings);
@@ -81,36 +77,6 @@ public class PlayerDeathFX : MonoBehaviour
     {
         SpriteRenderer sprite = GetComponentInChildren<SpriteRenderer>();
         return sprite != null ? sprite.bounds.center : transform.position;
-    }
-
-    private void Shake(CinemachineCamera vcam, FXSettings settings)
-    {
-        // Added from code, so set what the Inspector's Reset() would
-        if (!vcam.TryGetComponent(out CinemachineImpulseListener listener))
-        {
-            listener = vcam.gameObject.AddComponent<CinemachineImpulseListener>();
-            listener.ApplyAfter = CinemachineCore.Stage.Noise;
-            listener.ChannelMask = ImpulseChannel;
-            listener.Gain = 1f;
-            listener.UseCameraSpace = true;
-            listener.SignalCombinationMode = CinemachineImpulseListener.SignalCombinationModes.Additive;
-        }
-
-        var impulse = new CinemachineImpulseDefinition
-        {
-            ImpulseChannel = ImpulseChannel,
-            ImpulseShape = CinemachineImpulseDefinition.ImpulseShapes.Explosion,
-            ImpulseDuration = settings.deathShakeDuration,
-            ImpulseType = CinemachineImpulseDefinition.ImpulseTypes.Uniform,
-            DissipationDistance = 100f,
-            DissipationRate = 0.25f,
-            PropagationSpeed = 343f
-        };
-
-        // Mostly sideways with some vertical kick, in a random direction each time
-        Vector2 direction = Random.insideUnitCircle.normalized;
-        Vector3 velocity = new Vector3(direction.x, direction.y * 0.6f, 0f) * settings.deathShakeForce;
-        impulse.CreateEvent(transform.position, velocity);
     }
 
     // A temporary global volume layered over the scene's own post-processing

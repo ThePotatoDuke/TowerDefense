@@ -17,6 +17,7 @@ MonoBehaviour:
   unlitShader: {fileID: 4800000, guid: 70712243099648c896f3844b21e3c701, type: 3}
   pixelImposterShader: {fileID: 4800000, guid: 2208202144e7405fac84397f187cf6c2, type: 3}
   pixelTrailShader: {fileID: 4800000, guid: 7c0936dbcf4c4ee7b403370f4f738060, type: 3}
+  shockwaveShader: {fileID: 4800000, guid: f2fa926613224e35b6f177238a249c38, type: 3}
   imposterSourceShader: {fileID: 4800000, guid: 0405859731764aa586b5507d78e4a44d, type: 3}
   flashColor: {r: 2, g: 2, b: 2, a: 1}
   flashDuration: 0.12

@@ -15,12 +15,20 @@ MonoBehaviour:
   enemyName: SpikeBallYellow
   maxHealth: 150
   contactDamage: 2
-  springK: 150
+  springK: 6
   damping: 2
   ballRadius: 0.8
-  bouncyEase: 30
+  bouncyEase: 4
   offsetTweenDuration: 0.2
-  offsetUpdateInterval: 3
+  offsetUpdateInterval: 1.5
   bouncyOffset: 0.04
-  maxSpeed: 10
+  maxSpeed: 3
   target: 1.2
+  deathSpikeCount: 6
+  spikeSprite: {fileID: 21300000, guid: 8a205160915dbc64591a7160ed700d05, type: 3}
+  spikeMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  spikeSpeed: 4.5
+  spikeRange: 5
+  spikeDamage: 1
+  spikeWarningTime: 0.8
+  spikeWarningColor: {r: 2, g: 0.3, b: 0.2, a: 1}

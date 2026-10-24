@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67b7b55ae049421781fd39ff29dc48c4, type: 3}
+  m_Name: BasicMollySO
+  m_EditorClassIdentifier: Assembly-CSharp::MollyDataSO
+  enemyName: BasicMolly
+  maxHealth: 80
+  contactDamage: 1
+  digSpeed: 2.5
+  minDigTime: 2
+  maxDigTime: 3.5
+  minIdleTime: 1.5
+  maxIdleTime: 2.5
+  rollerDangerDistance: 2.5
+  resurfaceDelay: 0.4
+  digFrames:
+  - {fileID: 21300000, guid: 11ace7f2238552a429d6cf0257d48f99, type: 3}
+  - {fileID: 21300000, guid: cb2b3dff9deb82340983a0d7e500a7ff, type: 3}
+  - {fileID: 21300000, guid: eba3500d036231d48a67393e5783cbac, type: 3}
+  - {fileID: 21300000, guid: ae1a9041cd6f1df468b0374d69eb1c43, type: 3}
+  peekFrames:
+  - {fileID: 21300000, guid: c23d4ba3c6e6abe48a8ef2def13c1442, type: 3}
+  - {fileID: 21300000, guid: 9c3393afc7b5bb04da9ae4f3db29e320, type: 3}
+  - {fileID: 21300000, guid: db4b36b515bea8c45ac53c5f70af954b, type: 3}
+  - {fileID: 21300000, guid: 179d8bf07b31f674f928861987ec8d7c, type: 3}
+  - {fileID: 21300000, guid: 858065dd67d8f90429dbe095eb7313ed, type: 3}
+  idleFrames:
+  - {fileID: 614740000000000, guid: 561d2409f49634648a722cd994c69225, type: 3}
+  - {fileID: 614740000000001, guid: 561d2409f49634648a722cd994c69225, type: 3}
+  digFramesPerSecond: 10
+  peekFramesPerSecond: 12
+  idleFramesPerSecond: 4

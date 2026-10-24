@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2226db9b80d428a863a7c49da71241c, type: 3}
+  m_Name: BasicBomberrSO
+  m_EditorClassIdentifier: Assembly-CSharp::BomberrDataSO
+  enemyName: BasicBomberr
+  maxHealth: 150
+  contactDamage: 1
+  moveSpeed: 1.6
+  carrierCount: 4
+  carrierSpacing: 0.45
+  carrierShiftTowardCamera: 0.35
+  carryFrames:
+  - {fileID: 514730000000000, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+  - {fileID: 514730000000001, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+  - {fileID: 514730000000002, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+  - {fileID: 514730000000003, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+  - {fileID: 514730000000004, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+  - {fileID: 514730000000005, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+  runFrames:
+  - {fileID: 514740000000000, guid: f7fba80d50fea33458c8cd8701176a9b, type: 3}
+  - {fileID: 514740000000001, guid: f7fba80d50fea33458c8cd8701176a9b, type: 3}
+  carryFramesPerSecond: 10
+  runFramesPerSecond: 14
+  spriteMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  throwHeight: 2.5
+  throwDistance: 1.2
+  throwDuration: 0.9
+  fleeSpeed: 3
+  fleeDuration: 1
+  fuseTime: 2.5
+  glowColor: {r: 2.5, g: 0.35, b: 0.15, a: 1}
+  startPulseInterval: 0.6
+  endPulseInterval: 0.08
+  warningColor: {r: 2, g: 0.3, b: 0.2, a: 1}
+  explosionRadius: 3.5
+  enemyDamage: 60
+  playerDamage: 3
+  castleDamage: 10

@@ -79,8 +79,9 @@ public class GameManager : MonoBehaviour
 
         SetGameState(GameState.CastleDestroyed);
 
-        // Show popup after delay
-        StartCoroutine(ShowPopupAfterDelay(3f));
+        // Show the popup once the castle has finished collapsing into the ground
+        float collapse = FXSettings.Instance != null ? FXSettings.Instance.CastleCollapseDuration : 2.2f;
+        StartCoroutine(ShowPopupAfterDelay(collapse + 0.8f));
     }
 
     private IEnumerator ShowPopupAfterDelay(float delay)

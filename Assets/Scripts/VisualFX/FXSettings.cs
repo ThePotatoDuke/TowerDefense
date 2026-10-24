@@ -23,6 +23,7 @@ public class FXSettings : ScriptableObject
     public Shader unlitShader;
     public Shader pixelImposterShader;
     public Shader pixelTrailShader;
+    public Shader shockwaveShader;
     public Shader imposterSourceShader;
 
     [Header("Hit Flash")]
@@ -52,6 +53,21 @@ public class FXSettings : ScriptableObject
     public Color castleDebrisColorB = new Color(0.32f, 0.29f, 0.27f, 1f);
     [ColorUsage(false, true)] public Color castleLowHealthColor = new Color(1.6f, 0.15f, 0.1f, 1f);
     [Range(0f, 1f)] public float castleLowHealthThreshold = 0.3f;
+
+    [Header("Castle Collapse (game over)")]
+    [Tooltip("Seconds after the castle falls before it starts collapsing, so the camera arrives first.")]
+    public float castleCollapseDelay = 1f;
+    [Tooltip("Seconds it rumbles in place before sinking.")]
+    public float castleCollapseRumble = 0.7f;
+    [Tooltip("Seconds to sink fully into the ground.")]
+    public float castleCollapseSinkTime = 2f;
+    [Tooltip("How far it snaps side to side while collapsing.")]
+    public float castleCollapseShake = 0.08f;
+    [Tooltip("Dust and rubble particles per second along the base.")]
+    public float castleCollapseDust = 60f;
+
+    // Total collapse time, for timing the game-over popup after it
+    public float CastleCollapseDuration => castleCollapseDelay + castleCollapseRumble + castleCollapseSinkTime;
 
     [Header("Pickup Shine")]
     [ColorUsage(false, true)] public Color shineColor = new Color(2.5f, 2.5f, 2.5f, 1f);

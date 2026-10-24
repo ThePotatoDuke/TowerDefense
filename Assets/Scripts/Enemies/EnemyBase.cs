@@ -44,6 +44,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     protected float distancePercentage = 0f;
     protected float splineLength = 1f;
     private bool splineAssigned;
+    private bool isRegistered;
     public float DistancePercentage => distancePercentage;
 
     // Smoothed speed along the path in units per second (negative when moving back toward the spawn)
@@ -106,13 +107,16 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
             gameObject.GetOrAddComponent<BlobShadow>();
         }
 
-        jumpRoot = FindJumpRoot();
+        jumpRoot = GetJumpRoot();
 
         Collider body = GetComponentInChildren<Collider>();
         float bodyRadius = body != null ? Mathf.Max(body.bounds.extents.x, body.bounds.extents.z) : 0f;
         if (bodyRadius > 0.01f) // bounds can be empty this early on some setups; keep the default then
             BodyRadius = bodyRadius;
     }
+
+    // The direct child that's lifted when dodging; by default the one holding the visual
+    protected virtual Transform GetJumpRoot() => FindJumpRoot();
 
     private Transform FindJumpRoot()
     {
@@ -124,8 +128,17 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 
     protected virtual void OnEnable()
     {
-        if (EnemyManager.Instance != null)
-            EnemyManager.Instance.RegisterEnemy(this);
+        isRegistered = false;
+        RegisterIfNeeded();
+    }
+
+    // Enemies placed in the scene by hand can be enabled before the EnemyManager exists; they register
+    // on their first update instead. Unregistered enemies are invisible to rollers, waves and blasts.
+    private void RegisterIfNeeded()
+    {
+        if (isRegistered || isDead || EnemyManager.Instance == null) return;
+        EnemyManager.Instance.RegisterEnemy(this);
+        isRegistered = true;
     }
 
     protected virtual void OnDisable()
@@ -159,6 +172,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         // Frozen in place while the death effect plays
         if (isDead) return;
 
+        RegisterIfNeeded();
         FindPathIfUnassigned();
 
         // Update position along spline
@@ -278,6 +292,15 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         foreach (Collider col in GetComponentsInChildren<Collider>())
             col.enabled = false;
 
+        float deathDuration = PlayDeathEffect();
+        if (deathDuration >= 0f)
+            Destroy(gameObject, deathDuration);
+    }
+
+    // Plays the death effect and returns how long it lasts; the enemy is destroyed after that.
+    // Return a negative value to destroy the enemy yourself (e.g. after a longer sequence).
+    protected virtual float PlayDeathEffect()
+    {
         // Sprites dissolve; meshes (spike balls) shrink away
         float deathDuration = spriteFX != null ? spriteFX.Dissolve() : 0f;
         if (deathDuration <= 0f)
@@ -286,8 +309,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
             if (visual != null)
                 visual.DOScale(Vector3.zero, deathDuration).SetLink(gameObject);
         }
-
-        Destroy(gameObject, deathDuration);
+        return deathDuration;
     }
 
     // --- Tween cleanup ---
