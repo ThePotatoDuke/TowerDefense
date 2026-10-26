@@ -78,6 +78,7 @@ MonoBehaviour:
   spriteTransform: {fileID: 4319452122086312995}
   flipDuration: 0
   motionSource: {fileID: 0}
+  minTurnSpeed: 0.2
 --- !u!135 &5446501775651401984
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -129,7 +130,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.20899999, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 3836217340077342584}
   m_Father: {fileID: 9129673414925276990}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &1249765984111497541
@@ -305,9 +307,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc095fd3c7c2b2e4484c3a89fa59c3cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlimeEnemy
+  immuneToRanged: 0
   splineContainer: {fileID: 0}
   data: {fileID: 11400000, guid: cad6ad4cde3aebe45958d9ca343ca8e4, type: 2}
   slimeChild: {fileID: 6543175494851632665}
+--- !u!1 &3479674939268885140
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3836217340077342584}
+  - component: {fileID: 2226999308145363600}
+  m_Layer: 0
+  m_Name: TibbitPerch
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3836217340077342584
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3479674939268885140}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.05, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4319452122086312995}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2226999308145363600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3479674939268885140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f89e7d5203b98624d954daf20e0bdd6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TibbitPerch
 --- !u!1001 &1250045464220912817
 PrefabInstance:
   m_ObjectHideFlags: 0

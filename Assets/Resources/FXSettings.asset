@@ -100,3 +100,6 @@ MonoBehaviour:
   sparkColorA: {r: 1, g: 0.95, b: 0.7, a: 1}
   sparkColorB: {r: 1, g: 0.55, b: 0.15, a: 1}
   sparkGlow: {r: 3, g: 3, b: 3, a: 1}
+  castleWarningFrames:
+  - {fileID: 731340000000000, guid: 5e2a5ac4afe7d86478e79289b890fd51, type: 3}
+  - {fileID: 731340000000001, guid: 5e2a5ac4afe7d86478e79289b890fd51, type: 3}

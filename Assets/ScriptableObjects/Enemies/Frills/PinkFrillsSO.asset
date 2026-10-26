@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5214daefa54544da8669d1b346f9f898, type: 3}
+  m_Name: PinkFrillsSO
+  m_EditorClassIdentifier: Assembly-CSharp::FrillsDataSO
+  enemyName: PinkFrills
+  maxHealth: 60
+  contactDamage: 1
+  dropsFromSky: 0
+  startSpeed: 0.8
+  endSpeed: 3.0
+  flyHeight: 2.4
+  takeOffTime: 0.8
+  bobHeight: 0.1
+  bobsPerSecond: 0.8
+  minShootInterval: 3
+  maxShootInterval: 5
+  shootRange: 10
+  shotTravelTime: 1.1
+  shotDamage: 1
+  shotHitRadius: 0.6
+  shotFrames:
+  - {fileID: 841300000000000, guid: 69306f5c3d8b74949989ae2478469cff, type: 3}
+  - {fileID: 841300000000001, guid: 69306f5c3d8b74949989ae2478469cff, type: 3}
+  - {fileID: 841300000000002, guid: 69306f5c3d8b74949989ae2478469cff, type: 3}
+  - {fileID: 841300000000003, guid: 69306f5c3d8b74949989ae2478469cff, type: 3}
+  shotFramesPerSecond: 12
+  idleFrames:
+  - {fileID: 841200000000000, guid: 3f0cf511968a1ae4ea231b58b33667d8, type: 3}
+  - {fileID: 841200000000001, guid: 3f0cf511968a1ae4ea231b58b33667d8, type: 3}
+  - {fileID: 841200000000002, guid: 3f0cf511968a1ae4ea231b58b33667d8, type: 3}
+  - {fileID: 841200000000003, guid: 3f0cf511968a1ae4ea231b58b33667d8, type: 3}
+  idleFramesPerSecond: 8

@@ -23,10 +23,10 @@ MonoBehaviour:
   rollerDangerDistance: 2.5
   resurfaceDelay: 0.4
   digFrames:
-  - {fileID: 21300000, guid: 11ace7f2238552a429d6cf0257d48f99, type: 3}
-  - {fileID: 21300000, guid: cb2b3dff9deb82340983a0d7e500a7ff, type: 3}
-  - {fileID: 21300000, guid: eba3500d036231d48a67393e5783cbac, type: 3}
-  - {fileID: 21300000, guid: ae1a9041cd6f1df468b0374d69eb1c43, type: 3}
+  - {fileID: 21300000, guid: b7ec3e6c5305851479cc995eda9d0e40, type: 3}
+  - {fileID: 21300000, guid: 59633cca4892e8f42ab256ac7f86464c, type: 3}
+  - {fileID: 21300000, guid: ea52bdca29ee62b4f84140f67d517fec, type: 3}
+  - {fileID: 21300000, guid: 666242aab53b9f9428429e2f652b8205, type: 3}
   peekFrames:
   - {fileID: 21300000, guid: c23d4ba3c6e6abe48a8ef2def13c1442, type: 3}
   - {fileID: 21300000, guid: 9c3393afc7b5bb04da9ae4f3db29e320, type: 3}

@@ -34,6 +34,9 @@ public class CastleHitFX : MonoBehaviour
             return;
         }
 
+        // Points the player back to the castle when it's being hit off screen
+        gameObject.GetOrAddComponent<CastleWarning>();
+
         visual = sprite.transform;
         visualRestPosition = visual.localPosition;
         spriteFX = gameObject.GetOrAddComponent<SpriteFX>();

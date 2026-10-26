@@ -75,6 +75,22 @@ public class FXSettings : ScriptableObject
     // Total collapse time, for timing the game-over popup after it
     public float CastleCollapseDuration => castleCollapseDelay + castleCollapseRumble + castleCollapseSinkTime;
 
+    [Header("Castle Warning (screen edge, while the castle is hit off screen)")]
+    [Tooltip("Frames of the warning sign, played in a loop.")]
+    public Sprite[] castleWarningFrames;
+    [Tooltip("Size on screen, at the canvas's 1920x1080 reference size. 32 px art at 3x is 96.")]
+    public float castleWarningSize = 96f;
+    [Tooltip("Gap between the sign and the edge of the screen.")]
+    public float castleWarningEdgeMargin = 24f;
+    [Tooltip("Seconds after the last hit on the castle before the sign goes away.")]
+    public float castleWarningHideAfter = 3f;
+    public float castleWarningFramesPerSecond = 3f;
+    [Tooltip("Faster flashing once the castle is low on health and flashing red.")]
+    public float castleWarningUrgentFramesPerSecond = 8f;
+    [Tooltip("How much bigger the sign pulses when urgent, and how many pulses a second.")]
+    public float castleWarningUrgentPulse = 0.2f;
+    public float castleWarningUrgentPulseSpeed = 3f;
+
     [Header("Spawning")]
     [Tooltip("Seconds an enemy takes to scale up from nothing when it spawns.")]
     public float spawnPopTime = 0.3f;

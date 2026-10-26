@@ -5082,6 +5082,18 @@ MonoBehaviour:
       spawnWeight: 0
       baseCount: 2
       immuneToRanged: 0
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 8f7696247a6749b39abbfffd12035443, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 1376ccc5f7d24ae6859d5430b32134de, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 61a8c23c9f134660844f8520d4896514, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
     spawnIntervalMin: 0.5
     spawnIntervalMax: 0.9
     burstChance: 0
