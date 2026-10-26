@@ -15,8 +15,13 @@ MonoBehaviour:
   enemyName: Roller
   maxHealth: 150
   contactDamage: 2
+  dropsFromSky: 1
   moveSpeed: 2.5
   radius: 0.45
-  dodgeJumpHeight: 1.2
-  dodgeJumpDuration: 0.6
+  vaultSpeed: 2.5
+  vaultGravity: 25
+  vaultClearance: 0.15
+  touchDamage: 5
+  touchDamageInterval: 0.5
+  bumpSpeed: 3
   wavesToSurvive: 3

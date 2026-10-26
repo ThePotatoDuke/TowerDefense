@@ -55,8 +55,8 @@ public class FXSettings : ScriptableObject
     [Range(0f, 1f)] public float castleLowHealthThreshold = 0.3f;
 
     [Header("Castle Collapse (game over)")]
-    [Tooltip("Seconds after the castle falls before it starts collapsing, so the camera arrives first.")]
-    public float castleCollapseDelay = 1f;
+    [Tooltip("Seconds after the castle falls before it starts collapsing; at least the camera pan (brain blend, 2 s).")]
+    public float castleCollapseDelay = 2.1f;
     [Tooltip("Seconds it rumbles in place before sinking.")]
     public float castleCollapseRumble = 0.7f;
     [Tooltip("Seconds to sink fully into the ground.")]
@@ -64,10 +64,41 @@ public class FXSettings : ScriptableObject
     [Tooltip("How far it snaps side to side while collapsing.")]
     public float castleCollapseShake = 0.08f;
     [Tooltip("Dust and rubble particles per second along the base.")]
-    public float castleCollapseDust = 60f;
+    public float castleCollapseDust = 180f;
+    [Tooltip("Rubble thrown out at once when it starts to sink.")]
+    public int castleCollapseBurst = 60;
+    [Tooltip("Smoke puffs per second while collapsing.")]
+    public float castleCollapseSmoke = 30f;
+    public Color castleSmokeColorA = new Color(0.55f, 0.53f, 0.52f, 0.85f);
+    public Color castleSmokeColorB = new Color(0.32f, 0.3f, 0.31f, 0.85f);
 
     // Total collapse time, for timing the game-over popup after it
     public float CastleCollapseDuration => castleCollapseDelay + castleCollapseRumble + castleCollapseSinkTime;
+
+    [Header("Spawning")]
+    [Tooltip("Seconds an enemy takes to scale up from nothing when it spawns.")]
+    public float spawnPopTime = 0.3f;
+
+    [Header("Sky Drop (rollers, spike balls)")]
+    public Sprite dropMarkerOuter;
+    public Sprite dropMarkerMiddle;
+    [Tooltip("Seconds the marker shows before the enemy lands on it.")]
+    public float dropWarningTime = 1.2f;
+    [Tooltip("Seconds the marker takes to scale up when it appears.")]
+    public float dropMarkerPopTime = 0.25f;
+    [Tooltip("Degrees per second the outer ring turns.")]
+    public float dropMarkerSpin = 120f;
+    [Tooltip("Lowest height above the marker the enemy falls from; it always starts above the top of the screen.")]
+    public float dropHeight = 12f;
+    [Tooltip("Seconds the fall takes (the end of the warning time is when it lands).")]
+    public float dropFallTime = 0.45f;
+    public float dropLandShake = 0.2f;
+
+    [Header("Ranged Immunity")]
+    [Tooltip("How steeply bounced projectiles fly up: the range of their climb for each unit they travel sideways.")]
+    public Vector2 deflectClimb = new Vector2(0.6f, 1.4f);
+    [Tooltip("Largest turn, in degrees either way, of a bounced projectile from straight back.")]
+    public float deflectSpread = 70f;
 
     [Header("Pickup Shine")]
     [ColorUsage(false, true)] public Color shineColor = new Color(2.5f, 2.5f, 2.5f, 1f);
@@ -78,8 +109,14 @@ public class FXSettings : ScriptableObject
     [Header("Projectiles")]
     public float projectileEmission = 2.5f;
     [ColorUsage(true, true)] public Color projectileTrailColor = new Color(3f, 2.2f, 0.8f, 1f);
-    public float projectileTrailTime = 0.12f;
-    public float projectileTrailWidth = 0.08f;
+    public float projectileTrailTime = 0.18f;
+    [Tooltip("Trail width; trails are pixelated, so 0.125 is 2 sprite pixels.")]
+    public float projectileTrailWidth = 0.125f;
+
+    [Header("Enemy Spikes (yellow spike ball)")]
+    public float spikeTrailTime = 0.3f;
+    public float spikeTrailWidth = 0.19f;
+    [Range(0f, 1f)] public float spikeTrailAlpha = 0.85f;
 
     [Header("Sword Swoosh")]
     [ColorUsage(true, true)] public Color swooshColor = new Color(2f, 2f, 2f, 1f);
@@ -146,27 +183,29 @@ public class FXSettings : ScriptableObject
     [NonSerialized] private Material batPixelsMaterial;
     [NonSerialized] private Material sparkMaterial;
 
-    public Material ProjectileTrailMaterial => GetUnlitMaterial(ref projectileTrailMaterial, projectileTrailColor, "ProjectileTrail");
+    // Pixelated, glowing (HDR) projectile trails
+    public Material ProjectileTrailMaterial => GetPixelTrailMaterial(ref projectileTrailMaterial, projectileTrailColor, "ProjectileTrail");
     public Material SwooshMaterial => GetUnlitMaterial(ref swooshMaterial, swooshColor, "SwordSwoosh");
     public Material DebrisMaterial => GetUnlitMaterial(ref debrisMaterial, Color.white, "CastleDebris");
     public Material SparkMaterial => GetUnlitMaterial(ref sparkMaterial, sparkGlow, "Sparks");
-    // Fraction of the bat trail's width kept empty on each side, so edge blocks aren't clipped
-    public const float BatTrailInset = 0.25f;
+    // Fraction of a pixel trail's width kept empty on each side, so edge blocks aren't clipped
+    public const float PixelTrailInset = 0.25f;
 
-    // White, so each bat's color comes from vertex colors; both draw before sprites to stay behind them
-    public Material BatTrailMaterial
+    // White, so each trail's color comes from its vertex colors (bats, enemy spikes). Pixel trails
+    // draw before other transparents, so they stay behind sprites.
+    public Material BatTrailMaterial => GetPixelTrailMaterial(ref batTrailMaterial, Color.white, "BatTrail");
+
+    private Material GetPixelTrailMaterial(ref Material material, Color color, string label)
     {
-        get
+        if (material == null && pixelTrailShader != null)
         {
-            if (batTrailMaterial == null && pixelTrailShader != null)
-            {
-                batTrailMaterial = new Material(pixelTrailShader) { name = "BatTrail (Runtime)" };
-                batTrailMaterial.SetFloat("_PixelSize", batTrailPixelSize);
-                batTrailMaterial.SetFloat("_AlphaSteps", batTrailAlphaSteps);
-                batTrailMaterial.SetFloat("_Inset", BatTrailInset);
-            }
-            return batTrailMaterial;
+            material = new Material(pixelTrailShader) { name = $"{label} (Runtime)" };
+            material.SetColor("_Color", color);
+            material.SetFloat("_PixelSize", batTrailPixelSize);
+            material.SetFloat("_AlphaSteps", batTrailAlphaSteps);
+            material.SetFloat("_Inset", PixelTrailInset);
         }
+        return material;
     }
 
     public Material BatPixelsMaterial

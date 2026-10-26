@@ -23,9 +23,13 @@ public class SpriteFX : MonoBehaviour
     private static readonly int ShineOffsetId = Shader.PropertyToID("_ShineOffset");
     private static readonly int EmissionId = Shader.PropertyToID("_Emission");
     private static readonly int TexSizeId = Shader.PropertyToID("_TexSize");
+    private static readonly int SpriteRectId = Shader.PropertyToID("_SpriteRect");
+    private static readonly int SpriteFlipXId = Shader.PropertyToID("_SpriteFlipX");
 
     private Material material;
     private Texture lastTexture;
+    private Sprite lastSprite;
+    private bool lastMirrored;
     private Tween flashTween;
     private Tween dissolveTween;
 
@@ -59,8 +63,19 @@ public class SpriteFX : MonoBehaviour
 
     private void LateUpdate()
     {
-        // Animators can swap to a sprite on another texture
+        // Animators can swap to a sprite on another texture, or another frame of the same one
         UpdateTextureSize();
+
+        // Mirrored on screen, by flipX or by being turned round to face the other way (SpriteFlipper),
+        // but not both at once
+        Camera view = Camera.main;
+        bool turnedRound = view != null && Vector3.Dot(target.transform.right, view.transform.right) < 0f;
+        bool mirrored = target.flipX != turnedRound;
+        if (mirrored != lastMirrored)
+        {
+            lastMirrored = mirrored;
+            material.SetFloat(SpriteFlipXId, mirrored ? 1f : 0f);
+        }
     }
 
     private void OnDestroy()
@@ -73,9 +88,18 @@ public class SpriteFX : MonoBehaviour
 
     private void UpdateTextureSize()
     {
-        if (target.sprite == null) return;
+        Sprite sprite = target.sprite;
+        if (sprite == null) return;
 
-        Texture texture = target.sprite.texture;
+        // Where this frame sits in its texture
+        if (sprite != lastSprite)
+        {
+            lastSprite = sprite;
+            Rect rect = sprite.textureRect;
+            material.SetVector(SpriteRectId, new Vector4(rect.x, rect.y, rect.width, rect.height));
+        }
+
+        Texture texture = sprite.texture;
         if (texture == lastTexture) return;
 
         lastTexture = texture;

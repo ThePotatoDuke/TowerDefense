@@ -15,6 +15,8 @@ public class BlobShadow : MonoBehaviour
     [SerializeField] private Renderer source;
 
     private Transform shadow;
+    private MeshRenderer shadowRenderer;
+    private bool sized;
     private Material material;
     private Vector3 groundPoint;
     private bool hasGround;
@@ -40,19 +42,38 @@ public class BlobShadow : MonoBehaviour
         shadow.SetParent(transform, false);
 
         shadowObject.AddComponent<MeshFilter>().sharedMesh = Resources.GetBuiltinResource<Mesh>("Quad.fbx");
-        var shadowRenderer = shadowObject.AddComponent<MeshRenderer>();
+        shadowRenderer = shadowObject.AddComponent<MeshRenderer>();
         shadowRenderer.sharedMaterial = material;
         shadowRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         shadowRenderer.receiveShadows = false;
 
-        // Fixed size, measured once: billboard bounds change as the sprite turns toward the camera.
-        // Height only shrinks the blob inside the quad, so its pixel grid never rescales.
-        float size = Mathf.Max(0.3f, source.bounds.size.x * settings.shadowSizeMultiplier);
-        shadow.localScale = Vector3.one * size / Mathf.Max(0.0001f, transform.lossyScale.x);
+        TrySize();
+    }
+
+    // Fixed size, measured once: billboard bounds change as the sprite turns toward the camera.
+    // Height only shrinks the blob inside the quad, so its pixel grid never rescales.
+    // Waits while the object is still scaling up from nothing (spawning): measured at a tiny scale, the
+    // shadow would come out enormous once the object reached full size.
+    private bool TrySize()
+    {
+        float scale = transform.lossyScale.x;
+        if (scale < 0.5f)
+        {
+            shadowRenderer.enabled = false;
+            return false;
+        }
+
+        float size = Mathf.Max(0.3f, source.bounds.size.x * FXSettings.Instance.shadowSizeMultiplier);
+        shadow.localScale = Vector3.one * size / scale;
+        shadowRenderer.enabled = true;
+        sized = true;
+        return true;
     }
 
     private void LateUpdate()
     {
+        if (!sized && !TrySize()) return;
+
         Vector3 feet = GetFeetPosition();
 
         // Horizontal position blends from the feet toward the sprite's center

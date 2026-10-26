@@ -15,6 +15,7 @@ MonoBehaviour:
   enemyName: LazySpikeBall
   maxHealth: 200
   contactDamage: 2
+  dropsFromSky: 1
   springK: 3
   damping: 3.2
   ballRadius: 1

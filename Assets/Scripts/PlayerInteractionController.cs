@@ -22,7 +22,7 @@ public class PlayerInteractionController : MonoBehaviour
             {
                 Vector3 knockDir = (player.transform.position - other.transform.position).normalized;
                 knockDir.y = 0;
-                ApplyKnockback(knockDir);
+                Knockback(knockDir);
                 player.TakeDamage(enemy.ContactDamage);
             }
         }
@@ -35,15 +35,23 @@ public class PlayerInteractionController : MonoBehaviour
     }
 
 
-    private void ApplyKnockback(Vector3 direction)
+    // Push the player away in this direction with a little hop (enemy contact, enemy spikes)
+    public void Knockback(Vector3 direction)
     {
         // Kill any existing knockback sequence safely
         if (currentKnockbackSeq != null && currentKnockbackSeq.IsActive())
             currentKnockbackSeq.Kill(true);
 
+        // The knockback moves the transform directly, which interpolation would fight, so it's off meanwhile
         Rigidbody playerRb = player.GetComponent<Rigidbody>();
+        RigidbodyInterpolation interpolation = RigidbodyInterpolation.Interpolate;
         if (playerRb != null)
+        {
+            if (playerRb.interpolation != RigidbodyInterpolation.None)
+                interpolation = playerRb.interpolation;
             playerRb.isKinematic = true;
+            playerRb.interpolation = RigidbodyInterpolation.None;
+        }
 
         Vector3 startPos = player.transform.position;
         Vector3 intendedTarget = startPos + direction.normalized * knockbackDistance;
@@ -74,12 +82,16 @@ public class PlayerInteractionController : MonoBehaviour
 
         currentKnockbackSeq.OnComplete(() =>
         {
-            if (playerRb != null)
-                playerRb.isKinematic = false;
-
             // Reset y position to ground
             Vector3 finalPos = player.transform.position;
             player.transform.position = new Vector3(finalPos.x, startPos.y, finalPos.z);
+
+            if (playerRb != null)
+            {
+                playerRb.position = player.transform.position;
+                playerRb.isKinematic = false;
+                playerRb.interpolation = interpolation;
+            }
 
             currentKnockbackSeq = null;
         });

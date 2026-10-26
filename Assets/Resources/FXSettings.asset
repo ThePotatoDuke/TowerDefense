@@ -36,14 +36,37 @@ MonoBehaviour:
   castleDebrisColorB: {r: 0.32, g: 0.29, b: 0.27, a: 1}
   castleLowHealthColor: {r: 1.6, g: 0.15, b: 0.1, a: 1}
   castleLowHealthThreshold: 0.3
+  castleCollapseDelay: 0.5
+  castleCollapseRumble: 0.3
+  castleCollapseSinkTime: 2
+  castleCollapseShake: 0.08
+  castleCollapseDust: 180
+  castleCollapseBurst: 60
+  castleCollapseSmoke: 30
+  castleSmokeColorA: {r: 0.55, g: 0.53, b: 0.52, a: 0.85}
+  castleSmokeColorB: {r: 0.32, g: 0.3, b: 0.31, a: 0.85}
+  spawnPopTime: 0.3
+  dropMarkerOuter: {fileID: 21300000, guid: 4cdd6d440f6e46c46aa9f7eafd721603, type: 3}
+  dropMarkerMiddle: {fileID: 21300000, guid: db0ecc98f2c7054458909f14a65eab1b, type: 3}
+  dropWarningTime: 2
+  dropMarkerPopTime: 0.5
+  dropMarkerSpin: 120
+  dropHeight: 12
+  dropFallTime: 0.45
+  dropLandShake: 0.2
+  deflectClimb: {x: 0.6, y: 1.4}
+  deflectSpread: 70
   shineColor: {r: 2.5, g: 2.5, b: 2.5, a: 1}
   shineSpeed: 40
   shineSpacing: 60
   shineWidth: 4
   projectileEmission: 2.5
   projectileTrailColor: {r: 3, g: 2.2, b: 0.8, a: 1}
-  projectileTrailTime: 0.12
-  projectileTrailWidth: 0.08
+  projectileTrailTime: 0.18
+  projectileTrailWidth: 0.125
+  spikeTrailTime: 0.3
+  spikeTrailWidth: 0.19
+  spikeTrailAlpha: 0.85
   swooshColor: {r: 2, g: 2, b: 2, a: 1}
   swooshTime: 0.2
   swooshWidth: 0.8
@@ -55,6 +78,25 @@ MonoBehaviour:
   batPixelDensity: 4
   batPixelSize: 0.1
   batPixelLifetime: 0.6
+  deathHitStop: 0.35
+  deathSlowMotion: 0.3
+  deathSlowMotionRecovery: 1.2
+  deathZoomFieldOfView: 45
+  deathZoomDistance: 0.7
+  deathZoomDuration: 1.2
+  deathScreenFadeDuration: 0.3
+  deathShakeForce: 0.5
+  deathShakeDuration: 0.45
+  deathSaturation: -70
+  deathVignette: 0.45
+  deathChromaticAberration: 0.6
   pixelArtLayer: 9
   imposterPixelsPerUnit: 20
   imposterOutlineColor: {r: 0.08, g: 0.06, b: 0.1, a: 1}
+  sparkCount: 45
+  sparkSize: 0.2
+  sparkSpeed: 10
+  sparkFlashSize: 1.4
+  sparkColorA: {r: 1, g: 0.95, b: 0.7, a: 1}
+  sparkColorB: {r: 1, g: 0.55, b: 0.15, a: 1}
+  sparkGlow: {r: 3, g: 3, b: 3, a: 1}

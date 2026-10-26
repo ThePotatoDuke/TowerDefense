@@ -100,3 +100,6 @@ InitTestScene*.unity*
 
 # IDE solution files
 *.slnx
+
+# Profiler report from Tools > Dump Profiler Spikes
+ProfilerDump.txt

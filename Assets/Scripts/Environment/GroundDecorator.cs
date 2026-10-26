@@ -24,6 +24,8 @@ public class GroundDecorator : MonoBehaviour
     [SerializeField] private float grassDensity = 0.25f;
     [Tooltip("No decorations closer than this to the enemy path.")]
     [SerializeField] private float pathClearance = 1.3f;
+    [Tooltip("Distance in from the ground's edges kept clear, so nothing grows outside the bush border.")]
+    [SerializeField] private float edgeInset = 1.1f;
     [Tooltip("How far flowers float above the ground, so they don't flicker into it.")]
     [SerializeField] private float flowerHeight = 0.02f;
     [Tooltip("Same seed, same layout every run.")]
@@ -101,7 +103,9 @@ public class GroundDecorator : MonoBehaviour
         Random.State previousState = Random.state;
         Random.InitState(seed);
 
+        // Only inside the bush border round the edge
         groundBounds = GetComponent<Renderer>().bounds;
+        groundBounds.Expand(new Vector3(-2f * edgeInset, 0f, -2f * edgeInset));
         float area = groundBounds.size.x * groundBounds.size.z;
 
         if (flowerSprites != null && flowerSprites.Length > 0)

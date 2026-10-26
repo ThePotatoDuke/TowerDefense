@@ -15,6 +15,9 @@ public class CameraManager : MonoBehaviour
     private static CinemachineBrain brain;
     private static Action onBlendComplete;
 
+    // True while the brain is still moving from one camera to another
+    public static bool IsBlending => brain != null && brain.IsBlending;
+
     private void Awake()
     {
         if (brain == null)

@@ -17,11 +17,13 @@ public class RollerDataSO : EnemyDataSO
     [Tooltip("Extra room between the enemy's feet and the top of the roller.")]
     public float vaultClearance = 0.15f;
 
-    [Header("Touch Damage")]
-    [Tooltip("Damage to a ground enemy touching the roller (e.g. where the path loops past it, or a missed vault).")]
+    [Header("Touching It")]
+    [Tooltip("Damage to a ground enemy the roller runs into while it can't jump (it only just landed).")]
     public float touchDamage = 5f;
-    [Tooltip("Seconds between hits on the same enemy while it keeps touching.")]
+    [Tooltip("Seconds between hits or bumps on the same enemy while it keeps touching.")]
     public float touchDamageInterval = 0.5f;
+    [Tooltip("How much faster than the roller a spike ball it hits is knocked along the path.")]
+    public float bumpSpeed = 3f;
 
     [Header("Lifetime")]
     [Tooltip("Number of cleared waves after which the roller destroys itself.")]

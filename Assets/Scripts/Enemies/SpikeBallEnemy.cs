@@ -9,6 +9,7 @@ public class SpikeBallEnemy : EnemyBase
 
     private Vector3 lastPos;
     private float progressVelocity = 0f;     // speed along the path, units per second
+    private float bumpVelocity = 0f;         // extra speed along the path from a roller's knock, dying away
     private float currentTargetProgress = 0f;// tweened target
     private float offsetTimer = 0f;
     private int wavesSurvived = 0;
@@ -18,6 +19,10 @@ public class SpikeBallEnemy : EnemyBase
     // Spike balls only shield other enemies: they don't hold up the next wave or hit the castle
     public override bool BlocksWaveProgress => false;
     protected override bool DamagesCastle => false;
+    // Rollers knock spike balls along the path instead of them hopping over (see TryBump)
+    public override bool CanDodge => false;
+
+    private const float BumpDecay = 3f; // how quickly a knock slows down, per second
 
     protected override void Awake()
     {
@@ -34,6 +39,7 @@ public class SpikeBallEnemy : EnemyBase
     {
         base.OnEnable();
         progressVelocity = 0f;
+        bumpVelocity = 0f;
         currentTargetProgress = distancePercentage;
         GameEvents.OnWaveCleared += HandleWaveCleared;
     }
@@ -176,8 +182,11 @@ public class SpikeBallEnemy : EnemyBase
         progressVelocity += acceleration * dt;
         progressVelocity = Mathf.Clamp(progressVelocity, -data.maxSpeed, data.maxSpeed);
 
+        // A roller's knock rides on top of the spring and fades out
+        bumpVelocity *= Mathf.Exp(-BumpDecay * dt);
+
         float previousProgress = distancePercentage;
-        distancePercentage = Mathf.Clamp01(distancePercentage + progressVelocity * dt / splineLength);
+        distancePercentage = Mathf.Clamp01(distancePercentage + (progressVelocity + bumpVelocity) * dt / splineLength);
 
         if (splineContainer != null)
         {
@@ -193,6 +202,20 @@ public class SpikeBallEnemy : EnemyBase
         // End detection
         if (!hasReachedEnd && distancePercentage >= 0.999f)
             ReachEnd();
+    }
+
+    // Hit by a roller: knocked along the path, whichever way leads away from it
+    public override bool TryBump(Vector3 away, float speed)
+    {
+        if (isDead) return false;
+
+        Vector3 pathDirection = splineContainer != null ? (Vector3)splineContainer.EvaluateTangent(distancePercentage) : Vector3.right;
+        pathDirection.y = 0f;
+        float sign = Vector3.Dot(pathDirection, away) >= 0f ? 1f : -1f;
+
+        progressVelocity = 0f;
+        bumpVelocity = sign * speed;
+        return true;
     }
 
     private void HandleRollingVisual()

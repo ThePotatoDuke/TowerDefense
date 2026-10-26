@@ -44,6 +44,9 @@ public class Player : MonoBehaviour, IHasHealth
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        // Physics moves the player in fixed steps but the camera follows every frame; without
+        // interpolation the player stutters between steps against the smoothly moving camera
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         if (Instance != null && Instance != this)
         {

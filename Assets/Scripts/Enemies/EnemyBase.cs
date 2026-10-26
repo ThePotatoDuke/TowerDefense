@@ -23,21 +23,33 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     public virtual bool IsFlying => false;
     // Enemies hop over rollers in their way; things already in the air or that are rollers themselves don't
     public virtual bool CanDodge => !IsFlying;
+    [Tooltip("Ranged attacks bounce off it, flying away upward at a random angle. Shown by the pickup " +
+             "shine on the enemy and a shining shield beside its health bar. Wave entries can also turn it on.")]
+    [SerializeField] private bool immuneToRanged;
+    public bool ImmuneToRanged => immuneToRanged;
 
     public event Action<float> OnHealthChanged;
     public event Action OnDied;
+    // A ranged attack just bounced off it
+    public event Action OnDeflected;
 
     [Header("Visuals")] protected Transform visual;
     private Color originalColor;
     private Renderer meshRenderer;
     private SpriteRenderer spriteRenderer;
     private SpriteFX spriteFX;
+    // The sprite (or mesh) that shows this enemy
+    public Renderer MainRenderer => spriteRenderer != null ? spriteRenderer : meshRenderer;
 
     // Direct child holding the visual; lifted when dodging so the spline-following root stays on the path
     private Transform jumpRoot;
     private Sequence dodgeSequence;
     private float dodgePathVelocity; // units per second along the path while vaulting
     public bool IsDodging => dodgeSequence != null && dodgeSequence.IsActive();
+    // Seconds after landing before it can jump again; touching a roller in that moment is what hurts
+    private const float LandingRecovery = 0.2f;
+    private float landTime = float.NegativeInfinity;
+    public bool JustLanded => Time.time - landTime < LandingRecovery;
 
     [Header("Spline Movement")]
     [SerializeField] protected SplineContainer splineContainer;
@@ -54,6 +66,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     public float BodyRadius { get; private set; } = 0.3f;
 
     protected bool hasReachedEnd = false;
+    public bool HasReachedEnd => hasReachedEnd;
     protected float attackInterval = 1f; // seconds between attacks
     protected float attackTimer = 0f;
 
@@ -65,6 +78,15 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         splineLength = container != null ? container.CalculateLength() : 1f;
         distancePercentage = 0f;
         hasReachedEnd = false;
+    }
+
+    // Starts it part-way along the path instead of at the start (e.g. dropped from the sky)
+    public void PlaceOnPath(float progress)
+    {
+        distancePercentage = Mathf.Clamp01(progress);
+        lastProgress = distancePercentage;
+        if (splineContainer != null)
+            transform.position = splineContainer.EvaluatePosition(distancePercentage);
     }
 
     public void SetHealthMultiplier(float multiplier)
@@ -109,10 +131,23 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 
         jumpRoot = GetJumpRoot();
 
+        if (immuneToRanged)
+            SetImmuneToRanged(true);
+
         Collider body = GetComponentInChildren<Collider>();
         float bodyRadius = body != null ? Mathf.Max(body.bounds.extents.x, body.bounds.extents.z) : 0f;
         if (bodyRadius > 0.01f) // bounds can be empty this early on some setups; keep the default then
             BodyRadius = bodyRadius;
+    }
+
+    public void NotifyDeflected() => OnDeflected?.Invoke();
+
+    // The same shine as weapon pickups; the health bar shows a shield beside it (checked when it starts)
+    public void SetImmuneToRanged(bool immune)
+    {
+        immuneToRanged = immune;
+        if (spriteFX != null)
+            spriteFX.SetShine(immune);
     }
 
     // The direct child that's lifted when dodging; by default the one holding the visual
@@ -151,7 +186,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     public abstract void Move(); // Each enemy implements its own movement logic
 
     // Runs after every enemy's own movement this frame
-    private void LateUpdate()
+    protected virtual void LateUpdate()
     {
         if (isDead || Time.deltaTime <= 0f) return;
 
@@ -241,10 +276,11 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     }
 
     // --- Dodging ---
-    // Vault: a jump with the given height and air time, moving along the path at pathVelocity meanwhile
-    public void Dodge(float height, float duration, float pathVelocity)
+    // Vault: a jump with the given height and air time, moving along the path at pathVelocity meanwhile.
+    // Returns false if it can't jump right now (already in the air, or only just landed).
+    public bool Dodge(float height, float duration, float pathVelocity)
     {
-        if (isDead || !CanDodge || IsDodging || jumpRoot == null) return;
+        if (isDead || !CanDodge || IsDodging || JustLanded || jumpRoot == null) return false;
 
         dodgePathVelocity = pathVelocity;
         Transform root = jumpRoot;
@@ -254,10 +290,15 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
             .Append(root.DOLocalMoveY(restY, duration * 0.5f).SetEase(Ease.InQuad))
             .OnKill(() =>
             {
+                landTime = Time.time;
                 if (root != null)
                     root.localPosition = new Vector3(root.localPosition.x, restY, root.localPosition.z);
             });
+        return true;
     }
+
+    // Pushed by a roller instead of hopping over it or getting hurt; true if this enemy handles that
+    public virtual bool TryBump(Vector3 away, float speed) => false;
 
     // --- Hit flash ---
     public virtual void Flash(float duration = 0.1f)

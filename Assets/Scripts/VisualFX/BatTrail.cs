@@ -26,7 +26,8 @@ public class BatTrail : MonoBehaviour
         }
 
         // Separate objects: a GameObject can only have one renderer
-        trail = CreateTrail(CreateEmitter("BatTrail"), settings);
+        trail = PixelTrails.Attach(source.transform, source.localBounds.center, settings.BatTrailMaterial,
+                                   Color, settings.batTrailTime, settings.batTrailWidth, settings.batTrailAlpha);
         pixels = CreatePixels(CreateEmitter("BatPixels"), settings);
 
         enemy = GetComponent<EnemyBase>();
@@ -45,9 +46,7 @@ public class BatTrail : MonoBehaviour
     {
         if (trail == null) return;
 
-        trail.transform.SetParent(null, true);
-        trail.emitting = false;
-        trail.autodestruct = true;
+        PixelTrails.Release(trail);
         trail = null;
 
         pixels.transform.SetParent(null, true);
@@ -62,27 +61,6 @@ public class BatTrail : MonoBehaviour
         emitter.transform.SetParent(source.transform, false);
         emitter.transform.localPosition = source.localBounds.center;
         return emitter;
-    }
-
-    private TrailRenderer CreateTrail(GameObject owner, FXSettings settings)
-    {
-        var ribbon = owner.AddComponent<TrailRenderer>();
-        ribbon.sharedMaterial = settings.BatTrailMaterial;
-        ribbon.time = settings.batTrailTime;
-        // Wider than it looks: the shader leaves an empty inset on each side
-        ribbon.widthMultiplier = settings.batTrailWidth / (1f - 2f * FXSettings.BatTrailInset);
-        ribbon.widthCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
-        ribbon.minVertexDistance = 0.05f;
-        ribbon.numCornerVertices = 2;
-        ribbon.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-        ribbon.receiveShadows = false;
-
-        var gradient = new Gradient();
-        gradient.SetKeys(
-            new[] { new GradientColorKey(Color, 0f), new GradientColorKey(Color, 1f) },
-            new[] { new GradientAlphaKey(settings.batTrailAlpha, 0f), new GradientAlphaKey(0f, 1f) });
-        ribbon.colorGradient = gradient;
-        return ribbon;
     }
 
     private ParticleSystem CreatePixels(GameObject owner, FXSettings settings)

@@ -6,6 +6,7 @@ public class Projectile : MonoBehaviour
     private Vector3 direction;
     private int pierceCount;
     private ProjectileFX fx;
+    private bool deflected; // bounced off an immune enemy: harmless from then on
 
     private void Awake()
     {
@@ -51,7 +52,15 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (deflected) return;
+
         IEnemy enemy = other.GetComponentInParent<IEnemy>();
+        if (enemy is EnemyBase immune && immune.ImmuneToRanged && !immune.IsDead)
+        {
+            Deflect(immune);
+            return;
+        }
+
         if (enemy != null)
         {
             IHasHealth health = enemy as IHasHealth;
@@ -70,6 +79,26 @@ public class Projectile : MonoBehaviour
                 }
             }
         }
+    }
+
+    // Bounces back the way it came, turned by a random angle and flying up, with a spark where it hit
+    private void Deflect(EnemyBase enemy)
+    {
+        deflected = true;
+        FXSettings settings = FXSettings.Instance;
+        float spread = settings != null ? settings.deflectSpread : 70f;
+        Vector2 climb = settings != null ? settings.deflectClimb : new Vector2(0.6f, 1.4f);
+
+        Vector3 back = new Vector3(-direction.x, 0f, -direction.z);
+        if (back.sqrMagnitude < 0.0001f)
+            back = Vector3.back;
+        back = Quaternion.AngleAxis(Random.Range(-spread, spread), Vector3.up) * back.normalized;
+        direction = (back + Vector3.up * Random.Range(climb.x, climb.y)).normalized;
+        transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
+
+        SparkBurst.Play(transform.position);
+        enemy.Flash();
+        enemy.NotifyDeflected();
     }
 
 }

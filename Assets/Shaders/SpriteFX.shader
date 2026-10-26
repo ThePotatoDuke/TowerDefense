@@ -37,6 +37,11 @@ Shader "TowerDefense/SpriteFX"
 
         // Set from C# so effects snap to the sprite's texels
         [HideInInspector] _TexSize ("Texture Size (px)", Vector) = (64, 64, 0, 0)
+        // The current frame's corner in its texture (px), so the shine is measured within the frame and
+        // doesn't jump when an animation moves to another frame of the sheet
+        [HideInInspector] _SpriteRect ("Sprite Rect (px)", Vector) = (0, 0, 0, 0)
+        // 1 when the sprite shows mirrored on screen, so the shine is mirrored back and keeps its direction
+        [HideInInspector] _SpriteFlipX ("Sprite Flipped", Float) = 0
 
         // Legacy sprite properties, kept for SpriteRenderer compatibility
         [HideInInspector] _Color ("Tint", Color) = (1, 1, 1, 1)
@@ -95,6 +100,8 @@ Shader "TowerDefense/SpriteFX"
                 float _ShineOffset;
                 half _Emission;
                 float4 _TexSize;
+                float4 _SpriteRect;
+                float _SpriteFlipX;
             CBUFFER_END
 
             float Hash21(float2 p)
@@ -138,8 +145,11 @@ Shader "TowerDefense/SpriteFX"
                 col.rgb = lerp(col.rgb, _FlashColor.rgb, _FlashAmount);
                 col.rgb *= _Emission;
 
-                // Shine: diagonal band repeating every _ShineSpacing texels
-                float band = frac((px.x + px.y + _ShineOffset - _Time.y * _ShineSpeed) / _ShineSpacing) * _ShineSpacing;
+                // Shine: diagonal band repeating every _ShineSpacing texels, measured from the frame's corner
+                float2 framePx = px - _SpriteRect.xy;
+                if (_SpriteFlipX > 0.5)
+                    framePx.x = _SpriteRect.z - 1.0 - framePx.x; // same sweep on screen when mirrored
+                float band = frac((framePx.x + framePx.y + _ShineOffset - _Time.y * _ShineSpeed) / _ShineSpacing) * _ShineSpacing;
                 col.rgb = lerp(col.rgb, _ShineColor.rgb, step(band, _ShineWidth) * _ShineStrength);
 
                 // Dissolve: clumpy noise plus per-texel grain; pixels below the cutoff vanish,

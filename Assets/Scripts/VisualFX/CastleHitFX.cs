@@ -9,6 +9,9 @@ using UnityEngine;
 public class CastleHitFX : MonoBehaviour
 {
     private const float ShakeSteps = 30f; // side-to-side flips per second while collapsing
+    private const float SmokeLinger = 1f;  // seconds smoke keeps coming after the castle is buried
+    private const float CameraJoltInterval = 0.12f; // seconds between the camera's short jolts while it collapses
+    private const float CameraJoltForce = 0.3f;
 
     private CastleHealth castle;
     private SpriteRenderer sprite;
@@ -63,8 +66,10 @@ public class CastleHitFX : MonoBehaviour
         shakeTween?.Kill();
         visual.localPosition = visualRestPosition;
 
-        // Let the camera swing over to the castle first
+        // Let the camera swing over to the castle first, and finish the pan before anything shakes
         yield return new WaitForSeconds(settings.castleCollapseDelay);
+        while (CameraManager.IsBlending)
+            yield return null;
 
         Bounds bounds = sprite.bounds;
         float sinkDistance = bounds.size.y + 0.2f;
@@ -73,12 +78,29 @@ public class CastleHitFX : MonoBehaviour
         Vector3 sideways = visual.parent != null ? visual.parent.InverseTransformDirection(visual.right) : visual.right;
 
         ParticleSystem dust = CreateDust(bounds);
-        CameraShake.Shake(bounds.center, 0.3f, settings.castleCollapseRumble + settings.castleCollapseSinkTime);
+        ParticleSystem smoke = CreateSmoke(bounds);
 
         float total = settings.castleCollapseRumble + settings.castleCollapseSinkTime;
         float elapsed = 0f;
+        float nextJolt = 0f;
+        bool startedSinking = false;
         while (elapsed < total)
         {
+            // The camera shakes in short sharp jolts like any other hit, easing off as the castle goes under
+            if (elapsed >= nextJolt)
+            {
+                nextJolt += CameraJoltInterval;
+                CameraShake.Shake(bounds.center, CameraJoltForce * (1f - 0.6f * elapsed / total), CameraJoltInterval * 1.5f);
+            }
+
+            // A crash of rubble the moment it gives way and starts to sink
+            if (!startedSinking && elapsed >= settings.castleCollapseRumble)
+            {
+                startedSinking = true;
+                if (dust != null)
+                    dust.Emit(settings.castleCollapseBurst);
+            }
+
             // Rumble in place first, then sink, slowly at first
             float sinkProgress = Mathf.Clamp01((elapsed - settings.castleCollapseRumble) / settings.castleCollapseSinkTime);
             float sink = sinkDistance * sinkProgress * sinkProgress;
@@ -92,8 +114,72 @@ public class CastleHitFX : MonoBehaviour
         }
 
         visual.gameObject.SetActive(false); // fully buried
+
+        // The rubble stops right away; the smoke keeps rising a little longer, then drifts off
         if (dust != null)
             dust.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        yield return new WaitForSeconds(SmokeLinger);
+        if (smoke != null)
+            smoke.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+    }
+
+    // Big grey clouds of smoke billowing up from the base and swelling as they fade
+    private ParticleSystem CreateSmoke(Bounds spriteBounds)
+    {
+        FXSettings settings = FXSettings.Instance;
+        if (settings.DebrisMaterial == null) return null;
+
+        var smokeObject = new GameObject("CastleCollapseSmoke");
+        smokeObject.transform.SetParent(transform, false);
+        smokeObject.transform.position = new Vector3(spriteBounds.center.x, spriteBounds.min.y + 0.2f, spriteBounds.center.z);
+        if (Camera.main != null)
+            smokeObject.transform.rotation = Quaternion.Euler(0f, Camera.main.transform.eulerAngles.y, 0f);
+
+        var system = smokeObject.AddComponent<ParticleSystem>();
+        system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+        var main = system.main;
+        main.loop = true;
+        main.playOnAwake = false;
+        main.startLifetime = new ParticleSystem.MinMaxCurve(1.4f, 2.4f);
+        main.startSpeed = new ParticleSystem.MinMaxCurve(0.4f, 1.2f);
+        main.startSize = new ParticleSystem.MinMaxCurve(0.35f, 0.7f);
+        main.startColor = new ParticleSystem.MinMaxGradient(settings.castleSmokeColorA, settings.castleSmokeColorB);
+        main.gravityModifier = -0.05f; // drifts up
+        main.simulationSpace = ParticleSystemSimulationSpace.World;
+        main.maxParticles = 300;
+
+        var emission = system.emission;
+        emission.rateOverTime = settings.castleCollapseSmoke;
+
+        var shape = system.shape;
+        shape.shapeType = ParticleSystemShapeType.Box;
+        shape.scale = new Vector3(spriteBounds.size.x * 1.1f, 0.05f, 0.6f);
+        shape.rotation = new Vector3(-90f, 0f, 0f); // emit upward
+        shape.randomDirectionAmount = 0.3f;
+
+        // Fade in quickly, then thin out as it rises
+        var colorOverLifetime = system.colorOverLifetime;
+        colorOverLifetime.enabled = true;
+        var fade = new Gradient();
+        fade.SetKeys(
+            new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+            new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(1f, 0.15f), new GradientAlphaKey(0f, 1f) });
+        colorOverLifetime.color = fade;
+
+        var sizeOverLifetime = system.sizeOverLifetime;
+        sizeOverLifetime.enabled = true;
+        sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.Linear(0f, 1f, 1f, 2f));
+
+        // Untextured billboard quads read as chunky pixels
+        var particleRenderer = smokeObject.GetComponent<ParticleSystemRenderer>();
+        particleRenderer.sharedMaterial = settings.DebrisMaterial;
+        particleRenderer.renderMode = ParticleSystemRenderMode.Billboard;
+        particleRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        particleRenderer.receiveShadows = false;
+
+        system.Play();
+        return system;
     }
 
     // Dust and rubble spilling out along the castle's base for the whole collapse

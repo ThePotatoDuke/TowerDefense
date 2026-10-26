@@ -18,6 +18,7 @@ public class SpikeProjectile : MonoBehaviour
     private float travelled;
     private bool finished;
     private bool launched;
+    private TrailRenderer trail;
 
     // A spike aimed and waiting, drawn faint, until Launch. Lets a warning show the real spikes.
     public static SpikeProjectile Create(Vector3 origin, Vector3 direction, Sprite spikeSprite, Material material,
@@ -46,6 +47,12 @@ public class SpikeProjectile : MonoBehaviour
     {
         launched = true;
         sprite.color = Color.white;
+
+        // White pixel trail, like the bats'
+        FXSettings settings = FXSettings.Instance;
+        if (settings != null)
+            trail = PixelTrails.Attach(transform, Vector3.zero, settings.BatTrailMaterial, Color.white,
+                                       settings.spikeTrailTime, settings.spikeTrailWidth, settings.spikeTrailAlpha);
     }
 
     private void Update()
@@ -63,7 +70,14 @@ public class SpikeProjectile : MonoBehaviour
             offset.y = 0f;
             if (offset.sqrMagnitude <= HitRadius * HitRadius)
             {
-                player.TakeDamage(damage);
+                // Like touching an enemy: knocked back along the spike's flight, unless still invulnerable
+                if (!player.IsInvulnerable)
+                {
+                    PlayerInteractionController interaction = player.GetComponentInChildren<PlayerInteractionController>();
+                    if (interaction != null)
+                        interaction.Knockback(direction);
+                    player.TakeDamage(damage);
+                }
                 Finish();
                 return;
             }
@@ -94,6 +108,8 @@ public class SpikeProjectile : MonoBehaviour
     private void Finish()
     {
         finished = true;
+        PixelTrails.Release(trail); // fades out on its own
+        trail = null;
         sprite.DOFade(0f, FadeTime).SetLink(gameObject).OnComplete(() => Destroy(gameObject));
     }
 }
