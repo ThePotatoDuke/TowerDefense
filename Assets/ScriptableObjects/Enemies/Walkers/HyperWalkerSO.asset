@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3c36decdbf948a4c952219b54e022ab, type: 3}
   m_Name: HyperWalkerSO
   m_EditorClassIdentifier: Assembly-CSharp::WalkerDataSO
-  enemyName: BasicWalker
+  enemyName: HyperWalker
   maxHealth: 70
   contactDamage: 1
   moveSpeed: 3

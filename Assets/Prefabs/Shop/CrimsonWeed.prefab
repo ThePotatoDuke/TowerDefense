@@ -235,8 +235,8 @@ MonoBehaviour:
   shots: 010000000100000003000000i
   spreadAngle: 15
   damageToGrow:
-  - 300
-  - 900
+  - 500
+  - 1500
   minPathDistance: 1.3
   maxPathDistance: 4
   spacing: 1.5

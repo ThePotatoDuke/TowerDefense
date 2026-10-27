@@ -12,6 +12,7 @@ public class EndlessWaveManager : MonoBehaviour
     [SerializeField] private SplineContainer splineContainer;
 
     [Header("Wave Configuration")]
+    [Tooltip("Used only when Resources/WaveSettings has no waves; the settings asset holds the real run.")]
     [SerializeField] private List<Wave> waves;
 
     [Header("Sky Drops")]
@@ -86,44 +87,58 @@ public class EndlessWaveManager : MonoBehaviour
 
     private IEnumerator RunEndlessWaves()
     {
+        WaveSettings settings = WaveSettings.Instance;
+        List<Wave> list = settings != null && settings.waves.Count > 0 ? settings.waves : waves;
+        if (list == null || list.Count == 0) yield break;
+
+        if (settings != null)
+            yield return new WaitForSeconds(settings.firstWaveDelay);
+
+        int index = 0;
         while (true)
         {
-            foreach (var wave in waves)
+            // Played through: carry on from a later wave, a loop harder
+            if (index >= list.Count)
             {
-                totalWaveCount++;
-                OnWaveChanged?.Invoke(totalWaveCount);
+                index = settings != null ? Mathf.Clamp(settings.loopFromWave - 1, 0, list.Count - 1) : 0;
+                waveLoopIndex++;
+            }
+            Wave wave = list[index++];
 
-                // Spawn enemies
-                yield return SpawnWave(wave);
+            totalWaveCount++;
+            OnWaveChanged?.Invoke(totalWaveCount);
 
-                // Wait until all wave-blocking enemies are dead (spike balls don't count)
-                yield return new WaitUntil(() => EnemyManager.Instance.GetWaveBlockingEnemyCount() == 0);
+            // Spawn enemies
+            yield return SpawnWave(wave, settings);
 
-                GameEvents.WaveCleared();
+            // Wait until all wave-blocking enemies are dead (spike balls don't count)
+            yield return new WaitUntil(() => EnemyManager.Instance.GetWaveBlockingEnemyCount() == 0);
 
-                // Every few waves, the shop (the game waits while it's open)
-                ShopSettings shopSettings = ShopSettings.Instance;
-                Shop shop = Shop.Instance;
-                if (shop != null && shopSettings != null && shopSettings.wavesBetweenShops > 0
-                    && totalWaveCount % shopSettings.wavesBetweenShops == 0)
-                {
-                    yield return new WaitForSeconds(shopSettings.openDelay);
-                    yield return shop.Visit();
-                }
+            GameEvents.WaveCleared();
+
+            // Every few waves, the shop (the game waits while it's open)
+            ShopSettings shopSettings = ShopSettings.Instance;
+            Shop shop = Shop.Instance;
+            if (shop != null && shopSettings != null && shopSettings.wavesBetweenShops > 0
+                && totalWaveCount % shopSettings.wavesBetweenShops == 0)
+            {
+                yield return new WaitForSeconds(shopSettings.openDelay);
+                yield return shop.Visit();
             }
 
-            waveLoopIndex++;
+            if (settings != null)
+                yield return new WaitForSeconds(settings.breakBetweenWaves);
         }
     }
 
-
-    private IEnumerator SpawnWave(Wave wave)
+    private IEnumerator SpawnWave(Wave wave, WaveSettings settings)
     {
         // Build weighted list for extra/random enemies
         // Entries, not just prefabs, so per-entry settings (e.g. ranged immunity) come along
         List<EnemySpawnEntry> weightedList = new List<EnemySpawnEntry>();
         foreach (var entry in wave.enemies)
         {
+            if (entry.enemyPrefab == null) continue; // an enemy that's been removed
             int reps = Mathf.CeilToInt(entry.spawnWeight * 10);
             for (int i = 0; i < reps; i++)
                 weightedList.Add(entry);
@@ -132,15 +147,22 @@ public class EndlessWaveManager : MonoBehaviour
         // Build combined spawn list
         List<EnemySpawnEntry> spawnList = new List<EnemySpawnEntry>();
 
-        // Add guaranteed base counts
+        // Add guaranteed base counts (entries that come in a row are added as a block after the shuffle)
         foreach (var entry in wave.enemies)
-            for (int i = 0; i < entry.baseCount; i++)
-                spawnList.Add(entry);
+            if (!entry.inARow && entry.enemyPrefab != null)
+                for (int i = 0; i < entry.baseCount; i++)
+                    spawnList.Add(entry);
 
-        // Add extra enemies (random amount)
-        int minExtra = 1;
-        int maxExtra = Mathf.Max(minExtra, waveLoopIndex * enemiesPerWaveIncrement + minExtra);
-        int extraEnemies = UnityEngine.Random.Range(minExtra, maxExtra + 1);
+        // Add extra enemies: with the settings, none on the first play-through and more each loop;
+        // without, a random few that grow each loop
+        int extraEnemies;
+        if (settings != null)
+            extraEnemies = waveLoopIndex * settings.extraEnemiesPerLoop;
+        else
+        {
+            int maxExtra = Mathf.Max(1, waveLoopIndex * enemiesPerWaveIncrement + 1);
+            extraEnemies = UnityEngine.Random.Range(1, maxExtra + 1);
+        }
 
         // Skip extras if every entry has spawnWeight 0
         for (int i = 0; i < extraEnemies && weightedList.Count > 0; i++)
@@ -157,19 +179,32 @@ public class EndlessWaveManager : MonoBehaviour
             spawnList[j] = temp;
         }
 
+        // Entries that come in a row (a Konga chain) go in as one unbroken block at a random place
+        foreach (var entry in wave.enemies)
+        {
+            if (!entry.inARow || entry.baseCount <= 0 || entry.enemyPrefab == null) continue;
+            int at = UnityEngine.Random.Range(0, spawnList.Count + 1);
+            for (int i = 0; i < entry.baseCount; i++)
+                spawnList.Insert(at, entry);
+        }
+
         // Spawn enemies
         isSpawning = true;
         spawnRemainingInstantly = false;
-        foreach (var enemy in spawnList)
+        for (int i = 0; i < spawnList.Count; i++)
         {
-            SpawnEnemy(enemy);
-            if (!spawnRemainingInstantly)
-                yield return new WaitForSeconds(RandomInterval(wave));
+            EnemySpawnEntry entry = spawnList[i];
+            SpawnEnemy(entry, settings);
+            if (spawnRemainingInstantly) continue;
+
+            // One of a row is followed closely by the next
+            bool rowContinues = entry.inARow && i + 1 < spawnList.Count && spawnList[i + 1] == entry;
+            yield return new WaitForSeconds(rowContinues ? entry.rowGap : SpawnGap(wave, settings));
         }
         isSpawning = false;
     }
 
-    private void SpawnEnemy(EnemySpawnEntry entry)
+    private void SpawnEnemy(EnemySpawnEntry entry, WaveSettings settings)
     {
         EnemyBase instance = Instantiate(entry.enemyPrefab);
         instance.AssignSpline(splineContainer);
@@ -191,7 +226,7 @@ public class EndlessWaveManager : MonoBehaviour
             PopIn(instance.transform);
         }
 
-        instance.SetHealthMultiplier(1f);
+        instance.SetHealthMultiplier(settings != null ? settings.HealthMultiplier(totalWaveCount) : 1f);
         OnEnemySpawned?.Invoke(instance);
 
         // Unregister on death
@@ -224,11 +259,14 @@ public class EndlessWaveManager : MonoBehaviour
         enemy.DOScale(fullSize, time).SetEase(Ease.OutBack).SetLink(enemy.gameObject);
     }
 
-    private float RandomInterval(Wave wave)
+    // Seconds until the next spawn: the wave's range, sometimes halved (a burst), shorter each loop
+    private float SpawnGap(Wave wave, WaveSettings settings)
     {
         float interval = UnityEngine.Random.Range(wave.spawnIntervalMin, wave.spawnIntervalMax);
         if (UnityEngine.Random.value < wave.burstChance)
             interval *= 0.5f;
+        if (settings != null)
+            interval = Mathf.Max(settings.minSpawnGap, interval * Mathf.Pow(settings.spawnGapPerLoop, waveLoopIndex));
         return interval;
     }
 }
@@ -236,6 +274,8 @@ public class EndlessWaveManager : MonoBehaviour
 [System.Serializable]
 public class Wave
 {
+    [Tooltip("Just a note to tell waves apart in the Inspector.")]
+    public string name;
     public List<EnemySpawnEntry> enemies;
     public float spawnIntervalMin = 0.3f;
     public float spawnIntervalMax = 0.7f;
@@ -252,4 +292,8 @@ public class EnemySpawnEntry
     public int baseCount = 1;
     [Tooltip("Enemies spawned from this entry are immune to ranged attacks, whatever their prefab says.")]
     public bool immuneToRanged;
+    [Tooltip("Spawns all of Base Count one right after another instead of mixed in (a Konga chain).")]
+    public bool inARow;
+    [Tooltip("Seconds between the ones in a row.")]
+    public float rowGap = 0.35f;
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6581b9137f8dbfe4f81630b0859c74d9, type: 3}
   m_Name: RhythmSlimeSO
   m_EditorClassIdentifier: Assembly-CSharp::SlimeDataSO
-  enemyName: RhythmSLlme
+  enemyName: RhythmSlime
   maxHealth: 80
   contactDamage: 1
   bounceHeight: 1

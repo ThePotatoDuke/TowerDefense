@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: BasicWalkerSO
   m_EditorClassIdentifier: Assembly-CSharp::WalkerDataSO
   enemyName: BasicWalker
-  maxHealth: 120
+  maxHealth: 90
   contactDamage: 1
   moveSpeed: 2

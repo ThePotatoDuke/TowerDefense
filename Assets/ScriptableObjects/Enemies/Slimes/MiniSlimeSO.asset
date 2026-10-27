@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6581b9137f8dbfe4f81630b0859c74d9, type: 3}
   m_Name: MiniSlimeSO
   m_EditorClassIdentifier: Assembly-CSharp::SlimeDataSO
-  enemyName: CowardSlime
-  maxHealth: 80
+  enemyName: MiniSlime
+  maxHealth: 25
   contactDamage: 1
   bounceHeight: 0.7
   bounceDuration: 0.2

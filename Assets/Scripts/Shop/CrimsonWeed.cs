@@ -35,8 +35,10 @@ public class CrimsonWeed : MonoBehaviour
     [SerializeField] private float spreadAngle = 15f;
 
     [Header("Growing")]
-    [Tooltip("Damage it has to deal to reach stage 2, then (counting again from 0) stage 3.")]
-    [SerializeField] private float[] damageToGrow = { 300f, 900f };
+    [Tooltip("Damage it has to deal to reach stage 2, then (counting again from 0) stage 3. Counted at its " +
+             "wave-1 damage, so the wave bonus makes it hit harder but not grow faster: only how busy its " +
+             "spot is does.")]
+    [SerializeField] private float[] damageToGrow = { 500f, 1500f };
 
     [Header("Planting")]
     [Tooltip("Closest it can be planted to the middle of the path.")]
@@ -166,13 +168,14 @@ public class CrimsonWeed : MonoBehaviour
         int count = Mathf.Max(1, Stat(shots, stage));
         // The projectile multiplies its own damage, so ask for the share that makes this shot's damage
         float damage = ShotDamage();
+        float baseDamage = Stat(shotDamage, stage); // what growing counts
         float multiplier = damage / Mathf.Max(0.01f, projectileData.damage);
         for (int i = 0; i < count; i++)
         {
             float angle = count > 1 ? Mathf.Lerp(-spreadAngle, spreadAngle, i / (count - 1f)) : 0f;
             Vector3 direction = Quaternion.AngleAxis(angle, Vector3.up) * aim;
             Projectile shot = Instantiate(projectilePrefab, from, Quaternion.identity);
-            shot.Initialize(projectileData, direction, multiplier, enemy => HandleHit(enemy, damage));
+            shot.Initialize(projectileData, direction, multiplier, enemy => HandleHit(enemy, baseDamage, damage));
         }
 
         // Recoil: a quick squash back
@@ -188,12 +191,12 @@ public class CrimsonWeed : MonoBehaviour
         return Stat(shotDamage, stage) * (1f + damagePerWave * (wave - 1));
     }
 
-    // One of its shots is about to hurt the enemy: what it takes off counts toward growing (only up to
-    // the health left, so finishing off a nearly dead enemy doesn't count a full shot)
-    private void HandleHit(EnemyBase enemy, float damage)
+    // One of its shots is about to hurt the enemy: its wave-1 damage counts toward growing, cut down in
+    // proportion when the shot is more than the health left (finishing off a nearly dead enemy)
+    private void HandleHit(EnemyBase enemy, float baseDamage, float damage)
     {
         if (this == null || enemy == null) return; // gone before the shot landed
-        damageDealt += Mathf.Min(damage, enemy.CurrentHealth);
+        damageDealt += baseDamage * Mathf.Min(1f, enemy.CurrentHealth / Mathf.Max(0.01f, damage));
 
         if (stage >= 2 || damageToGrow == null || stage >= damageToGrow.Length) return;
         if (damageDealt >= damageToGrow[stage])

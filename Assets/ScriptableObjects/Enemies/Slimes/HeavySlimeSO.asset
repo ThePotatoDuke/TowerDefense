@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6581b9137f8dbfe4f81630b0859c74d9, type: 3}
   m_Name: HeavySlimeSO
   m_EditorClassIdentifier: Assembly-CSharp::SlimeDataSO
-  enemyName: CowardSlime
+  enemyName: HeavyLeaper
   maxHealth: 200
-  contactDamage: 3
+  contactDamage: 2
   bounceHeight: 1.8
   bounceDuration: 0.5
   bounceInterval: 1

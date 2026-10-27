@@ -183,7 +183,7 @@ MonoBehaviour:
     displayName: Savings Bloom
     icon: {fileID: 21300000, guid: 6554da189f922444882f6729d4def444, type: 3}
     description: Unspent grass grows {value} each time the shop closes
-    valuePerLevel: 10
+    valuePerLevel: 15
     isPercent: 1
     maxLevel: 3
     baseCost: 50
