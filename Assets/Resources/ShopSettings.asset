@@ -1,0 +1,225 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 708886a46d48e6c429ab31d021935f3d, type: 3}
+  m_Name: ShopSettings
+  m_EditorClassIdentifier: Assembly-CSharp::ShopSettings
+  wavesBetweenShops: 3
+  openDelay: 1.2
+  offersPerVisit: 3
+  purchasesPerVisit: 0
+  rerollCost: 10
+  rerollCostStep: 5
+  upgrades:
+  - type: 0
+    displayName: Bouquet of Life
+    icon: {fileID: 21300000, guid: 489c918360c2cd649b88b055b95ca0fe, type: 3}
+    description: '{value} max health, filled straight away'
+    valuePerLevel: 2
+    isPercent: 0
+    maxLevel: 5
+    baseCost: 40
+    costGrowth: 1.5
+    weight: 1
+  - type: 1
+    displayName: Heal
+    icon: {fileID: 21300000, guid: 65ab7548c9842214c9873f2bad36a1cd, type: 3}
+    description: Heals {value} of your health
+    valuePerLevel: 50
+    isPercent: 1
+    maxLevel: 0
+    baseCost: 25
+    costGrowth: 1
+    weight: 1
+  - type: 2
+    displayName: Swift Feet
+    icon: {fileID: 21300000, guid: ee7764a8c1fe2a34a854c67ede903d95, type: 3}
+    description: Move {value} faster
+    valuePerLevel: 10
+    isPercent: 1
+    maxLevel: 5
+    baseCost: 30
+    costGrowth: 1.4
+    weight: 1
+  - type: 3
+    displayName: Grass Magnet
+    icon: {fileID: 21300000, guid: cc3001ae2ea40224595c483b3070785b, type: 3}
+    description: Grass flies to you from {value} further away
+    valuePerLevel: 40
+    isPercent: 1
+    maxLevel: 5
+    baseCost: 25
+    costGrowth: 1.4
+    weight: 1
+  - type: 4
+    displayName: Sword Damage
+    icon: {fileID: 21300000, guid: 8f79a7f936cf2c945b2153d2ad530edd, type: 3}
+    description: Sword hits {value} harder
+    valuePerLevel: 20
+    isPercent: 1
+    maxLevel: 5
+    baseCost: 35
+    costGrowth: 1.4
+    weight: 1
+  - type: 5
+    displayName: Sword Speed
+    icon: {fileID: 21300000, guid: e4fd5916e2259df40901fc5f8fb3d9db, type: 3}
+    description: Sword swings {value} faster
+    valuePerLevel: 15
+    isPercent: 1
+    maxLevel: 5
+    baseCost: 35
+    costGrowth: 1.4
+    weight: 1
+  - type: 6
+    displayName: Sword Size
+    icon: {fileID: 21300000, guid: 7d366816914414240b8af267f383cddc, type: 3}
+    description: Sword {value} bigger, reaching further
+    valuePerLevel: 15
+    isPercent: 1
+    maxLevel: 4
+    baseCost: 35
+    costGrowth: 1.4
+    weight: 1
+  - type: 7
+    displayName: Blaster Damage
+    icon: {fileID: 21300000, guid: 892a5f85e567b754798799969587eaaf, type: 3}
+    description: Blaster shots hit {value} harder
+    valuePerLevel: 20
+    isPercent: 1
+    maxLevel: 5
+    baseCost: 35
+    costGrowth: 1.4
+    weight: 1
+  - type: 8
+    displayName: Blaster Fire Rate
+    icon: {fileID: 21300000, guid: 92bc9f23d466080489143c8efc29e301, type: 3}
+    description: Blaster fires {value} faster
+    valuePerLevel: 15
+    isPercent: 1
+    maxLevel: 5
+    baseCost: 35
+    costGrowth: 1.4
+    weight: 1
+  - type: 9
+    displayName: Blaster Range
+    icon: {fileID: 21300000, guid: 7c1f20c1be156c34db3cec000307d566, type: 3}
+    description: Blaster reaches {value} further
+    valuePerLevel: 15
+    isPercent: 1
+    maxLevel: 4
+    baseCost: 30
+    costGrowth: 1.4
+    weight: 1
+  - type: 10
+    displayName: Hoop Cannon Damage
+    icon: {fileID: 21300000, guid: 540e42ec95b03a54f85760343c503c1c, type: 3}
+    description: Hoops hit {value} harder
+    valuePerLevel: 20
+    isPercent: 1
+    maxLevel: 5
+    baseCost: 35
+    costGrowth: 1.4
+    weight: 1
+  - type: 11
+    displayName: Hoop Cannon Fire Rate
+    icon: {fileID: 21300000, guid: c9bf7fbbb7e5b164293c4fb2930eed22, type: 3}
+    description: Hoop Cannon fires {value} faster
+    valuePerLevel: 15
+    isPercent: 1
+    maxLevel: 5
+    baseCost: 35
+    costGrowth: 1.4
+    weight: 1
+  - type: 12
+    displayName: Hoop Cannon Range
+    icon: {fileID: 21300000, guid: eca4794692405ef46910c170fb1cd901, type: 3}
+    description: Hoop Cannon reaches {value} further
+    valuePerLevel: 15
+    isPercent: 1
+    maxLevel: 4
+    baseCost: 30
+    costGrowth: 1.4
+    weight: 1
+  - type: 13
+    displayName: Castle Repair
+    icon: {fileID: 21300000, guid: bf8655b9d16ced648a4909fcb8727475, type: 3}
+    description: Repairs {value} of the castle
+    valuePerLevel: 25
+    isPercent: 1
+    maxLevel: 0
+    baseCost: 30
+    costGrowth: 1
+    weight: 1
+  - type: 14
+    displayName: Lush Grass
+    icon: {fileID: 21300000, guid: 1be5f2b5c9f8f87449bb781c28789183, type: 3}
+    description: '{value} grass blade from every tuft mown'
+    valuePerLevel: 1
+    isPercent: 0
+    maxLevel: 4
+    baseCost: 40
+    costGrowth: 1.5
+    weight: 1
+  - type: 15
+    displayName: Fast Growth
+    icon: {fileID: 21300000, guid: 3548c22c82b3b7140aae538876bcbadc, type: 3}
+    description: Mown grass grows back {value} faster
+    valuePerLevel: 25
+    isPercent: 1
+    maxLevel: 4
+    baseCost: 30
+    costGrowth: 1.4
+    weight: 1
+  - type: 16
+    displayName: Savings Bloom
+    icon: {fileID: 21300000, guid: 6554da189f922444882f6729d4def444, type: 3}
+    description: Unspent grass grows {value} each time the shop closes
+    valuePerLevel: 10
+    isPercent: 1
+    maxLevel: 3
+    baseCost: 50
+    costGrowth: 1.5
+    weight: 0.7
+  - type: 17
+    displayName: Spore Mines
+    icon: {fileID: 21300000, guid: 8b3bb651710366f41bac722c373ae8d0, type: 3}
+    description: '{value} mushroom at the castle. They burst when an enemy reaches it'
+    valuePerLevel: 1
+    isPercent: 0
+    maxLevel: 6
+    baseCost: 45
+    costGrowth: 1.35
+    weight: 1
+  - type: 18
+    displayName: Totem
+    icon: {fileID: 21300000, guid: 70bb36cc1a71fa24ab8139c818fee0b8, type: 3}
+    description: Stands by the castle. Press T to warp back to it (once)
+    valuePerLevel: 0
+    isPercent: 0
+    maxLevel: 0
+    baseCost: 120
+    costGrowth: 1
+    weight: 0.25
+  - type: 19
+    displayName: Crimson Weed
+    icon: {fileID: 21300000, guid: d2a588b0d4f5c0242b8c4da127326972, type: 3}
+    description: A seed to plant by the path (E). It shoots, and grows as it kills
+    valuePerLevel: 0
+    isPercent: 0
+    maxLevel: 0
+    baseCost: 60
+    costGrowth: 1.3
+    weight: 0.8
+  sporeMine: {fileID: 4718225360991827301, guid: 9336cba4e3837c0429389ee89046ccf1, type: 3}
+  totem: {fileID: 1846395720571309487, guid: 3651b8f95d9336c45b05e7176831fa76, type: 3}
+  crimsonWeed: {fileID: 3998397274147637024, guid: 11bf8a65e46e8ca469845001a6848f3a, type: 3}
+  testStartingUpgrades: 12000000i

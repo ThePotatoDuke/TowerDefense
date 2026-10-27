@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: BasicSwordPickup
   m_EditorClassIdentifier: Assembly-CSharp::WeaponPickupSO
   weaponPrefab: {fileID: 8568078451993988180, guid: 3b70faf7c25aefe47a11e6f810bb3923, type: 3}
-  displayName: BacisSwrod
+  displayName: Basic Sword
+  icon: {fileID: 21300000, guid: a54216e6e0ac44af889688126ec2be7b, type: 3}

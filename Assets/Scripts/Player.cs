@@ -17,8 +17,11 @@ public class Player : MonoBehaviour, IHasHealth
     public event Action OnDied;
     public event Action<PlayerState> OnStateChanged;
     public event Action<float> OnHealthChanged;
+    // Took damage (not healing or max health going up)
+    public event Action OnHurt;
 
-    public WeaponBase currentWeapon;       // Currently equipped weapon
+    public WeaponInventory Inventory { get; private set; }
+    public WeaponBase CurrentWeapon => Inventory != null ? Inventory.Current : null;
 
     [Header("Settings")]
     [SerializeField] private float moveSpeed = 5f;
@@ -72,6 +75,59 @@ public class Player : MonoBehaviour, IHasHealth
         gameObject.GetOrAddComponent<BlobShadow>();
         deathFX = gameObject.GetOrAddComponent<PlayerDeathFX>();
 
+        Inventory = gameObject.GetOrAddComponent<WeaponInventory>();
+        Inventory.Setup(gameObject, weaponHand);
+        gameObject.GetOrAddComponent<TotemAbility>().Setup(this, gameInput);
+        gameObject.GetOrAddComponent<WeedPlanter>().Setup(this);
+    }
+
+    private void OnEnable()
+    {
+        if (gameInput == null) return;
+        gameInput.OnSwitchWeapon += HandleSwitchWeapon;
+        gameInput.OnSelectWeaponSlot += HandleSelectWeaponSlot;
+        gameInput.OnInteract += HandleInteract;
+        gameInput.OnTotem += HandleTotem;
+    }
+
+    private void OnDisable()
+    {
+        if (gameInput == null) return;
+        gameInput.OnSwitchWeapon -= HandleSwitchWeapon;
+        gameInput.OnSelectWeaponSlot -= HandleSelectWeaponSlot;
+        gameInput.OnInteract -= HandleInteract;
+        gameInput.OnTotem -= HandleTotem;
+    }
+
+    private bool CanSwitchWeapon => !IsDead() && GameStateManager.CurrentState == GameState.Playing;
+
+    private void HandleSwitchWeapon(int step)
+    {
+        if (CanSwitchWeapon) Inventory.Cycle(step);
+    }
+
+    private void HandleSelectWeaponSlot(int slot)
+    {
+        if (CanSwitchWeapon) Inventory.Select(slot);
+    }
+
+    private void HandleInteract()
+    {
+        if (WeedPlanter.Instance != null) WeedPlanter.Instance.TryPlant();
+    }
+
+    private void HandleTotem()
+    {
+        if (CanSwitchWeapon && TotemAbility.Instance != null) TotemAbility.Instance.Use();
+    }
+
+    // Moves straight there (the Totem's warp; getting hurt cancels it, so no knockback is running)
+    public void Teleport(Vector3 position)
+    {
+        if (!rb.isKinematic)
+            rb.linearVelocity = Vector3.zero;
+        rb.position = position;
+        transform.position = position;
     }
 
     private void Update()
@@ -81,6 +137,9 @@ public class Player : MonoBehaviour, IHasHealth
 
         Vector2 inputVector = gameInput.GetMovementVectorNormalized();
         moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
+        // Rooted to the spot while channelling the Totem
+        if (TotemAbility.Instance != null && TotemAbility.Instance.IsChannelling)
+            moveDirection = Vector3.zero;
 
         // Only flip sprite if player is alive AND game is in Playing state
         if (currentState != PlayerState.Dead && GameStateManager.CurrentState == GameState.Playing)
@@ -118,7 +177,7 @@ public class Player : MonoBehaviour, IHasHealth
 
         if (!IsDead() && GameStateManager.CurrentState == GameState.Playing)
         {
-            Vector3 desiredVelocity = moveDirection * moveSpeed;
+            Vector3 desiredVelocity = moveDirection * moveSpeed * Upgrades.Multiplier(UpgradeType.MoveSpeed);
             Vector3 velocity = new Vector3(desiredVelocity.x, rb.linearVelocity.y, desiredVelocity.z);
             rb.linearVelocity = velocity;
         }
@@ -140,6 +199,7 @@ public class Player : MonoBehaviour, IHasHealth
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         OnHealthChanged?.Invoke(currentHealth / maxHealth);
+        OnHurt?.Invoke();
         spriteFX.Flash();
 
         if (currentHealth <= 0)
@@ -149,6 +209,24 @@ public class Player : MonoBehaviour, IHasHealth
         }
 
         StartCoroutine(InvulnerabilityRoutine());
+    }
+
+    public bool IsHurt => currentHealth < maxHealth;
+
+    public void Heal(float amount)
+    {
+        if (IsDead() || amount <= 0f) return;
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth / maxHealth);
+    }
+
+    // Raises the maximum and fills the new part, so the gain is felt straight away
+    public void AddMaxHealth(float amount)
+    {
+        if (amount <= 0f) return;
+        maxHealth += amount;
+        currentHealth += amount;
+        OnHealthChanged?.Invoke(currentHealth / maxHealth);
     }
 
     private IEnumerator InvulnerabilityRoutine()
@@ -233,16 +311,10 @@ public class Player : MonoBehaviour, IHasHealth
     }
 
 
-    public void EquipWeapon(GameObject weaponPrefab)
+    // Adds it to the inventory and switches to it
+    public void EquipWeapon(WeaponPickupSO weapon)
     {
-        // Remove old weapon
-        if (currentWeapon != null)
-            Destroy(currentWeapon.gameObject);
-
-        // Spawn new weapon
-        GameObject weaponObj = Instantiate(weaponPrefab, weaponHand.position, weaponHand.rotation, weaponHand);
-        currentWeapon = weaponObj.GetComponent<WeaponBase>();
-        currentWeapon.Initialize(gameObject, weaponHand); // <-- this is key without it, current weapon might not have weapon hand
+        Inventory.Add(weapon);
     }
 
 }

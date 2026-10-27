@@ -29,7 +29,7 @@ public class PlayerInteractionController : MonoBehaviour
 
         if (other.TryGetComponent<WeaponPickup>(out var pickup))
         {
-            player.EquipWeapon(pickup.weaponSO.weaponPrefab);
+            player.EquipWeapon(pickup.weaponSO);
             Destroy(pickup.gameObject);
         }
     }

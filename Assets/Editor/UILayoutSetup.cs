@@ -1,28 +1,87 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
 using UnityEditor;
+using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.TextCore.LowLevel;
 using UnityEngine.UI;
 
-// Tools > Create UI Layout Objects: builds the grass counter (on the existing UI canvas) and the game-over
-// panel's contents as real objects in the open scene, so they can be moved and edited like any other UI.
+// Tools > Create UI Layout Objects: builds the grass counter and the weapon bar (on the existing UI canvas)
+// and lays out the game-over panel (board, title, wave line, Retry and Main Menu buttons) as real objects
+// in the open scene, so they can be moved and edited like any other UI. All pixel art is drawn at the one
+// UI pixel scale (UIPixels). Safe to run again: the counter and bar are left alone if they exist, the
+// game-over panel is laid out afresh.
+// Tools > Rebuild All UI: deletes the grass counter, weapon bar, shop window and held-item icons and builds
+// them all again (with Tools > Create Shop), e.g. after the layout code changes.
 // Tools > Create TextMeshPro Fonts (also run by the above): turns every font file in Assets/Fonts into a
 // TextMeshPro font asset saved next to it, so TextMeshPro texts can use it.
-// Safe to run again: parts that already exist are left alone.
 public static class UILayoutSetup
 {
-    private const string BoardPath = "Assets/3rd Party/UI/currency_board.png";
+    internal const string BoardPath = "Assets/3rd Party/UI/currency_board.png";
     private const string GameOverBoardPath = "Assets/3rd Party/UI/game_over_board.png";
-    private const string GrassSheetPath = "Assets/3rd Party/Sprites/Environment/GRASS+.png";
-    private const string GrassIconName = "GRASS+_265";
+    internal const string GrassSheetPath = "Assets/3rd Party/Sprites/Environment/GRASS+.png";
+    internal const string GrassIconName = "GRASS+_265";
     private const string FontsFolder = "Assets/Fonts";
-    private const string TitleFontPath = "Assets/Fonts/OrigamiMommy.ttf";
-    private const string TextFontPath = "Assets/Fonts/PerfectDOSVGA437.ttf";
+    internal const string TitleFontPath = "Assets/Fonts/OrigamiMommy.ttf";
+    internal const string TextFontPath = "Assets/Fonts/PerfectDOSVGA437.ttf";
 
-    private static readonly Color TextColor = new Color(0.23f, 0.16f, 0.15f);
+    internal static readonly Color TextColor = new Color(0.23f, 0.16f, 0.15f);
+
+    private static readonly string[] BuiltUI = { "GrassCounter", "WeaponBar", "Shop", "HeldItems" };
+
+    // Keeps how the texts were set up: each rebuilt text gets back the font, font material, size and
+    // colour of the text that was at the same place in the old one
+    [MenuItem("Tools/Rebuild All UI")]
+    private static void RebuildAll()
+    {
+        var currency = Object.FindAnyObjectByType<CurrencyUI>(FindObjectsInactive.Include);
+        Canvas canvas = currency != null ? currency.GetComponentInParent<Canvas>(true) : null;
+        Transform canvasRoot = canvas != null ? canvas.rootCanvas.transform : null;
+        var looks = new Dictionary<string, (TMP_FontAsset font, Material material, float size, bool autoSize,
+                                            float sizeMin, float sizeMax, Color color)>();
+        if (canvasRoot != null)
+        {
+            foreach (string name in BuiltUI)
+            {
+                Transform old = canvasRoot.Find(name);
+                if (old == null) continue;
+                foreach (TMP_Text text in old.GetComponentsInChildren<TMP_Text>(true))
+                    looks[PathUnder(text.transform, canvasRoot)] = (text.font, text.fontSharedMaterial, text.fontSize,
+                        text.enableAutoSizing, text.fontSizeMin, text.fontSizeMax, text.color);
+                Undo.DestroyObjectImmediate(old.gameObject);
+            }
+        }
+
+        Create();
+        EditorApplication.ExecuteMenuItem("Tools/Create Shop");
+
+        if (canvasRoot == null) return;
+        foreach (string name in BuiltUI)
+        {
+            Transform rebuilt = canvasRoot.Find(name);
+            if (rebuilt == null) continue;
+            foreach (TMP_Text text in rebuilt.GetComponentsInChildren<TMP_Text>(true))
+            {
+                if (!looks.TryGetValue(PathUnder(text.transform, canvasRoot), out var kept)) continue;
+                if (kept.font != null)
+                    text.font = kept.font;
+                if (kept.material != null)
+                    text.fontSharedMaterial = kept.material;
+                text.fontSize = kept.size;
+                text.enableAutoSizing = kept.autoSize;
+                text.fontSizeMin = kept.sizeMin;
+                text.fontSizeMax = kept.sizeMax;
+                text.color = kept.color;
+            }
+        }
+    }
+
+    private static string PathUnder(Transform t, Transform root) =>
+        t == root || t.parent == null ? "" : PathUnder(t.parent, root) + "/" + t.name;
 
     [MenuItem("Tools/Create UI Layout Objects")]
     private static void Create()
@@ -33,9 +92,12 @@ public static class UILayoutSetup
 
         var currency = Object.FindAnyObjectByType<CurrencyUI>(FindObjectsInactive.Include);
         if (currency != null)
+        {
             CreateGrassCounter(currency, textFont);
+            CreateWeaponBar(currency, textFont);
+        }
         else
-            Debug.LogWarning("UI layout: no CurrencyUI in the open scene, so no grass counter was made.");
+            Debug.LogWarning("UI layout: no CurrencyUI in the open scene, so no grass counter or weapon bar was made.");
 
         var gameOver = Object.FindAnyObjectByType<GameOverScreen>(FindObjectsInactive.Include);
         if (gameOver != null)
@@ -59,9 +121,7 @@ public static class UILayoutSetup
             return;
         }
 
-        const float pixelScale = 6f;  // screen units per board pixel
-        const float inset = 5f * pixelScale;
-        const float iconSize = 60f;
+        const float inset = 5f * UIPixels.Scale;
 
         Sprite board = LoadSprite(BoardPath);
         Sprite icon = AssetDatabase.LoadAllAssetsAtPath(GrassSheetPath).OfType<Sprite>().FirstOrDefault(s => s.name == GrassIconName);
@@ -69,20 +129,21 @@ public static class UILayoutSetup
         RectTransform counter = CreateRect("GrassCounter", parent);
         counter.anchorMin = counter.anchorMax = counter.pivot = new Vector2(0f, 1f);
         counter.anchoredPosition = new Vector2(24f, -24f);
-        counter.sizeDelta = board != null ? board.rect.size * pixelScale : new Vector2(192f, 96f);
+        counter.sizeDelta = new Vector2(40f, 18f) * UIPixels.Scale; // wide enough for four digits
 
         Image boardImage = CreateImage("Board", counter, board);
+        UIPixels.Slice(boardImage, canvas);
         Stretch(boardImage.rectTransform, Vector2.zero, Vector2.zero);
 
         Image iconImage = CreateImage("Icon", counter, icon);
+        UIPixels.Fit(iconImage);
         RectTransform iconRect = iconImage.rectTransform;
         iconRect.anchorMin = iconRect.anchorMax = iconRect.pivot = new Vector2(0f, 0.5f);
         iconRect.anchoredPosition = new Vector2(inset, 0f);
-        iconRect.sizeDelta = Vector2.one * iconSize;
-        iconImage.preserveAspect = true;
 
-        TextMeshProUGUI count = CreateText("Count", counter, "0", font, 48f);
-        Stretch(count.rectTransform, new Vector2(inset + iconSize + 8f, 0f), new Vector2(-inset, 0f));
+        TextMeshProUGUI count = CreateText("Count", counter, "0", font, 40f);
+        count.alignment = TextAlignmentOptions.Left;
+        Stretch(count.rectTransform, new Vector2(inset + iconRect.sizeDelta.x + 8f, 0f), new Vector2(-inset, 0f));
 
         var serialized = new SerializedObject(currency);
         serialized.FindProperty("counter").objectReferenceValue = counter;
@@ -90,66 +151,142 @@ public static class UILayoutSetup
         serialized.ApplyModifiedProperties();
     }
 
-    // Board behind the panel, the wavy title, the wave line, and the buttons restyled to match
+    // A row of slots along the bottom middle of the same canvas: a board frame each, the weapon's 16x16
+    // icon on top at its pixel size (set by WeaponBarUI) and the slot's number key in the corner
+    private static void CreateWeaponBar(CurrencyUI currency, TMP_FontAsset font)
+    {
+        Canvas canvas = currency.GetComponentInParent<Canvas>(true);
+        Transform parent = canvas != null ? canvas.rootCanvas.transform : currency.transform;
+        if (parent.Find("WeaponBar") != null)
+        {
+            Debug.Log("UI layout: WeaponBar already exists; delete it first to rebuild it.");
+            return;
+        }
+
+        const int slotCount = 3;
+        var slotSize = new Vector2(24f, 24f) * UIPixels.Scale;
+        const float spacing = 4f * UIPixels.Scale;
+
+        Sprite board = LoadSprite(BoardPath);
+
+        RectTransform bar = CreateRect("WeaponBar", parent);
+        bar.anchorMin = bar.anchorMax = bar.pivot = new Vector2(0.5f, 0f);
+        bar.anchoredPosition = new Vector2(0f, 24f);
+        bar.sizeDelta = new Vector2(slotCount * slotSize.x + (slotCount - 1) * spacing, slotSize.y);
+
+        var barUI = Undo.AddComponent<WeaponBarUI>(bar.gameObject);
+        var serialized = new SerializedObject(barUI);
+        SerializedProperty slots = serialized.FindProperty("slots");
+        slots.arraySize = slotCount;
+
+        for (int i = 0; i < slotCount; i++)
+        {
+            RectTransform slot = CreateRect("Slot " + (i + 1), bar);
+            slot.anchorMin = slot.anchorMax = new Vector2(0f, 0.5f);
+            slot.pivot = new Vector2(0.5f, 0.5f);
+            slot.anchoredPosition = new Vector2(slotSize.x * 0.5f + i * (slotSize.x + spacing), 0f);
+            slot.sizeDelta = slotSize;
+
+            Image frame = CreateImage("Frame", slot, board);
+            UIPixels.Slice(frame, canvas);
+            Stretch(frame.rectTransform, Vector2.zero, Vector2.zero);
+
+            Image icon = CreateImage("Icon", slot, null);
+            icon.rectTransform.anchorMin = icon.rectTransform.anchorMax = icon.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            icon.enabled = false;
+
+            TextMeshProUGUI key = CreateText("Key", slot, (i + 1).ToString(), font, 24f);
+            key.rectTransform.anchorMin = key.rectTransform.anchorMax = key.rectTransform.pivot = new Vector2(0f, 1f);
+            key.rectTransform.anchoredPosition = new Vector2(10f, -4f);
+            key.rectTransform.sizeDelta = new Vector2(28f, 28f);
+
+            SerializedProperty view = slots.GetArrayElementAtIndex(i);
+            view.FindPropertyRelative("root").objectReferenceValue = slot;
+            view.FindPropertyRelative("frame").objectReferenceValue = frame;
+            view.FindPropertyRelative("icon").objectReferenceValue = icon;
+        }
+        serialized.ApplyModifiedProperties();
+    }
+
+    // The board at the UI pixel scale, the wavy title and the wave line near the top, and the buttons
+    // stacked below them: Retry, then Main Menu (wired to GameOverUI), restyled as sliced boards
     private static void CreateGameOver(GameOverScreen gameOver, TMP_FontAsset titleFont, TMP_FontAsset textFont)
     {
-        const float pixelScale = 4f;
         var panel = (RectTransform)gameOver.transform;
+        Canvas canvas = panel.GetComponentInParent<Canvas>(true);
 
         Sprite board = LoadSprite(GameOverBoardPath);
         Sprite buttonBoard = LoadSprite(BoardPath);
 
         var panelImage = panel.GetComponent<Image>();
-        if (panelImage != null && board != null && panelImage.sprite != board)
+        if (panelImage != null && board != null)
         {
             Undo.RecordObject(panelImage, "Game over board");
             panelImage.sprite = board;
             panelImage.type = Image.Type.Simple;
             panelImage.color = Color.white;
             Undo.RecordObject(panel, "Game over board");
-            panel.sizeDelta = board.rect.size * pixelScale;
+            panel.sizeDelta = board.rect.size * UIPixels.Scale;
         }
 
-        if (panel.Find("Title") == null)
+        Transform titleTransform = panel.Find("Title");
+        TMP_Text title = titleTransform != null ? titleTransform.GetComponent<TMP_Text>() : null;
+        if (title == null)
         {
-            TextMeshProUGUI title = CreateText("Title", panel, "GAME OVER", titleFont, 80f);
-            PlaceCentered(title.rectTransform, panel, 170f, 120f);
+            title = CreateText("Title", panel, "GAME OVER", titleFont, 80f);
             Undo.AddComponent<WavyText>(title.gameObject);
         }
+        Undo.RecordObject(title.rectTransform, "Game over layout");
+        PlaceCentered(title.rectTransform, panel, 185f, 110f);
 
-        if (panel.Find("WaveReached") == null)
+        Transform waveTransform = panel.Find("WaveReached");
+        TMP_Text wave = waveTransform != null ? waveTransform.GetComponent<TMP_Text>() : null;
+        if (wave == null)
         {
-            TextMeshProUGUI wave = CreateText("WaveReached", panel, "Wave reached: 0", textFont, 44f);
-            PlaceCentered(wave.rectTransform, panel, 30f, 66f);
-
+            wave = CreateText("WaveReached", panel, "Wave reached: 0", textFont, 40f);
             var serialized = new SerializedObject(gameOver);
             serialized.FindProperty("waveText").objectReferenceValue = wave;
             serialized.ApplyModifiedProperties();
         }
+        Undo.RecordObject(wave.rectTransform, "Game over layout");
+        PlaceCentered(wave.rectTransform, panel, 95f, 60f);
 
-        foreach (Button button in panel.GetComponentsInChildren<Button>(true))
+        var gameOverUI = panel.GetComponent<GameOverUI>();
+        Button[] buttons = panel.GetComponentsInChildren<Button>(true);
+        string[] labels = { "Retry", "Main Menu" };
+        float[] heights = { -95f, -185f };
+        for (int i = 0; i < buttons.Length; i++)
         {
+            Button button = buttons[i];
             var rect = (RectTransform)button.transform;
-            Undo.RecordObject(rect, "Style button");
+            Undo.RecordObject(rect, "Game over layout");
             rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
-            rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, -140f);
+            rect.anchoredPosition = new Vector2(0f, heights[Mathf.Min(i, heights.Length - 1)] - 90f * Mathf.Max(0, i - 1));
+            rect.sizeDelta = new Vector2(56f, 18f) * UIPixels.Scale;
 
             if (buttonBoard != null && button.targetGraphic is Image buttonImage)
             {
-                Undo.RecordObject(buttonImage, "Style button");
+                Undo.RecordObject(buttonImage, "Game over layout");
                 buttonImage.sprite = buttonBoard;
-                buttonImage.type = Image.Type.Simple;
-                rect.sizeDelta = buttonBoard.rect.size * pixelScale;
+                UIPixels.Slice(buttonImage, canvas);
             }
 
             foreach (TMP_Text label in button.GetComponentsInChildren<TMP_Text>(true))
             {
-                Undo.RecordObject(label, "Style button");
-                if (textFont != null)
-                    label.font = textFont;
-                label.text = label.text.Trim();
-                label.fontSize = 40f;
-                label.color = TextColor;
+                Undo.RecordObject(label, "Game over layout");
+                if (i < labels.Length)
+                    label.text = labels[i];
+                label.margin = new Vector4(28f, 0f, 28f, 0f); // clear of the board's edges
+            }
+
+            // The first retries, the second goes to the main menu
+            if (gameOverUI != null && i < labels.Length)
+            {
+                Undo.RecordObject(button, "Game over layout");
+                for (int listener = button.onClick.GetPersistentEventCount() - 1; listener >= 0; listener--)
+                    UnityEventTools.RemovePersistentListener(button.onClick, listener);
+                UnityAction action = i == 0 ? gameOverUI.Retry : (UnityAction)gameOverUI.QuitToMenu;
+                UnityEventTools.AddPersistentListener(button.onClick, action);
             }
         }
     }
@@ -162,7 +299,7 @@ public static class UILayoutSetup
     }
 
     // A TextMeshPro font asset for the font file, made once and saved beside it as "<name> SDF.asset"
-    private static TMP_FontAsset GetFontAsset(string fontPath)
+    internal static TMP_FontAsset GetFontAsset(string fontPath)
     {
         string assetPath = FontAssetPath(fontPath);
         var existing = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(assetPath);
@@ -207,7 +344,7 @@ public static class UILayoutSetup
     private static string SiblingPath(string path, string fileName) =>
         Path.Combine(Path.GetDirectoryName(path), fileName).Replace(Path.DirectorySeparatorChar, '/');
 
-    private static Sprite LoadSprite(string path)
+    internal static Sprite LoadSprite(string path)
     {
         var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
         if (sprite == null)
@@ -215,7 +352,7 @@ public static class UILayoutSetup
         return sprite;
     }
 
-    private static RectTransform CreateRect(string name, Transform parent)
+    internal static RectTransform CreateRect(string name, Transform parent)
     {
         var gameObject = new GameObject(name, typeof(RectTransform));
         Undo.RegisterCreatedObjectUndo(gameObject, "Create " + name);
@@ -225,7 +362,7 @@ public static class UILayoutSetup
         return rect;
     }
 
-    private static Image CreateImage(string name, Transform parent, Sprite sprite)
+    internal static Image CreateImage(string name, Transform parent, Sprite sprite)
     {
         var image = CreateRect(name, parent).gameObject.AddComponent<Image>();
         image.sprite = sprite;
@@ -233,7 +370,7 @@ public static class UILayoutSetup
         return image;
     }
 
-    private static TextMeshProUGUI CreateText(string name, Transform parent, string content, TMP_FontAsset font, float size)
+    internal static TextMeshProUGUI CreateText(string name, Transform parent, string content, TMP_FontAsset font, float size)
     {
         var text = CreateRect(name, parent).gameObject.AddComponent<TextMeshProUGUI>();
         if (font != null)
@@ -247,7 +384,7 @@ public static class UILayoutSetup
         return text;
     }
 
-    private static void Stretch(RectTransform rect, Vector2 offsetMin, Vector2 offsetMax)
+    internal static void Stretch(RectTransform rect, Vector2 offsetMin, Vector2 offsetMax)
     {
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;

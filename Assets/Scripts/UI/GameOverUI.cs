@@ -6,13 +6,15 @@ public class GameOverUI : MonoBehaviour
     public void Retry()
     {
         // Reload the current active scene
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Time.timeScale = 1f;
         GameStateManager.ResetState();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void QuitToMenu()
     {
-        // Optional: load main menu scene
-        SceneManager.LoadScene("MainMenu");
+        Time.timeScale = 1f;
+        GameStateManager.ResetState();
+        SceneManager.LoadScene(MainMenu.SceneName);
     }
 }

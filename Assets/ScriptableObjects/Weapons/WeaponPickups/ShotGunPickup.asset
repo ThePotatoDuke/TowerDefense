@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: ShotGunPickup
   m_EditorClassIdentifier: Assembly-CSharp::WeaponPickupSO
   weaponPrefab: {fileID: 1359111905880593498, guid: 0de9455a919152142bc7e771c82425b4, type: 3}
-  displayName: ShotGun
+  displayName: Hoop Cannon
+  icon: {fileID: 21300000, guid: 23ee622ab4f241479a11be4821249970, type: 3}

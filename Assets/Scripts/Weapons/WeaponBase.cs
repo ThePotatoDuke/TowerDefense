@@ -10,6 +10,24 @@ public abstract class WeaponBase : MonoBehaviour
 
     private float lastAttackTime;
 
+    // Seconds after being switched to before the first attack, so switching back and forth can't
+    // skip the cooldowns
+    private const float DrawTime = 0.3f;
+
+    // Shop upgrades for this kind of weapon (1 = none bought)
+    protected virtual float AttackRateMultiplier => 1f;
+    protected virtual float RangeMultiplier => 1f;
+    protected virtual float DamageMultiplier => 1f;
+
+    private float Cooldown => 1f / (Data.attackRate * AttackRateMultiplier);
+    protected float Range => Data.range * RangeMultiplier;
+
+    private void OnEnable()
+    {
+        if (Data != null)
+            lastAttackTime = Mathf.Max(lastAttackTime, Time.time - Cooldown + DrawTime);
+    }
+
     public void Initialize(GameObject owner, Transform hand)
     {
         this.owner = owner;
@@ -35,8 +53,7 @@ public abstract class WeaponBase : MonoBehaviour
 
     public void TryAttack(GameObject target)
     {
-        float cooldown = 1f / Data.attackRate;
-        if (Time.time < lastAttackTime + cooldown) return;
+        if (Time.time < lastAttackTime + Cooldown) return;
 
         lastAttackTime = Time.time;
         OnAttack(target);
@@ -54,7 +71,7 @@ public abstract class WeaponBase : MonoBehaviour
 
         if (owner == null) return null;
 
-        Collider[] colliders = Physics.OverlapSphere(owner.transform.position, Data.range);
+        Collider[] colliders = Physics.OverlapSphere(owner.transform.position, Range);
         foreach (var c in colliders)
         {
             var enemy = c.GetComponentInParent<EnemyBase>();

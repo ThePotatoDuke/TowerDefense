@@ -101,7 +101,8 @@ public class GrassPickup : MonoBehaviour
     {
         Vector3 offset = player.transform.position - transform.position;
         offset.y = 0f;
-        return offset.sqrMagnitude <= settings.magnetRadius * settings.magnetRadius;
+        float radius = settings.magnetRadius * Upgrades.Multiplier(UpgradeType.GrassMagnet);
+        return offset.sqrMagnitude <= radius * radius;
     }
 
     private void Fall(float dt)

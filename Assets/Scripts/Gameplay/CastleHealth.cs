@@ -39,6 +39,15 @@ public class CastleHealth : MonoBehaviour, IHasHealth
             Die();
     }
 
+    public bool IsDamaged => currentHealth > 0 && currentHealth < maxHealth;
+
+    public void Heal(float amount)
+    {
+        if (currentHealth <= 0 || amount <= 0f) return;
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth / maxHealth);
+    }
+
     private void TakeDamageFromEnemy(EnemyBase enemy)
     {
         TakeDamage(enemy.ContactDamage);

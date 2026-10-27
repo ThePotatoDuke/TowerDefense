@@ -41,7 +41,7 @@ public abstract class RangedWeaponBase : WeaponBase
 
         // Spawn projectile
         Projectile proj = Instantiate(RangedData.projectilePrefab, playerHand.position, Quaternion.identity);
-        proj.Initialize(RangedData.projectileData, dir);
+        proj.Initialize(RangedData.projectileData, dir, DamageMultiplier);
     }
 
 

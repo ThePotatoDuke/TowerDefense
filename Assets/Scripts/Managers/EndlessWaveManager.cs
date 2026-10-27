@@ -24,12 +24,9 @@ public class EndlessWaveManager : MonoBehaviour
     [Header("Scaling")]
     [SerializeField] private int enemiesPerWaveIncrement = 2;
 
-    [Header("Weapon Drops")]
+    [Header("Starting Weapons")]
+    [Tooltip("Weapon pickups whose weapons the player starts the run carrying, in slot order.")]
     [SerializeField] private List<GameObject> weaponPrefabs;
-
-    [Header("Player Reference")]
-    [SerializeField] private Transform playerTransform;
-    [SerializeField] private Vector3 dropOffset = new Vector3(1f, 0f, 0f);
 
     private int totalWaveCount = 0;
     // The wave the run is on (1 for the first); the last one reached once the run is over
@@ -55,13 +52,28 @@ public class EndlessWaveManager : MonoBehaviour
 
     private void Start()
     {
+        GiveStartingWeapons();
         StartCoroutine(RunEndlessWaves());
+    }
+
+    private void GiveStartingWeapons()
+    {
+        WeaponInventory inventory = Player.Instance != null ? Player.Instance.Inventory : null;
+        if (inventory == null) return;
+
+        foreach (GameObject prefab in weaponPrefabs)
+        {
+            WeaponPickup pickup = prefab != null ? prefab.GetComponent<WeaponPickup>() : null;
+            if (pickup != null)
+                inventory.Add(pickup.weaponSO);
+        }
+        inventory.Select(0); // the first one in hand
     }
 
     private void Update()
     {
-        // Debug: spawn the rest of the current wave immediately
-        if (Input.GetKeyDown(KeyCode.E) && isSpawning)
+        // Debug: spawn the rest of the current wave immediately (F, as E plants Crimson Weed)
+        if (Input.GetKeyDown(KeyCode.F) && isSpawning)
             spawnRemainingInstantly = true;
     }
 
@@ -89,8 +101,15 @@ public class EndlessWaveManager : MonoBehaviour
 
                 GameEvents.WaveCleared();
 
-                // Spawn weapon after wave is fully cleared
-                SpawnRandomWeapon();
+                // Every few waves, the shop (the game waits while it's open)
+                ShopSettings shopSettings = ShopSettings.Instance;
+                Shop shop = Shop.Instance;
+                if (shop != null && shopSettings != null && shopSettings.wavesBetweenShops > 0
+                    && totalWaveCount % shopSettings.wavesBetweenShops == 0)
+                {
+                    yield return new WaitForSeconds(shopSettings.openDelay);
+                    yield return shop.Visit();
+                }
             }
 
             waveLoopIndex++;
@@ -211,15 +230,6 @@ public class EndlessWaveManager : MonoBehaviour
         if (UnityEngine.Random.value < wave.burstChance)
             interval *= 0.5f;
         return interval;
-    }
-
-    private void SpawnRandomWeapon()
-    {
-        if (weaponPrefabs.Count == 0 || playerTransform == null) return;
-
-        GameObject prefab = weaponPrefabs[UnityEngine.Random.Range(0, weaponPrefabs.Count)];
-        Vector3 spawnPosition = playerTransform.position + dropOffset;
-        Instantiate(prefab, spawnPosition, Quaternion.identity);
     }
 }
 

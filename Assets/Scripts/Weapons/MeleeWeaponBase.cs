@@ -13,6 +13,14 @@ public abstract class MeleeWeaponBase : WeaponBase
     protected HashSet<GameObject> alreadyHitEnemies = new HashSet<GameObject>();
     private SwordTrail swordTrail;
     private Collider blade;
+    // The blade's holder (the weapon's first child), grown by size upgrades
+    private Transform holder;
+    private Vector3 holderScale;
+    private Vector3 holderOffset;
+
+    // Shop upgrade making the blade bigger (and reach further): 1 = none bought
+    protected virtual float SizeMultiplier => 1f;
+    protected override float RangeMultiplier => SizeMultiplier;
 
     protected virtual void Awake()
     {
@@ -20,6 +28,39 @@ public abstract class MeleeWeaponBase : WeaponBase
         blade = weaponCollider != null ? weaponCollider : GetComponent<Collider>();
         swordTrail = gameObject.GetOrAddComponent<SwordTrail>();
         swordTrail.Setup(blade as BoxCollider);
+
+        if (transform.childCount > 0)
+        {
+            holder = transform.GetChild(0);
+            holderScale = holder.localScale;
+            holderOffset = holder.localPosition;
+        }
+        ApplySize();
+        Upgrades.OnUpgraded += HandleUpgraded;
+    }
+
+    protected virtual void OnDestroy()
+    {
+        Upgrades.OnUpgraded -= HandleUpgraded;
+    }
+
+    private void HandleUpgraded(UpgradeType type) => ApplySize();
+
+    // Scales the blade from the hand outwards, so it gets both longer and further from the hand
+    private void ApplySize()
+    {
+        if (holder == null) return;
+        holder.localScale = holderScale * SizeMultiplier;
+        holder.localPosition = holderOffset * SizeMultiplier;
+    }
+
+    // Put away mid-swing (switched to another weapon): stop the swing so the hand isn't left turning
+    // and the blade doesn't stay live
+    protected virtual void OnDisable()
+    {
+        if (playerHand != null) playerHand.DOKill();
+        if (swordTrail != null) swordTrail.End();
+        if (weaponCollider != null) weaponCollider.enabled = false;
     }
 
     // Swings stay at hand height, below flying enemies
@@ -29,7 +70,7 @@ public abstract class MeleeWeaponBase : WeaponBase
     protected override GameObject FindIdleTarget()
     {
         if (GroundDecorator.Instance == null || owner == null) return null;
-        return GroundDecorator.Instance.FindStandingTuft(owner.transform.position, Data.range);
+        return GroundDecorator.Instance.FindStandingTuft(owner.transform.position, Range);
     }
 
     protected void SwingWeapon(Vector3 targetPosition, float swingDuration, float swingArc)
@@ -84,7 +125,7 @@ public abstract class MeleeWeaponBase : WeaponBase
         // Avoid hitting the same enemy multiple times per swing (keyed by the health owner, not the child collider)
         if (targetMB != null && alreadyHitEnemies.Contains(targetMB.gameObject)) return;
 
-        target.TakeDamage(MeleeData.damage);
+        target.TakeDamage(MeleeData.damage * DamageMultiplier);
 
         // Track the enemy to avoid multiple hits
         if (targetMB != null)

@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: BasicGunPickup
   m_EditorClassIdentifier: Assembly-CSharp::WeaponPickupSO
   weaponPrefab: {fileID: 1359111905880593498, guid: 89bcb041be3b5a74ab3eae78925b9463, type: 3}
-  displayName: Default Gun
+  displayName: Blaster
+  icon: {fileID: 21300000, guid: 915bc08d3a3b4d7081db15a7714f6ec2, type: 3}

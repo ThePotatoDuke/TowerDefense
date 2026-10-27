@@ -263,7 +263,7 @@ public class GroundDecorator : MonoBehaviour
     private void Cut(Tuft tuft, Vector3 bladePosition)
     {
         tuft.isCut = true;
-        tuft.regrowTime = Time.time + regrowDelay * Random.Range(0.5f, 1.5f);
+        tuft.regrowTime = Time.time + regrowDelay / Upgrades.Multiplier(UpgradeType.GrowthRate) * Random.Range(0.5f, 1.5f);
         tuft.angle = 0f;
         tuft.velocity = 0f;
         tuft.root.DOKill();
@@ -296,7 +296,8 @@ public class GroundDecorator : MonoBehaviour
     {
         if (bladeSprite == null) return;
 
-        for (int i = 0; i < bladesPerCut; i++)
+        int blades = bladesPerCut + Mathf.RoundToInt(Upgrades.Bonus(UpgradeType.DropRate));
+        for (int i = 0; i < blades; i++)
         {
             var blade = new GameObject("GrassBlade");
             blade.transform.SetParent(container, false);

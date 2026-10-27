@@ -7,6 +7,8 @@ public class Projectile : MonoBehaviour
     private int pierceCount;
     private ProjectileFX fx;
     private bool deflected; // bounced off an immune enemy: harmless from then on
+    private float damageMultiplier = 1f; // from the shop's damage upgrades for the gun that fired it
+    private System.Action<EnemyBase> onHit;      // told about each enemy it's about to hurt (Crimson Weed growing)
 
     private void Awake()
     {
@@ -17,9 +19,12 @@ public class Projectile : MonoBehaviour
 
         fx = gameObject.GetOrAddComponent<ProjectileFX>();
     }
-    public void Initialize(ProjectileDataSO data, Vector3 direction)
+    public void Initialize(ProjectileDataSO data, Vector3 direction, float damageMultiplier = 1f,
+                           System.Action<EnemyBase> onHit = null)
     {
         this.data = data;
+        this.damageMultiplier = damageMultiplier;
+        this.onHit = onHit;
         this.direction = direction.normalized;
         pierceCount = 0;
         SetDirection();
@@ -66,7 +71,10 @@ public class Projectile : MonoBehaviour
             IHasHealth health = enemy as IHasHealth;
             if (health != null)
             {
-                health.TakeDamage(data.damage);
+                // Before the damage, so a kill by this very shot is seen
+                if (onHit != null && enemy is EnemyBase hurt && !hurt.IsDead)
+                    onHit(hurt);
+                health.TakeDamage(data.damage * damageMultiplier);
 
                 if (!data.pierces || pierceCount >= data.maxPierceCount)
                 {

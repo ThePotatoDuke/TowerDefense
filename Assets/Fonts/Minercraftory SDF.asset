@@ -2222,9 +2222,9 @@ Material:
     - _OutlineWidth: 0.577
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
-    - _ScaleRatioA: 0.806289
-    - _ScaleRatioB: 0.40863636
-    - _ScaleRatioC: 0.40863636
+    - _ScaleRatioA: 0.8235666
+    - _ScaleRatioB: 0.41739288
+    - _ScaleRatioC: 0.41739288
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
