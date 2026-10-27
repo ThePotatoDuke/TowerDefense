@@ -23,7 +23,11 @@ public enum UpgradeType
     SavingsBloom,
     SporeMines,
     Totem,
-    CrimsonWeed
+    CrimsonWeed,
+    Abundance,
+    BlasterHoming,
+    HoopCannonHoming,
+    ExtendTime
 }
 
 // One thing the shop can offer. Most stack in levels up to the max; with a max level of 0 it can be

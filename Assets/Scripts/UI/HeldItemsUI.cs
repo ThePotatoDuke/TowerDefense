@@ -2,8 +2,8 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Icons for the one-off things bought in the shop while they're held: the Totem (top right; while it
-// channels the icon fills back in round from dim) and a Crimson Weed seed waiting to be planted. Each
+// Icons for the one-off things bought in the shop while they're held: a Crimson Weed seed waiting to be
+// planted (top right) and the Totem beside it (while it channels the icon fills back in round from dim). Each
 // pops in when gained and out when used. Laid out in the scene; Tools > Create Shop builds a starting one.
 public class HeldItemsUI : MonoBehaviour
 {

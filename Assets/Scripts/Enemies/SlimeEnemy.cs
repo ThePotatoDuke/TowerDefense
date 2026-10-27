@@ -36,6 +36,19 @@ public class SlimeEnemy : EnemyBase
         while (hopRoot.parent != null && hopRoot.parent != slimeChild && hopRoot.parent != transform)
             hopRoot = hopRoot.parent;
         hopRestY = hopRoot.localPosition.y;
+
+        // The body collider sits on slimeChild, under the hopping sprite; it's carried up with each hop
+        // (LateUpdate) so a slime high in the air is out of reach of flat shots, as it looks
+        if (slimeChild != null && slimeChild.TryGetComponent(out bodyCollider))
+            bodyRestCenter = bodyCollider.center;
+    }
+
+    protected override void LateUpdate()
+    {
+        base.LateUpdate();
+        if (bodyCollider == null || hopRoot == null) return;
+        // hopRoot is a child of slimeChild, so its offset is already in the collider's space
+        bodyCollider.center = bodyRestCenter + Vector3.up * (hopRoot.localPosition.y - hopRestY);
     }
 
     protected override void OnDisable()
@@ -60,6 +73,8 @@ public class SlimeEnemy : EnemyBase
     private Sequence bounceSeq;
     private Transform hopRoot;
     private float hopRestY;
+    private SphereCollider bodyCollider;
+    private Vector3 bodyRestCenter;
 
     protected override void Update()
     {

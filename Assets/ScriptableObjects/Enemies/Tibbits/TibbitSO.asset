@@ -13,21 +13,21 @@ MonoBehaviour:
   m_Name: TibbitSO
   m_EditorClassIdentifier: Assembly-CSharp::TibbitDataSO
   enemyName: Tibbit
-  maxHealth: 100
+  maxHealth: 140
   contactDamage: 1
-  minRideTime: 2.5
-  maxRideTime: 4
-  jumpRange: 6
+  minRideTime: 3.5
+  maxRideTime: 5.5
+  jumpRange: 8
   searchInterval: 0.4
   runsWhenStuck: 0
   stuckTime: 1.5
   diesWithHost: 0
-  dazeTime: 1.2
+  dazeTime: 0.8
   jumpHeight: 1.2
   jumpSpeed: 7
   minJumpTime: 0.35
   maxJumpTime: 0.8
-  groundSpeed: 1.5
+  groundSpeed: 2.2
   groundHopHeight: 0.15
   groundHopsPerSecond: 3
   castleLeapDistance: 4

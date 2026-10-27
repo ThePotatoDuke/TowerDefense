@@ -9,8 +9,8 @@ using UnityEngine.UI;
 // Tools > Create Shop: makes Resources/ShopSettings with every upgrade at starting values (icons imported
 // as pixel-art sprites, and the sprites, prefabs and projectile of the things bought: Spore Mines, the
 // Totem, Crimson Weed, whose prefabs it makes in Prefabs/Shop) and builds, on the UI canvas of the open
-// scene, the shop window (a dimmed background, the "Shop" title, three cards, and the reroll and leave
-// buttons) and the icons for a held Totem (top right) or seed.
+// scene, the shop window (the main menu's drifting diamonds behind it, the "Shop" title, three cards, and
+// the reroll and leave buttons) and the icons for a held seed (top right) or Totem (beside it).
 // Safe to run again: anything already set or built is left alone, so it only adds what's missing.
 public static class ShopSetup
 {
@@ -52,9 +52,13 @@ public static class ShopSetup
         Make(UpgradeType.HoopCannonDamage, "Hoop Cannon Damage", "player/hoop_cannon_damage.png", "Hoops hit {value} harder", 20, true, 5, 35, 1.4f),
         Make(UpgradeType.HoopCannonFireRate, "Hoop Cannon Fire Rate", "player/hoop_cannon_fire_rate.png", "Hoop Cannon fires {value} faster", 15, true, 5, 35, 1.4f),
         Make(UpgradeType.HoopCannonRange, "Hoop Cannon Range", "player/hoop_cannon_range.png", "Hoop Cannon reaches {value} further", 15, true, 4, 30, 1.4f),
+        Make(UpgradeType.BlasterHoming, "Blaster Homing", "player/blaster_homing.png", "{value} chance of a red Blaster shot that homes in", 8, true, 5, 45, 1.4f, 0.8f),
+        Make(UpgradeType.HoopCannonHoming, "Hoop Cannon Homing", "player/hoop_cannon_homing.png", "{value} chance of a red hoop that homes in, enemy after enemy", 8, true, 5, 45, 1.4f, 0.8f),
+        Make(UpgradeType.ExtendTime, "Extra Time", "player/extend_time.png", "{value} seconds on every wave's timer", 5, false, 5, 30, 1.4f),
         Make(UpgradeType.CastleHeal, "Castle Repair", "castle/castle_heal.png", "Repairs {value} of the castle", 25, true, 0, 30, 1f),
         Make(UpgradeType.DropRate, "Lush Grass", "drop_rate.png", "{value} grass blade from every tuft mown", 1, false, 4, 40, 1.5f),
-        Make(UpgradeType.GrowthRate, "Fast Growth", "growth_rate.png", "Mown grass grows back {value} faster", 25, true, 4, 30, 1.4f),
+        Make(UpgradeType.GrowthRate, "Fast Growth", "growth_rate.png", "Mown grass grows back {value} sooner", 25, true, 4, 30, 1.4f),
+        Make(UpgradeType.Abundance, "Abundance", "abundance.png", "{value} more grass grows back each wave", 25, true, 5, 35, 1.4f),
         Make(UpgradeType.SavingsBloom, "Savings Bloom", "other/savings_bloom.png", "Unspent grass grows {value} each time the shop closes", 10, true, 3, 50, 1.5f, 0.7f),
         Make(UpgradeType.SporeMines, "Spore Mines", "other/spore_mines.png", "{value} mushroom at the castle. They burst when an enemy reaches it", 1, false, 6, 45, 1.35f),
         Make(UpgradeType.Totem, "Totem", "other/totem.png", "Stands by the castle. Press T to warp back to it (once)", 0, false, 0, 120, 1f, 0.25f),
@@ -102,6 +106,47 @@ public static class ShopSetup
 
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         Debug.Log("Held item icons rebuilt. Save the scene to keep them.");
+    }
+
+    // Puts the main menu's drifting diamonds behind the open shop window, in place of its dark Dim (hidden,
+    // not deleted, to go back to)
+    [MenuItem("Tools/Add Shop Background")]
+    private static void AddShopBackground()
+    {
+        var shop = Object.FindAnyObjectByType<Shop>(FindObjectsInactive.Include);
+        var window = shop != null ? new SerializedObject(shop).FindProperty("window").objectReferenceValue as RectTransform : null;
+        if (window == null)
+        {
+            Debug.LogWarning("Shop: no Shop with a Window in the open scene (run Tools > Create Shop).");
+            return;
+        }
+        if (window.Find("Background") != null)
+        {
+            Debug.Log("Shop: the window already has a Background.");
+            return;
+        }
+
+        AddDiamondBackground(window);
+        Transform dim = window.Find("Dim");
+        if (dim != null)
+        {
+            Undo.RecordObject(dim.gameObject, "Hide Dim");
+            dim.gameObject.SetActive(false);
+        }
+        EditorSceneManager.MarkSceneDirty(window.gameObject.scene);
+        Debug.Log("Shop: added the diamond background (its size and colours are on Window > Background). " +
+                  "Save the scene to keep it.");
+    }
+
+    // Covers the screen behind the shop's content and blocks clicks to anything behind
+    private static void AddDiamondBackground(RectTransform window)
+    {
+        RectTransform rect = UILayoutSetup.CreateRect("Background", window);
+        rect.SetAsFirstSibling();
+        UILayoutSetup.Stretch(rect, Vector2.zero, Vector2.zero);
+        var image = rect.gameObject.AddComponent<RawImage>();
+        image.raycastTarget = true;
+        rect.gameObject.AddComponent<ScrollingBackground>();
     }
 
     private static void CreateSettings()
@@ -317,10 +362,7 @@ public static class ShopSetup
         RectTransform window = UILayoutSetup.CreateRect("Window", root);
         UILayoutSetup.Stretch(window, Vector2.zero, Vector2.zero);
 
-        Image dim = UILayoutSetup.CreateImage("Dim", window, null);
-        dim.color = new Color(0f, 0f, 0f, 0.65f);
-        dim.raycastTarget = true; // blocks clicks to anything behind
-        UILayoutSetup.Stretch(dim.rectTransform, Vector2.zero, Vector2.zero);
+        AddDiamondBackground(window);
 
         RectTransform content = UILayoutSetup.CreateRect("Content", window);
         UILayoutSetup.Stretch(content, Vector2.zero, Vector2.zero);
@@ -355,7 +397,7 @@ public static class ShopSetup
             icon.preserveAspect = true;
             PlaceFromTop(icon.rectTransform, 120f, Vector2.one * 16f * UIPixels.Scale);
 
-            TextMeshProUGUI level = UILayoutSetup.CreateText("Level", card, "Lv 0 → 1", textFont, 28f);
+            TextMeshProUGUI level = UILayoutSetup.CreateText("Level", card, "Lv 0 > 1", textFont, 28f);
             PlaceFromTop(level.rectTransform, 200f, new Vector2(cardSize.x - 50f, 36f));
 
             TextMeshProUGUI description = UILayoutSetup.CreateText("Description", card, "What it does", textFont, 24f);
@@ -397,8 +439,8 @@ public static class ShopSetup
         window.gameObject.SetActive(false);
     }
 
-    // The Totem's icon in the top-right corner, with no frame (a dim copy under a bright radial fill that
-    // shows the channel), and a framed slot for a seed just right of the weapon bar
+    // A seed's icon in the top-right corner and the Totem's just left of it, with no frames (the Totem a dim
+    // copy under a bright radial fill that shows the channel)
     private static void CreateHeldItems(CurrencyUI currency)
     {
         Canvas canvas = currency.GetComponentInParent<Canvas>(true);
@@ -409,11 +451,8 @@ public static class ShopSetup
             return;
         }
 
-        const float pixelScale = UIPixels.Scale;
-        const float slotSize = 24f * pixelScale;
-        const float totemSize = 16f * pixelScale;
-        Sprite board = UILayoutSetup.LoadSprite(UILayoutSetup.BoardPath);
-        float referencePixelsPerUnit = canvas != null ? canvas.referencePixelsPerUnit : 100f;
+        const float iconSize = 24f * UIPixels.Scale;
+        const float margin = 24f;
         var settings = AssetDatabase.LoadAssetAtPath<ShopSettings>(SettingsPath);
         Sprite totemIcon = settings != null ? settings.Get(UpgradeType.Totem)?.icon : null;
         Sprite seedIcon = settings != null ? settings.Get(UpgradeType.CrimsonWeed)?.icon : null;
@@ -424,8 +463,8 @@ public static class ShopSetup
 
         RectTransform totem = UILayoutSetup.CreateRect("Totem", held);
         totem.anchorMin = totem.anchorMax = totem.pivot = Vector2.one;
-        totem.anchoredPosition = new Vector2(-24f, -24f);
-        totem.sizeDelta = Vector2.one * totemSize;
+        totem.anchoredPosition = new Vector2(-margin * 2f - iconSize, -margin);
+        totem.sizeDelta = Vector2.one * iconSize;
 
         Image dim = UILayoutSetup.CreateImage("Dim", totem, totemIcon);
         dim.color = new Color(1f, 1f, 1f, 0.3f);
@@ -441,9 +480,13 @@ public static class ShopSetup
         charge.fillAmount = 1f;
         UILayoutSetup.Stretch(charge.rectTransform, Vector2.zero, Vector2.zero);
 
-        RectTransform seed = CreateHeldSlot("Seed", held, board, referencePixelsPerUnit, pixelScale, slotSize, seedIcon);
-        seed.anchorMin = seed.anchorMax = new Vector2(0.5f, 0f);
-        seed.anchoredPosition = new Vector2(240f + slotSize * 0.5f, 24f + slotSize * 0.5f); // past the weapon bar's right end
+        RectTransform seed = UILayoutSetup.CreateRect("Seed", held);
+        seed.anchorMin = seed.anchorMax = seed.pivot = Vector2.one;
+        seed.anchoredPosition = new Vector2(-margin, -margin);
+        seed.sizeDelta = Vector2.one * iconSize;
+        Image seedImage = UILayoutSetup.CreateImage("Icon", seed, seedIcon);
+        seedImage.preserveAspect = true;
+        UILayoutSetup.Stretch(seedImage.rectTransform, Vector2.zero, Vector2.zero);
 
         var heldUI = Undo.AddComponent<HeldItemsUI>(held.gameObject);
         var serialized = new SerializedObject(heldUI);
@@ -451,26 +494,6 @@ public static class ShopSetup
         serialized.FindProperty("totemCharge").objectReferenceValue = charge;
         serialized.FindProperty("seedIcon").objectReferenceValue = seed;
         serialized.ApplyModifiedProperties();
-    }
-
-    private static RectTransform CreateHeldSlot(string name, Transform parent, Sprite board, float referencePixelsPerUnit,
-                                                float pixelScale, float size, Sprite icon)
-    {
-        Image frame = UILayoutSetup.CreateImage(name, parent, board);
-        if (board != null && board.border != Vector4.zero)
-        {
-            frame.type = Image.Type.Sliced;
-            frame.pixelsPerUnitMultiplier = referencePixelsPerUnit / (board.pixelsPerUnit * pixelScale);
-        }
-        RectTransform slot = frame.rectTransform;
-        slot.pivot = new Vector2(0.5f, 0.5f);
-        slot.sizeDelta = Vector2.one * size;
-
-        Image image = UILayoutSetup.CreateImage("Icon", slot, icon);
-        image.preserveAspect = true;
-        image.rectTransform.anchorMin = image.rectTransform.anchorMax = image.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-        UIPixels.Fit(image);
-        return slot;
     }
 
     // A board (sliced, at the shop's pixel size) that works as a button, tinted when picked

@@ -16,8 +16,8 @@ MonoBehaviour:
   maxHealth: 200
   contactDamage: 2
   bounceHeight: 1.8
-  bounceDuration: 0.5
-  bounceInterval: 1
+  bounceDuration: 0.4
+  bounceInterval: 0.4
   baseHopDistance: 2
   longHopDistanceMultiplier: 2
   hopPattern: 0

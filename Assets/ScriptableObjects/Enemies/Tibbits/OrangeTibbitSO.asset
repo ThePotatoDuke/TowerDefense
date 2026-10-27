@@ -13,14 +13,14 @@ MonoBehaviour:
   m_Name: OrangeTibbitSO
   m_EditorClassIdentifier: Assembly-CSharp::TibbitDataSO
   enemyName: OrangeTibbit
-  maxHealth: 30
+  maxHealth: 45
   contactDamage: 1
   minRideTime: 0
   maxRideTime: 1
-  jumpRange: 6
+  jumpRange: 8
   searchInterval: 0.4
   runsWhenStuck: 1
-  stuckTime: 1.5
+  stuckTime: 1
   diesWithHost: 1
   dazeTime: 1.2
   jumpHeight: 1.2

@@ -10,6 +10,12 @@ public abstract class RangedWeaponBase : WeaponBase
     // Not enemies its shots would only bounce off
     protected override bool CanTarget(EnemyBase enemy) => (RangedData.canAimUp || !enemy.IsFlying) && !enemy.ImmuneToRanged;
 
+    // Chance (0 to 1) that a shot homes in on its target, from the gun's homing upgrade
+    protected virtual float HomingChance => 0f;
+
+    private static readonly Color HomingTint = new(1f, 0.25f, 0.25f);
+    private const float HomingTurnSpeed = 300f; // degrees a second
+
     protected override void OnAttack(GameObject target)
     {
         // Try to find a collider in the children
@@ -42,6 +48,11 @@ public abstract class RangedWeaponBase : WeaponBase
         // Spawn projectile
         Projectile proj = Instantiate(RangedData.projectilePrefab, playerHand.position, Quaternion.identity);
         proj.Initialize(RangedData.projectileData, dir, DamageMultiplier);
+
+        // Now and then a red shot that homes in (and on to the next enemy in range once it's gone)
+        if (Random.value < HomingChance)
+            proj.MakeHoming(target.GetComponentInParent<EnemyBase>(), CanTarget, !RangedData.canAimUp,
+                            HomingTurnSpeed, Range * 1.5f, HomingTint);
     }
 
 

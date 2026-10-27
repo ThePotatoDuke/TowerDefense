@@ -10,7 +10,8 @@ using UnityEngine.UI;
 // The shop that opens every few waves (EndlessWaveManager asks for a Visit). The game pauses while it's
 // open. It deals a few random upgrade cards (name, icon, what it does, level now and after, price in
 // grass); buy as many as the grass allows, reroll the ones not bought (pricier each time in the same
-// visit), and leave. Grass left over
+// visit), and leave. Its diamond background grows in over the paused game before the cards pop up, and
+// shrinks away after them when it's left. Grass left over
 // when it closes earns Savings Bloom's interest. Settings and the upgrade list are in ShopSettings; the
 // window is laid out in the scene (Tools > Create Shop builds a starting one).
 public class Shop : MonoBehaviour
@@ -43,6 +44,9 @@ public class Shop : MonoBehaviour
     [SerializeField] private Color tooExpensiveColor = new Color(0.75f, 0.2f, 0.2f);
     [Tooltip("How much the card or button picked with the keys or mouse grows.")]
     [SerializeField] private float selectedScale = 1.08f;
+    [Tooltip("Seconds the background's diamonds take to grow in when the shop opens, and to shrink away " +
+             "when it's left.")]
+    [SerializeField] private float transitionTime = 0.6f;
 
     private readonly List<UpgradeDefinition> offers = new();
     private readonly HashSet<int> sold = new();
@@ -51,6 +55,8 @@ public class Shop : MonoBehaviour
     private int rerolls;
     private Color priceColor = Color.white;
     private GameObject lastSelected;
+    private ScrollingBackground background;
+    private readonly Dictionary<Image, Color> iconColors = new(); // as set in the scene, before dimming
 
     private ShopSettings Settings => ShopSettings.Instance;
 
@@ -70,7 +76,10 @@ public class Shop : MonoBehaviour
         if (skipButton != null) skipButton.onClick.AddListener(Close);
 
         if (window != null)
+        {
+            background = window.GetComponentInChildren<ScrollingBackground>(true);
             window.gameObject.SetActive(false);
+        }
     }
 
     // Testing: the upgrades listed in the settings, for free
@@ -102,12 +111,26 @@ public class Shop : MonoBehaviour
         rerolls = 0;
         SetPaused(true);
 
+        UINavigation.Reset();
+
+        // In front of the rest of the HUD (weapon bar, grass counter, held items)
+        transform.SetAsLastSibling();
+
+        // The diamonds grow in, and the cards pop up once they're mostly there
         window.gameObject.SetActive(true);
+        float cardsDelay = 0f;
+        if (background != null)
+        {
+            background.Reveal = 0f;
+            background.PlayReveal(true, transitionTime);
+            cardsDelay = transitionTime * 0.6f;
+        }
         if (content != null)
         {
             content.DOKill(true);
-            content.localScale = Vector3.one * 0.8f;
-            content.DOScale(1f, 0.25f).SetEase(Ease.OutBack).SetUpdate(true).SetLink(content.gameObject);
+            content.localScale = Vector3.zero;
+            content.DOScale(1f, 0.3f).SetDelay(cardsDelay).SetEase(Ease.OutBack).SetUpdate(true)
+                .SetLink(content.gameObject);
         }
 
         Deal(false);
@@ -116,6 +139,17 @@ public class Shop : MonoBehaviour
         yield return new WaitUntil(() => !open);
 
         Currency.OnGrassChanged -= HandleGrassChanged;
+
+        // The cards go, then the diamonds shrink away, before the game carries on (buying and rerolling
+        // already stopped with open)
+        if (content != null)
+        {
+            content.DOKill(true);
+            yield return content.DOScale(0f, 0.2f).SetEase(Ease.InBack).SetUpdate(true).SetLink(content.gameObject)
+                .WaitForCompletion();
+        }
+        if (background != null)
+            yield return background.PlayReveal(false, transitionTime).WaitForCompletion();
         window.gameObject.SetActive(false);
         PaySavingsInterest();
         SetPaused(false);
@@ -126,10 +160,20 @@ public class Shop : MonoBehaviour
     {
         if (!open) return;
 
-        // Keep something picked for keys and gamepad (a mouse click on empty space clears it)
+        // With keys or a gamepad keep something picked (a mouse click on empty space clears it); with the
+        // mouse pick nothing, hovering shows it
         EventSystem events = EventSystem.current;
-        if (events != null && (events.currentSelectedGameObject == null || !events.currentSelectedGameObject.activeInHierarchy))
-            SelectFirst();
+        if (events != null)
+        {
+            GameObject current = events.currentSelectedGameObject;
+            if (!UINavigation.UsingKeys)
+            {
+                if (current != null)
+                    events.SetSelectedGameObject(null);
+            }
+            else if (current == null || !current.activeInHierarchy)
+                SelectFirst();
+        }
 
         GameObject selected = events != null ? events.currentSelectedGameObject : null;
         if (selected != lastSelected)
@@ -201,7 +245,8 @@ public class Shop : MonoBehaviour
         lastSelected = null;
 
         Refresh();
-        SelectFirst();
+        if (UINavigation.UsingKeys)
+            SelectFirst();
     }
 
     private bool IsAvailable(UpgradeDefinition upgrade)
@@ -262,25 +307,46 @@ public class Shop : MonoBehaviour
 
             if (card.icon != null)
             {
-                UIPixels.Show(card.icon, upgrade.icon);
+                // Its pixels as big as the card's
+                UIPixels.Show(card.icon, upgrade.icon, card.button != null ? card.button.targetGraphic as Image : null);
             }
             if (card.nameText != null) card.nameText.text = upgrade.displayName;
             if (card.descriptionText != null) card.descriptionText.text = upgrade.Description;
             if (card.levelText != null)
-                card.levelText.text = upgrade.HasLevels ? $"Lv {level} → {level + 1}" : "";
+                card.levelText.text = upgrade.HasLevels ? $"Lv {level} > {level + 1}" : "";
             if (card.priceText != null)
             {
                 card.priceText.text = isSold ? "Sold" : price.ToString();
                 card.priceText.color = isSold || affordable ? priceColor : tooExpensiveColor;
             }
             if (card.button != null)
+            {
                 card.button.interactable = !isSold && affordable;
+                DimIcons(card.button);
+            }
         }
 
         if (rerollText != null)
             rerollText.text = $"Reroll {RerollPrice}";
         if (rerollButton != null)
+        {
             rerollButton.interactable = Currency.Grass >= RerollPrice && sold.Count < offers.Count; // something left to reroll
+            DimIcons(rerollButton);
+        }
+    }
+
+    // The button only tints its own board, so its icons (the upgrade, the grass) take the same tint when it
+    // can't be pressed
+    private void DimIcons(Button button)
+    {
+        Color tint = button.interactable ? Color.white : button.colors.disabledColor;
+        foreach (Image image in button.GetComponentsInChildren<Image>(true))
+        {
+            if (image == button.targetGraphic) continue;
+            if (!iconColors.TryGetValue(image, out Color original))
+                iconColors[image] = original = image.color;
+            image.color = original * tint;
+        }
     }
 
     private void SelectFirst()

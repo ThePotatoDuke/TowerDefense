@@ -61,7 +61,8 @@ public class WeaponBarUI : MonoBehaviour
 
             if (view.icon != null)
             {
-                UIPixels.Show(view.icon, slot != null ? slot.weapon.icon : null);
+                // Its pixels as big as the frame's
+                UIPixels.Show(view.icon, slot != null ? slot.weapon.icon : null, view.frame);
                 view.icon.color = selected ? Color.white : idleColor;
             }
             if (view.frame != null)

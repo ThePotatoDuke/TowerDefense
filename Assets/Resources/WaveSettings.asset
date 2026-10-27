@@ -174,7 +174,7 @@ MonoBehaviour:
     enemies:
     - enemyPrefab: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
       spawnWeight: 0.5
-      baseCount: 3
+      baseCount: 4
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
@@ -291,7 +291,7 @@ MonoBehaviour:
       rowGap: 0.35
     - enemyPrefab: {fileID: 5527085464277909099, guid: 3ed08bfd3cad4a9ebeb1ce7c294bbcd6, type: 3}
       spawnWeight: 0.5
-      baseCount: 3
+      baseCount: 4
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
@@ -361,7 +361,7 @@ MonoBehaviour:
       rowGap: 0.35
     - enemyPrefab: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
       spawnWeight: 0.5
-      baseCount: 3
+      baseCount: 4
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
@@ -402,7 +402,7 @@ MonoBehaviour:
       rowGap: 0.35
     - enemyPrefab: {fileID: 5527085464277909099, guid: 3ed08bfd3cad4a9ebeb1ce7c294bbcd6, type: 3}
       spawnWeight: 0.5
-      baseCount: 4
+      baseCount: 6
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
@@ -465,6 +465,12 @@ MonoBehaviour:
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+      spawnWeight: 0.5
+      baseCount: 3
+      immuneToRanged: 1
+      inARow: 0
+      rowGap: 0.35
     - enemyPrefab: {fileID: 7894610099254780872, guid: 58cdfad387488194486699c32a22371f, type: 3}
       spawnWeight: 0
       baseCount: 1
@@ -508,7 +514,7 @@ MonoBehaviour:
       rowGap: 0.35
     - enemyPrefab: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
       spawnWeight: 0.5
-      baseCount: 4
+      baseCount: 5
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35

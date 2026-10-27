@@ -34,8 +34,16 @@ public class EndlessWaveManager : MonoBehaviour
     public int CurrentWave => totalWaveCount;
     private int waveLoopIndex = 0;
 
-    private bool isSpawning;
-    private bool spawnRemainingInstantly;
+    private bool skipToNextWave; // debug
+
+    // The wave timer: seconds left to clear the wave, counting while it's on (from its first spawn to its
+    // clear); below zero it's overtime and the settings' Time Up penalty applies
+    public float TimeLeft { get; private set; }
+    public bool TimerRunning { get; private set; }
+    public bool InOvertime => TimerRunning && TimeLeft <= 0f;
+    public event Action OnOvertime;
+    private float nextOvertimeHit;
+    private CastleHealth castle;
 
     // Events
     public event Action<int> OnWaveChanged;
@@ -73,9 +81,71 @@ public class EndlessWaveManager : MonoBehaviour
 
     private void Update()
     {
-        // Debug: spawn the rest of the current wave immediately (F, as E plants Crimson Weed)
-        if (Input.GetKeyDown(KeyCode.F) && isSpawning)
-            spawnRemainingInstantly = true;
+        // Debug (the ` key): kill every enemy and go straight to the next wave
+        if (Input.GetKeyDown(KeyCode.BackQuote) && GameStateManager.CurrentState == GameState.Playing)
+            SkipToNextWave();
+
+        TickTimer();
+    }
+
+    private void StartTimer(Wave wave, int enemies, WaveSettings settings)
+    {
+        TimerRunning = settings != null;
+        if (!TimerRunning) return;
+        TimeLeft = settings.TimeLimit(wave, enemies);
+    }
+
+    private void TickTimer()
+    {
+        if (!TimerRunning || GameStateManager.CurrentState != GameState.Playing) return;
+
+        bool wasOvertime = InOvertime;
+        TimeLeft -= Time.deltaTime;
+        if (!InOvertime) return;
+
+        WaveSettings settings = WaveSettings.Instance;
+        if (!wasOvertime)
+        {
+            nextOvertimeHit = Time.time; // the first hit lands right away
+            OnOvertime?.Invoke();
+            if (settings != null && settings.timeUpPenalty == TimeUpPenalty.GameOver && FindCastle() != null)
+                castle.TakeDamage(castle.CurrentHealth);
+        }
+
+        // Drain Castle: one hit a second, so each shows as a hit on the castle
+        if (settings != null && settings.timeUpPenalty == TimeUpPenalty.DrainCastle && Time.time >= nextOvertimeHit)
+        {
+            nextOvertimeHit = Time.time + 1f;
+            if (FindCastle() != null)
+                castle.TakeDamage(settings.overtimeCastleDamage);
+        }
+    }
+
+    private CastleHealth FindCastle()
+    {
+        if (castle == null)
+            castle = FindAnyObjectByType<CastleHealth>();
+        return castle;
+    }
+
+    private void SkipToNextWave()
+    {
+        skipToNextWave = true;
+        foreach (EnemyBase enemy in FindObjectsByType<EnemyBase>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (enemy.IsDead) continue;
+            if (enemy.gameObject.activeInHierarchy)
+                enemy.Kill();
+            else
+                Destroy(enemy.gameObject); // still waiting to drop from the sky
+        }
+    }
+
+    // Waits the given seconds, or less if the debug skip is pressed meanwhile
+    private IEnumerator Wait(float seconds)
+    {
+        for (float end = Time.time + seconds; Time.time < end && !skipToNextWave;)
+            yield return null;
     }
 
     private void HandleGameStateChanged(GameState state)
@@ -92,7 +162,7 @@ public class EndlessWaveManager : MonoBehaviour
         if (list == null || list.Count == 0) yield break;
 
         if (settings != null)
-            yield return new WaitForSeconds(settings.firstWaveDelay);
+            yield return Wait(settings.firstWaveDelay);
 
         int index = 0;
         while (true)
@@ -105,8 +175,10 @@ public class EndlessWaveManager : MonoBehaviour
             }
             Wave wave = list[index++];
 
+            skipToNextWave = false;
             totalWaveCount++;
             OnWaveChanged?.Invoke(totalWaveCount);
+            GameEvents.WaveStarted(totalWaveCount);
 
             // Spawn enemies
             yield return SpawnWave(wave, settings);
@@ -114,6 +186,7 @@ public class EndlessWaveManager : MonoBehaviour
             // Wait until all wave-blocking enemies are dead (spike balls don't count)
             yield return new WaitUntil(() => EnemyManager.Instance.GetWaveBlockingEnemyCount() == 0);
 
+            TimerRunning = false;
             GameEvents.WaveCleared();
 
             // Every few waves, the shop (the game waits while it's open)
@@ -127,7 +200,7 @@ public class EndlessWaveManager : MonoBehaviour
             }
 
             if (settings != null)
-                yield return new WaitForSeconds(settings.breakBetweenWaves);
+                yield return Wait(settings.breakBetweenWaves);
         }
     }
 
@@ -188,20 +261,18 @@ public class EndlessWaveManager : MonoBehaviour
                 spawnList.Insert(at, entry);
         }
 
-        // Spawn enemies
-        isSpawning = true;
-        spawnRemainingInstantly = false;
-        for (int i = 0; i < spawnList.Count; i++)
+        StartTimer(wave, spawnList.Count, settings);
+
+        // Spawn enemies (the rest are dropped if the debug skip is pressed)
+        for (int i = 0; i < spawnList.Count && !skipToNextWave; i++)
         {
             EnemySpawnEntry entry = spawnList[i];
             SpawnEnemy(entry, settings);
-            if (spawnRemainingInstantly) continue;
 
             // One of a row is followed closely by the next
             bool rowContinues = entry.inARow && i + 1 < spawnList.Count && spawnList[i + 1] == entry;
-            yield return new WaitForSeconds(rowContinues ? entry.rowGap : SpawnGap(wave, settings));
+            yield return Wait(rowContinues ? entry.rowGap : SpawnGap(wave, settings));
         }
-        isSpawning = false;
     }
 
     private void SpawnEnemy(EnemySpawnEntry entry, WaveSettings settings)
@@ -276,6 +347,8 @@ public class Wave
 {
     [Tooltip("Just a note to tell waves apart in the Inspector.")]
     public string name;
+    [Tooltip("Seconds to clear this wave in (0 = worked out from its enemies by the wave settings).")]
+    public float timeLimit;
     public List<EnemySpawnEntry> enemies;
     public float spawnIntervalMin = 0.3f;
     public float spawnIntervalMax = 0.7f;

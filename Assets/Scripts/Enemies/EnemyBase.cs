@@ -321,6 +321,9 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         }
     }
 
+    // Debug: dies on the spot, whatever would normally protect it
+    public void Kill() => Die();
+
     protected virtual void Die()
     {
         if (isDead) return;

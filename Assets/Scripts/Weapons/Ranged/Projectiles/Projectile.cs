@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Projectile : MonoBehaviour
@@ -9,6 +10,16 @@ public class Projectile : MonoBehaviour
     private bool deflected; // bounced off an immune enemy: harmless from then on
     private float damageMultiplier = 1f; // from the shop's damage upgrades for the gun that fired it
     private System.Action<EnemyBase> onHit;      // told about each enemy it's about to hurt (Crimson Weed growing)
+
+    // Homing (the shop's homing upgrades): turns toward its target, or the closest enemy it could hit once
+    // that's gone or been pierced
+    private float homingTurnSpeed; // degrees a second; 0 = flies straight
+    private EnemyBase homingTarget;
+    private System.Func<EnemyBase, bool> canHome;
+    private bool homingFlat;
+    private float homingReach;
+    private readonly HashSet<EnemyBase> alreadyHit = new();
+    private float visualYaw;
 
     private void Awake()
     {
@@ -44,7 +55,81 @@ public class Projectile : MonoBehaviour
         {
             float yAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
             bulletVisual.localEulerAngles += new Vector3(0f, yAngle, 0f);
+            visualYaw = yAngle;
         }
+    }
+
+    // Makes it a homing shot: it steers toward the target (then the closest enemy canTarget allows, within
+    // reach) at turnSpeed degrees a second, staying level if flat, and is tinted (sprite and trail)
+    public void MakeHoming(EnemyBase target, System.Func<EnemyBase, bool> canTarget, bool flat, float turnSpeed,
+                           float reach, Color tint)
+    {
+        homingTarget = target;
+        canHome = canTarget;
+        homingFlat = flat;
+        homingTurnSpeed = turnSpeed;
+        homingReach = reach;
+
+        foreach (SpriteRenderer sprite in GetComponentsInChildren<SpriteRenderer>(true))
+            sprite.color = tint;
+        foreach (TrailRenderer trail in GetComponentsInChildren<TrailRenderer>(true))
+        {
+            trail.startColor = new Color(tint.r, tint.g, tint.b, trail.startColor.a);
+            trail.endColor = new Color(tint.r, tint.g, tint.b, trail.endColor.a);
+        }
+    }
+
+    private void Steer()
+    {
+        if (!IsHomeable(homingTarget))
+            homingTarget = ClosestTarget();
+        if (homingTarget == null) return;
+
+        Vector3 toTarget = AimPoint(homingTarget) - transform.position;
+        if (homingFlat)
+            toTarget.y = 0f;
+        if (toTarget.sqrMagnitude < 0.0001f) return;
+
+        direction = Vector3.RotateTowards(direction, toTarget.normalized,
+                                          homingTurnSpeed * Mathf.Deg2Rad * Time.deltaTime, 0f).normalized;
+        transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
+
+        // The visual's extra spin follows the change of heading, as SetDirection set it up
+        if (bulletVisual != null)
+        {
+            float yaw = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            bulletVisual.localEulerAngles += new Vector3(0f, Mathf.DeltaAngle(visualYaw, yaw), 0f);
+            visualYaw = yaw;
+        }
+    }
+
+    private bool IsHomeable(EnemyBase enemy) =>
+        enemy != null && !enemy.IsDead && enemy.gameObject.activeInHierarchy && !alreadyHit.Contains(enemy)
+        && (canHome == null || canHome(enemy));
+
+    private EnemyBase ClosestTarget()
+    {
+        if (EnemyManager.Instance == null) return null;
+
+        EnemyBase closest = null;
+        float closestDistance = homingReach;
+        foreach (IEnemy candidate in EnemyManager.Instance.ActiveEnemies)
+        {
+            if (candidate is not EnemyBase enemy || !IsHomeable(enemy)) continue;
+            float distance = Vector3.Distance(transform.position, enemy.transform.position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closest = enemy;
+            }
+        }
+        return closest;
+    }
+
+    private static Vector3 AimPoint(EnemyBase enemy)
+    {
+        Collider body = enemy.GetComponentInChildren<Collider>();
+        return body != null ? body.bounds.center : enemy.transform.position;
     }
 
 
@@ -52,6 +137,8 @@ public class Projectile : MonoBehaviour
 
     private void Update()
     {
+        if (homingTurnSpeed > 0f && !deflected)
+            Steer();
         transform.position += direction * data.speed * Time.deltaTime;
     }
 
@@ -84,6 +171,8 @@ public class Projectile : MonoBehaviour
                 else
                 {
                     pierceCount++;
+                    if (enemy is EnemyBase pierced)
+                        alreadyHit.Add(pierced); // a homing shot looks for the next one
                 }
             }
         }

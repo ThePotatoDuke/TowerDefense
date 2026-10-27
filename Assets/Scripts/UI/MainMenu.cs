@@ -10,7 +10,7 @@ public class MainMenu : MonoBehaviour
     public const string SceneName = "MainMenu";
 
     [SerializeField] private string gameScene = "GameScene";
-    [Tooltip("Picked when the menu opens, so keys and gamepads work straight away.")]
+    [Tooltip("Picked when a key or gamepad is first used.")]
     [SerializeField] private Button firstButton;
 
     private void Start()
@@ -18,16 +18,21 @@ public class MainMenu : MonoBehaviour
         // Coming back from a run that ended paused or mid-game-over
         Time.timeScale = 1f;
         GameStateManager.ResetState();
-
-        if (firstButton != null && EventSystem.current != null)
-            EventSystem.current.SetSelectedGameObject(firstButton.gameObject);
+        UINavigation.Reset();
     }
 
     private void Update()
     {
-        // Keep something picked for keys and gamepads (a mouse click on empty space clears it)
+        // With keys or a gamepad keep something picked (a mouse click on empty space clears it); with the
+        // mouse pick nothing, hovering shows it
         EventSystem events = EventSystem.current;
-        if (firstButton != null && events != null && events.currentSelectedGameObject == null)
+        if (events == null) return;
+        if (!UINavigation.UsingKeys)
+        {
+            if (events.currentSelectedGameObject != null)
+                events.SetSelectedGameObject(null);
+        }
+        else if (firstButton != null && events.currentSelectedGameObject == null)
             events.SetSelectedGameObject(firstButton.gameObject);
     }
 
