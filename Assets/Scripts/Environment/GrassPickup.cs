@@ -142,7 +142,7 @@ public class GrassPickup : MonoBehaviour
 
         if ((transform.position - target).sqrMagnitude <= CollectDistance * CollectDistance)
         {
-            Currency.AddGrass(1);
+            Currency.CollectGrass(1);
             Destroy(gameObject);
         }
     }

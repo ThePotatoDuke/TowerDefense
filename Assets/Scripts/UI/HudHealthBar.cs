@@ -19,6 +19,8 @@ public class HudHealthBar : MonoBehaviour
     [SerializeField] private Image trail;
     [Tooltip("Optional: \"18/20\".")]
     [SerializeField] private TMP_Text amount;
+    [Tooltip("Canvas units per art pixel of the board, so the bar's end lands on whole pixels.")]
+    [SerializeField] private float pixelSize = 6f;
 
     [SerializeField] private float trailDelay = 0.35f;
     [SerializeField] private float trailTime = 0.4f;
@@ -92,7 +94,7 @@ public class HudHealthBar : MonoBehaviour
     private void SetWidth(Image image, float ratio)
     {
         if (image == null || inner == null) return;
-        float pixels = Mathf.Max(1f, inner.rect.width / UIPixels.Scale);
+        float pixels = Mathf.Max(1f, inner.rect.width / Mathf.Max(0.01f, pixelSize));
         float snapped = Mathf.Round(ratio * pixels) / pixels;
         RectTransform rect = image.rectTransform;
         rect.anchorMin = Vector2.zero;

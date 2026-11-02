@@ -36,14 +36,18 @@ public class EndlessWaveManager : MonoBehaviour
 
     private bool skipToNextWave; // debug
 
-    // The wave timer: seconds left to clear the wave, counting while it's on (from its first spawn to its
-    // clear); below zero it's overtime and the settings' Time Up penalty applies
+    // The harvest bonus timer: seconds left to clear the wave in, counting down from its first spawn while
+    // the game's playing and stopping at zero. Clearing it in time pays a share of the grass picked up
+    // during the wave, bigger the more time is left
     public float TimeLeft { get; private set; }
     public bool TimerRunning { get; private set; }
-    public bool InOvertime => TimerRunning && TimeLeft <= 0f;
-    public event Action OnOvertime;
-    private float nextOvertimeHit;
-    private CastleHealth castle;
+    public float BonusPercentNow =>
+        WaveSettings.Instance != null && timeLimit > 0f ? WaveSettings.Instance.BonusPercent(TimeLeft / timeLimit) : 0f;
+    public int GrassThisWave { get; private set; }
+    // The harvest bonus earned for the wave just cleared. Whoever listens adds it to the grass (the HUD
+    // does once it has flown it to the counter); with no one listening it's added straight away
+    public event Action<int> OnHarvestBonus;
+    private float timeLimit;
 
     // Events
     public event Action<int> OnWaveChanged;
@@ -52,11 +56,20 @@ public class EndlessWaveManager : MonoBehaviour
     private void OnEnable()
     {
         GameStateManager.OnGameStateChanged += HandleGameStateChanged;
+        Currency.OnGrassCollected += HandleGrassCollected;
     }
 
     private void OnDisable()
     {
         GameStateManager.OnGameStateChanged -= HandleGameStateChanged;
+        Currency.OnGrassCollected -= HandleGrassCollected;
+    }
+
+    // Only what's picked up while a wave's timer is on counts toward its harvest bonus
+    private void HandleGrassCollected(int amount)
+    {
+        if (TimerRunning)
+            GrassThisWave += amount;
     }
 
     private void Start()
@@ -91,41 +104,27 @@ public class EndlessWaveManager : MonoBehaviour
     private void StartTimer(Wave wave, int enemies, WaveSettings settings)
     {
         TimerRunning = settings != null;
+        GrassThisWave = 0;
         if (!TimerRunning) return;
-        TimeLeft = settings.TimeLimit(wave, enemies);
+        TimeLeft = timeLimit = settings.TimeLimit(wave, enemies);
     }
 
     private void TickTimer()
     {
-        if (!TimerRunning || GameStateManager.CurrentState != GameState.Playing) return;
-
-        bool wasOvertime = InOvertime;
-        TimeLeft -= Time.deltaTime;
-        if (!InOvertime) return;
-
-        WaveSettings settings = WaveSettings.Instance;
-        if (!wasOvertime)
-        {
-            nextOvertimeHit = Time.time; // the first hit lands right away
-            OnOvertime?.Invoke();
-            if (settings != null && settings.timeUpPenalty == TimeUpPenalty.GameOver && FindCastle() != null)
-                castle.TakeDamage(castle.CurrentHealth);
-        }
-
-        // Drain Castle: one hit a second, so each shows as a hit on the castle
-        if (settings != null && settings.timeUpPenalty == TimeUpPenalty.DrainCastle && Time.time >= nextOvertimeHit)
-        {
-            nextOvertimeHit = Time.time + 1f;
-            if (FindCastle() != null)
-                castle.TakeDamage(settings.overtimeCastleDamage);
-        }
+        if (!TimerRunning || TimeLeft <= 0f || GameStateManager.CurrentState != GameState.Playing) return;
+        TimeLeft = Mathf.Max(0f, TimeLeft - Time.deltaTime);
     }
 
-    private CastleHealth FindCastle()
+    // Cleared in time: the bonus share of the grass picked up this wave (not counted as picked up itself)
+    private void PayHarvestBonus()
     {
-        if (castle == null)
-            castle = FindAnyObjectByType<CastleHealth>();
-        return castle;
+        int bonus = TimerRunning ? Mathf.FloorToInt(GrassThisWave * BonusPercentNow / 100f) : 0;
+        TimerRunning = false;
+        if (bonus <= 0) return;
+        if (OnHarvestBonus != null)
+            OnHarvestBonus(bonus);
+        else
+            Currency.AddGrass(bonus);
     }
 
     private void SkipToNextWave()
@@ -186,7 +185,7 @@ public class EndlessWaveManager : MonoBehaviour
             // Wait until all wave-blocking enemies are dead (spike balls don't count)
             yield return new WaitUntil(() => EnemyManager.Instance.GetWaveBlockingEnemyCount() == 0);
 
-            TimerRunning = false;
+            PayHarvestBonus();
             GameEvents.WaveCleared();
 
             // Every few waves, the shop (the game waits while it's open)
@@ -261,7 +260,12 @@ public class EndlessWaveManager : MonoBehaviour
                 spawnList.Insert(at, entry);
         }
 
-        StartTimer(wave, spawnList.Count, settings);
+        // A Checker Slime entry spawns a whole group, counted at its average size
+        float enemies = 0f;
+        foreach (EnemySpawnEntry entry in spawnList)
+            enemies += entry.enemyPrefab is CheckerSlimeEnemy checker && checker.CheckerData != null
+                ? checker.CheckerData.AverageGroupSize : 1f;
+        StartTimer(wave, Mathf.RoundToInt(enemies), settings);
 
         // Spawn enemies (the rest are dropped if the debug skip is pressed)
         for (int i = 0; i < spawnList.Count && !skipToNextWave; i++)
@@ -277,10 +281,19 @@ public class EndlessWaveManager : MonoBehaviour
 
     private void SpawnEnemy(EnemySpawnEntry entry, WaveSettings settings)
     {
+        // Checker Slimes come as a whole group in a line
+        if (entry.enemyPrefab is CheckerSlimeEnemy checker && splineContainer != null)
+        {
+            CheckerSlimeGroup.Spawn(checker, splineContainer, slime =>
+            {
+                PopIn(slime.transform);
+                SetUpSpawned(slime, entry, settings);
+            });
+            return;
+        }
+
         EnemyBase instance = Instantiate(entry.enemyPrefab);
         instance.AssignSpline(splineContainer);
-        if (entry.immuneToRanged)
-            instance.SetImmuneToRanged(true);
 
         if (splineContainer != null && instance.Data != null && instance.Data.dropsFromSky)
         {
@@ -296,6 +309,15 @@ public class EndlessWaveManager : MonoBehaviour
                 instance.transform.position = splineContainer.EvaluatePosition(splineContainer.Spline, 0f);
             PopIn(instance.transform);
         }
+
+        SetUpSpawned(instance, entry, settings);
+    }
+
+    // Immunity, toughness and bookkeeping for a newly spawned enemy
+    private void SetUpSpawned(EnemyBase instance, EnemySpawnEntry entry, WaveSettings settings)
+    {
+        if (entry.immuneToRanged)
+            instance.SetImmuneToRanged(true);
 
         instance.SetHealthMultiplier(settings != null ? settings.HealthMultiplier(totalWaveCount) : 1f);
         OnEnemySpawned?.Invoke(instance);
@@ -347,7 +369,7 @@ public class Wave
 {
     [Tooltip("Just a note to tell waves apart in the Inspector.")]
     public string name;
-    [Tooltip("Seconds to clear this wave in (0 = worked out from its enemies by the wave settings).")]
+    [Tooltip("Seconds to clear this wave in for the harvest bonus (0 = worked out from its enemies by the wave settings).")]
     public float timeLimit;
     public List<EnemySpawnEntry> enemies;
     public float spawnIntervalMin = 0.3f;
@@ -365,7 +387,8 @@ public class EnemySpawnEntry
     public int baseCount = 1;
     [Tooltip("Enemies spawned from this entry are immune to ranged attacks, whatever their prefab says.")]
     public bool immuneToRanged;
-    [Tooltip("Spawns all of Base Count one right after another instead of mixed in (a Konga chain).")]
+    [Tooltip("Spawns all of Base Count one right after another instead of mixed in (a Konga chain). " +
+             "A Checker Slime entry always spawns a whole group each time; Base Count is how many groups.")]
     public bool inARow;
     [Tooltip("Seconds between the ones in a row.")]
     public float rowGap = 0.35f;

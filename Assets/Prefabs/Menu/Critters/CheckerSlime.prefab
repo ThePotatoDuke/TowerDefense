@@ -1,0 +1,193 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7673463497534438954
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6028659877697893048}
+  - component: {fileID: 4025404778905318062}
+  - component: {fileID: 2321464055324199182}
+  m_Layer: 0
+  m_Name: Body
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6028659877697893048
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7673463497534438954}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5524540328454566562}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 70, y: 50}
+  m_Pivot: {x: 0.5, y: 0}
+--- !u!222 &4025404778905318062
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7673463497534438954}
+  m_CullTransparentMesh: 1
+--- !u!114 &2321464055324199182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7673463497534438954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 1256577932, guid: 3d2c1f7dcdc85fa4e951e8e97b385a19, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7751886857127579421
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5524540328454566562}
+  - component: {fileID: 6549598023530547157}
+  m_Layer: 0
+  m_Name: CheckerSlime
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5524540328454566562
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7751886857127579421}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6028659877697893048}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &6549598023530547157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7751886857127579421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0182fa4c049e5c4888494d712ce28ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuCritter
+  movement: 6
+  body: {fileID: 6028659877697893048}
+  image: {fileID: 2321464055324199182}
+  frames:
+  - {fileID: 1256577932, guid: 3d2c1f7dcdc85fa4e951e8e97b385a19, type: 3}
+  - {fileID: -630426161, guid: 3d2c1f7dcdc85fa4e951e8e97b385a19, type: 3}
+  framesPerSecond: 2
+  airSprite: {fileID: 0}
+  facesLeft: 0
+  speed: 2
+  hopHeight: 1
+  hopDuration: 0.3
+  hopInterval: 1
+  hopDistance: 1
+  squash: 0.75
+  stretch: 1.25
+  hopPattern: 0
+  longHopDistance: 2
+  longHopHeight: 1.5
+  longHopDuration: 1.3
+  longHopWait: 0.5
+  backChance: 0.5
+  longForwardChance: 0.5
+  minBackForward: 1
+  maxBackForward: 3
+  flyHeight: 0.6
+  waveAmplitude: 0
+  waveLength: 4
+  bobHeight: 0
+  bobsPerSecond: 1
+  digFrames: []
+  digFramesPerSecond: 10
+  peekFrames: []
+  peekFramesPerSecond: 12
+  idleTime: {x: 1.5, y: 2.5}
+  rides: 0
+  rideTime: {x: 2.5, y: 4}
+  jumpRange: 0
+  jumpHeight: 1.2
+  jumpSpeed: 7
+  jumpTime: {x: 0.35, y: 0.8}
+  searchInterval: 0.4
+  rideCooldown: 1.5
+  sameWay: 0.5
+  wrongWayGrace: 0.3
+  markerOuter: {fileID: 0}
+  markerMiddle: {fileID: 0}
+  dropWarningTime: 1.2
+  markerPopTime: 0.5
+  markerSpin: 120
+  dropFallTime: 0.45
+  landShake: 15
+  landShakeTime: 0.25
+  rollFrameDistance: 0.2
+  altFrames:
+  - {fileID: 1256577932, guid: afb7a060d2e9dec4aa7da76d7698669d, type: 3}
+  - {fileID: -630426161, guid: afb7a060d2e9dec4aa7da76d7698669d, type: 3}
+  checkerHopHeight: 1
+  checkerHopHeightPerSlime: 0.5
+  checkerHopGap: 0.3
+  checkerHopAirSpeed: 2
+  checkerSquashTime: 0.1
+  checkerSpringBackTime: 0.32
+  groupSize: 2
+  maxGroupSize: 6
+  groupSpacing: 1.1
+  weight: 20

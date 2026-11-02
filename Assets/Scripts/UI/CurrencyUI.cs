@@ -11,6 +11,9 @@ public class CurrencyUI : MonoBehaviour
     [SerializeField] private RectTransform counter;
     [SerializeField] private TMP_Text countText;
 
+    // Where grass flying to the counter (the harvest bonus) lands
+    public RectTransform Counter => counter != null ? counter : (RectTransform)transform;
+
     private void OnEnable()
     {
         Currency.OnGrassChanged += HandleGrassChanged;

@@ -27,7 +27,8 @@ public enum UpgradeType
     Abundance,
     BlasterHoming,
     HoopCannonHoming,
-    ExtendTime
+    LastingHarvest, // was Extra Time: the harvest bonus drains slower
+    BumperCrop      // the harvest bonus starts higher
 }
 
 // One thing the shop can offer. Most stack in levels up to the max; with a max level of 0 it can be

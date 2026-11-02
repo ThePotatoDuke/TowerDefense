@@ -714,7 +714,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 1.25
 --- !u!222 &669832703
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -915,7 +915,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: -0
     y: -0
-    width: 17.07531
+    width: 17.06554
     height: 8.4375
 --- !u!222 &872073877
 CanvasRenderer:
@@ -1051,7 +1051,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
+  m_PixelsPerUnitMultiplier: 1.25
 --- !u!222 &964444780
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1962,6 +1962,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
   gameScene: GameScene
   firstButton: {fileID: 669832701}
+  transitionTime: 0.6
 --- !u!114 &1844758044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2044,6 +2045,7 @@ RectTransform:
   - {fileID: 964444777}
   - {fileID: 669832704}
   - {fileID: 7841131}
+  - {fileID: 2081178982}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2397,6 +2399,87 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2021532558}
   m_CullTransparentMesh: 1
+--- !u!1 &2081178981
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2081178982}
+  - component: {fileID: 2081178983}
+  m_Layer: 0
+  m_Name: Critters
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2081178982
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2081178981}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1844758047}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2081178983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2081178981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e03fe7a76f38b42478c049b0bfc1d426, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuCritters
+  critters:
+  - {fileID: 5641824219431060472, guid: bc26576bf58770049917ee5dd2ebfd88, type: 3}
+  - {fileID: 196812780809150777, guid: 6f972b8f406f7884dbedae591172d3cb, type: 3}
+  - {fileID: 6075588971157914392, guid: 8ee495cbf083e504da065fb2be5ec5db, type: 3}
+  - {fileID: 7374613467765478946, guid: 1220b612091756a44919a43d192fc4f2, type: 3}
+  - {fileID: 5692900920182495165, guid: 404d584315fc88249a8a96a5316422c8, type: 3}
+  - {fileID: 8406558879866487245, guid: eb6fc113d31f3f547b76bab634480fde, type: 3}
+  - {fileID: 1622772110110275261, guid: 19c06da9e3d33874987fc30929649e39, type: 3}
+  - {fileID: 2737537238773735306, guid: 07303f6d9afa10945bd0b574bb9718d7, type: 3}
+  - {fileID: 3904029109092771762, guid: d1ef2c24d29490d46b91e3bf131e251d, type: 3}
+  - {fileID: 1006066999927215543, guid: 3a5f185e4273dff4db219d44cdc134eb, type: 3}
+  - {fileID: 6549598023530547157, guid: df6f82f913c00e74f88694c87def4ae9, type: 3}
+  - {fileID: 504931335164569672, guid: 9fecb72d1888a2940b3f7dd3608e8c13, type: 3}
+  - {fileID: 7416225827077759139, guid: 235c8055f7696c14a907d9aae36b87ce, type: 3}
+  - {fileID: 2216380682128046812, guid: 59e3861caa772554e97a8fd14ab4a9f8, type: 3}
+  - {fileID: 4132386123298927117, guid: 092f4fa15e401f6478572c61f3128fc8, type: 3}
+  - {fileID: 4087703479337766833, guid: 7cf01dfb5a7482748806061008c827fd, type: 3}
+  - {fileID: 5970564100615065924, guid: 7009a65a4fc554b4b9726ceaeedf3e1c, type: 3}
+  - {fileID: 399822192993829735, guid: ea03322c8e57630409a4a77b5463fa19, type: 3}
+  - {fileID: 5000988432431531576, guid: a299223a40245d542976c25d22ff55ac, type: 3}
+  - {fileID: 2199179973251565841, guid: a1d1aa46f71b5e24eb189058975fc2c1, type: 3}
+  - {fileID: 8742934869225398260, guid: 3a0a97f5457fecb42a1e2cc466661f80, type: 3}
+  - {fileID: 8519370344933387277, guid: 65e4852a6271a904988c66da48517381, type: 3}
+  - {fileID: 7029395659557580477, guid: 40a412331dcb22142aacea262b487ae4, type: 3}
+  canvasUnitsPerWorldUnit: 80
+  groundLine: 0
+  flyBottom: 200
+  flyTop: 0.85
+  offscreenMargin: 200
+  startDelay: 2.5
+  spawnGap: {x: 1.5, y: 4}
+  maxOnScreen: 10
+  stops: {x: 1, y: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

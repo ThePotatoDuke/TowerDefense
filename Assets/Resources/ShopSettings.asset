@@ -250,13 +250,23 @@ MonoBehaviour:
     costGrowth: 1.4
     weight: 0.8
   - type: 23
-    displayName: Extra Time
-    icon: {fileID: 21300000, guid: 29922c6c685e0964e9fcbe42b5d78bbb, type: 3}
-    description: '{value} seconds on every wave''s timer'
-    valuePerLevel: 5
-    isPercent: 0
+    displayName: Lasting Harvest
+    icon: {fileID: 21300000, guid: 701083c184b16224697eda12d2a24d44, type: 3}
+    description: Harvest bonus lasts {value} longer each wave
+    valuePerLevel: 20
+    isPercent: 1
     maxLevel: 5
     baseCost: 30
+    costGrowth: 1.4
+    weight: 1
+  - type: 24
+    displayName: Bumper Crop
+    icon: {fileID: 21300000, guid: eb4cd1b5b56ade24a97fea70a8800000, type: 3}
+    description: '{value} harvest bonus at the start of each wave'
+    valuePerLevel: 10
+    isPercent: 1
+    maxLevel: 5
+    baseCost: 40
     costGrowth: 1.4
     weight: 1
   sporeMine: {fileID: 4718225360991827301, guid: 9336cba4e3837c0429389ee89046ccf1, type: 3}

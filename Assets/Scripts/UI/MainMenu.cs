@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-// The main menu scene (made by Tools > Create Main Menu): Play starts a run in the game scene, Quit closes
-// the game (or stops play mode in the editor). The game-over screen's Main Menu button comes back here.
+// The main menu scene (made by Tools > Create Main Menu): Play starts a run in the game scene (the
+// background's diamonds growing over the menu, then shrinking away to show the game), Quit closes the game
+// (or stops play mode in the editor). The game-over screen's Main Menu button comes back here.
 public class MainMenu : MonoBehaviour
 {
     public const string SceneName = "MainMenu";
@@ -12,6 +12,8 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private string gameScene = "GameScene";
     [Tooltip("Picked when a key or gamepad is first used.")]
     [SerializeField] private Button firstButton;
+    [Tooltip("Seconds the diamonds take to cover the menu, and again to clear off the game.")]
+    [SerializeField] private float transitionTime = 0.6f;
 
     private void Start()
     {
@@ -36,10 +38,16 @@ public class MainMenu : MonoBehaviour
             events.SetSelectedGameObject(firstButton.gameObject);
     }
 
-    public void Play() => SceneManager.LoadScene(gameScene);
+    public void Play()
+    {
+        if (SceneTransition.Busy) return;
+        var background = FindAnyObjectByType<ScrollingBackground>();
+        SceneTransition.Load(gameScene, transitionTime, background);
+    }
 
     public void Quit()
     {
+        if (SceneTransition.Busy) return;
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

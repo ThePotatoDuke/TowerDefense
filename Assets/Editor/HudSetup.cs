@@ -5,17 +5,22 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // Tools > Create HUD Health Bars: puts the player's and the castle's health in the top-right corner of the
-// open scene's HUD (an icon and a board with a bar and "18/20" in it, one row each, at the UI pixel scale),
+// open scene's HUD (an icon and a board with a bar and "18/20" in it, one row each, at the HUD's 6x pixel
+// size like its other boards),
 // switches off the health bars floating over the player and the castle (enemies keep theirs), and moves
-// the held seed and Totem icons down below the bars. Run it again after deleting HealthBars to rebuild.
+// the held seed and Totem icons down below the bars. Running it again replaces HealthBars with a fresh
+// one (undoable), so hand-made changes to it are lost.
 public static class HudSetup
 {
-    private const string PlayerIconPath = "Assets/3rd Party/UI/upgrades/player/Bouque_of_life.png";
-    private const string CastleIconPath = "Assets/3rd Party/UI/upgrades/castle/castle_heal.png";
+    private const string PlayerIconPath = "Assets/3rd Party/UI/Health_bar/player_health_bar.png";
+    private const string CastleIconPath = "Assets/3rd Party/UI/Health_bar/tower_health_bar.png";
 
-    // In art pixels at the UI's pixel scale
-    private static readonly Vector2 BoardPixels = new(64f, 16f);
-    private const float IconPixels = 16f;
+    // Canvas units per art pixel: the same as the HUD's boards (Pixels Per Unit Multiplier 1.0417)
+    private const float PixelSize = 6f;
+
+    // In art pixels
+    private static readonly Vector2 BoardPixels = new(48f, 14f);
+    private const float IconPixels = 12f;
     private const float Margin = 24f;   // from the screen's edges, in canvas units
     private const float RowGap = 2f;    // between the rows, in art pixels
     private const float IconGap = 2f;   // between an icon and its board, in art pixels
@@ -36,21 +41,20 @@ public static class HudSetup
             return;
         }
         canvas = canvas.rootCanvas;
-        if (canvas.transform.Find("HealthBars") != null)
-        {
-            Debug.Log("HUD health bars: HealthBars already exists; delete it first to rebuild it.");
-            return;
-        }
+        Transform old = canvas.transform.Find("HealthBars");
+        if (old != null)
+            Undo.DestroyObjectImmediate(old.gameObject); // rebuilt from scratch
 
         Sprite board = UILayoutSetup.LoadSprite(UILayoutSetup.BoardPath);
         TMP_FontAsset font = UILayoutSetup.GetFontAsset(UILayoutSetup.TextFontPath);
-        float scale = UIPixels.Scale;
+        const float scale = PixelSize;
 
         // A column in the top-right corner
         RectTransform column = UILayoutSetup.CreateRect("HealthBars", canvas.transform);
+        Undo.RegisterCreatedObjectUndo(column.gameObject, "Create HUD Health Bars");
         column.anchorMin = column.anchorMax = column.pivot = Vector2.one;
         column.anchoredPosition = new Vector2(-Margin, -Margin);
-        float rowHeight = BoardPixels.y * scale;
+        float rowHeight = Mathf.Max(BoardPixels.y, IconPixels) * scale;
         column.sizeDelta = new Vector2((IconPixels + IconGap + BoardPixels.x) * scale, rowHeight * 2f + RowGap * scale);
 
         CreateRow(column, "Player", HudHealthBar.Owner.Player, PixelSprites.Import(PlayerIconPath), PlayerColor,
@@ -69,20 +73,24 @@ public static class HudSetup
     private static void CreateRow(RectTransform column, string name, HudHealthBar.Owner owner, Sprite icon, Color color,
                                   Sprite board, TMP_FontAsset font, Canvas canvas, float y)
     {
-        float scale = UIPixels.Scale;
+        const float scale = PixelSize;
         RectTransform row = UILayoutSetup.CreateRect(name, column);
         row.anchorMin = row.anchorMax = row.pivot = Vector2.one;
         row.anchoredPosition = new Vector2(0f, y);
-        row.sizeDelta = new Vector2(column.sizeDelta.x, BoardPixels.y * scale);
+        row.sizeDelta = new Vector2(column.sizeDelta.x, Mathf.Max(BoardPixels.y, IconPixels) * scale);
 
         Image iconImage = UILayoutSetup.CreateImage("Icon", row, icon);
-        UIPixels.Fit(iconImage);
+        UIPixels.Fit(iconImage, scale);
         RectTransform iconRect = iconImage.rectTransform;
         iconRect.anchorMin = iconRect.anchorMax = iconRect.pivot = new Vector2(0f, 0.5f);
         iconRect.anchoredPosition = Vector2.zero;
 
         Image boardImage = UILayoutSetup.CreateImage("Board", row, board);
-        UIPixels.Slice(boardImage, canvas);
+        if (board != null)
+        {
+            boardImage.type = Image.Type.Sliced;
+            boardImage.pixelsPerUnitMultiplier = canvas.referencePixelsPerUnit / (board.pixelsPerUnit * scale);
+        }
         RectTransform boardRect = boardImage.rectTransform;
         boardRect.anchorMin = boardRect.anchorMax = boardRect.pivot = new Vector2(1f, 0.5f);
         boardRect.anchoredPosition = Vector2.zero;
@@ -113,13 +121,14 @@ public static class HudSetup
         serialized.FindProperty("fill").objectReferenceValue = fill;
         serialized.FindProperty("trail").objectReferenceValue = trail;
         serialized.FindProperty("amount").objectReferenceValue = amount;
+        serialized.FindProperty("pixelSize").floatValue = scale;
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
     // The player's and castle's world-space bars (hidden, not deleted); enemies keep theirs
     private static void HideFloatingBars()
     {
-        foreach (HealthBar bar in Object.FindObjectsByType<HealthBar>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        foreach (HealthBar bar in Object.FindObjectsByType<HealthBar>(FindObjectsInactive.Include))
         {
             bool ownedByPlayerOrCastle = bar.GetComponentInParent<Player>(true) != null
                                          || bar.GetComponentInParent<CastleHealth>(true) != null;
@@ -135,7 +144,7 @@ public static class HudSetup
         var held = Object.FindAnyObjectByType<HeldItemsUI>(FindObjectsInactive.Include);
         if (held == null) return;
 
-        float top = -(Margin + column.sizeDelta.y + RowGap * UIPixels.Scale * 2f);
+        float top = -(Margin + column.sizeDelta.y + RowGap * PixelSize * 2f);
         foreach (RectTransform icon in held.transform)
         {
             if (icon.anchorMax.y < 1f) continue; // only ones hung from the top

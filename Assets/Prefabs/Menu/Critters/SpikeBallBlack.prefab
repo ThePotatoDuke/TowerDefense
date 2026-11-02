@@ -1,0 +1,185 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5791301456310496470
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5502818797339504221}
+  - component: {fileID: 6346888287910169293}
+  - component: {fileID: 7386883433908621395}
+  m_Layer: 0
+  m_Name: Body
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5502818797339504221
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5791301456310496470}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8004784092253985201}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 120, y: 120}
+  m_Pivot: {x: 0.5, y: 0}
+--- !u!222 &6346888287910169293
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5791301456310496470}
+  m_CullTransparentMesh: 1
+--- !u!114 &7386883433908621395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5791301456310496470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: f7cfa40b28508aa41b1238a8feef4b06, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &8430282605725297583
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8004784092253985201}
+  - component: {fileID: 399822192993829735}
+  m_Layer: 0
+  m_Name: SpikeBallBlack
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &8004784092253985201
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8430282605725297583}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5502818797339504221}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &399822192993829735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8430282605725297583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0182fa4c049e5c4888494d712ce28ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuCritter
+  movement: 5
+  body: {fileID: 5502818797339504221}
+  image: {fileID: 7386883433908621395}
+  frames:
+  - {fileID: 21300000, guid: f7cfa40b28508aa41b1238a8feef4b06, type: 3}
+  - {fileID: 21300000, guid: 2a75e4c19db725f47bd5380af888fa92, type: 3}
+  - {fileID: 21300000, guid: deec6c12049cbda4e86e68daebe9207f, type: 3}
+  framesPerSecond: 8
+  airSprite: {fileID: 0}
+  facesLeft: 0
+  speed: 1.5
+  hopHeight: 1
+  hopDuration: 0.3
+  hopInterval: 0.1
+  hopDistance: 1
+  squash: 0.8
+  stretch: 1.2
+  hopPattern: 0
+  longHopDistance: 2
+  longHopHeight: 1.5
+  longHopDuration: 1.3
+  longHopWait: 0.5
+  backChance: 0.5
+  longForwardChance: 0.5
+  minBackForward: 1
+  maxBackForward: 3
+  flyHeight: 0.6
+  waveAmplitude: 0
+  waveLength: 4
+  bobHeight: 0
+  bobsPerSecond: 1
+  digFrames: []
+  digFramesPerSecond: 10
+  peekFrames: []
+  peekFramesPerSecond: 12
+  idleTime: {x: 1.5, y: 2.5}
+  rides: 0
+  rideTime: {x: 2.5, y: 4}
+  jumpRange: 0
+  jumpHeight: 1.2
+  jumpSpeed: 7
+  jumpTime: {x: 0.35, y: 0.8}
+  searchInterval: 0.4
+  rideCooldown: 1.5
+  sameWay: 0.5
+  wrongWayGrace: 0.3
+  markerOuter: {fileID: 21300000, guid: 4cdd6d440f6e46c46aa9f7eafd721603, type: 3}
+  markerMiddle: {fileID: 21300000, guid: db0ecc98f2c7054458909f14a65eab1b, type: 3}
+  dropWarningTime: 2
+  markerPopTime: 0.5
+  markerSpin: 120
+  dropFallTime: 0.45
+  landShake: 15
+  landShakeTime: 0.25
+  rollFrameDistance: 0.2
+  groupSize: 1
+  maxGroupSize: 0
+  groupSpacing: 0.9
+  weight: 0.8

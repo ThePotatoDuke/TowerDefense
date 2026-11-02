@@ -60,6 +60,20 @@ public class ScrollingBackground : MonoBehaviour
             .SetEase(Ease.Linear).SetUpdate(true).SetTarget(this).SetLink(gameObject);
     }
 
+    // Looks and scrolls exactly like another one, lined up with it (a scene change covering the menu)
+    public void CopyFrom(ScrollingBackground other)
+    {
+        if (other == null) return;
+        diamondSize = other.diamondSize;
+        pixelScale = other.pixelScale;
+        diamondColor = other.diamondColor;
+        gapColor = other.gapColor;
+        speed = other.speed;
+        revealSpread = other.revealSpread;
+        offset = other.offset;
+        Apply();
+    }
+
     private void OnEnable()
     {
         image = GetComponent<RawImage>();

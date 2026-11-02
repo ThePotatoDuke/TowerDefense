@@ -234,7 +234,7 @@ MonoBehaviour:
     spawnIntervalMin: 0.6
     spawnIntervalMax: 1.0
     burstChance: 0.2
-  - name: 10 Shiny walkers
+  - name: 10 Shiny walkers and checker slimes
     enemies:
     - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
       spawnWeight: 1
@@ -262,6 +262,12 @@ MonoBehaviour:
       rowGap: 0.35
     - enemyPrefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
       spawnWeight: 0.6
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+    - enemyPrefab: {fileID: 3959996388313616572, guid: 9dcdc41293e2bce49bc8eef40b402380, type: 3}
+      spawnWeight: 0.3
       baseCount: 2
       immuneToRanged: 0
       inARow: 0
@@ -546,6 +552,12 @@ MonoBehaviour:
       spawnWeight: 1
       baseCount: 2
       immuneToRanged: 1
+      inARow: 0
+      rowGap: 0.35
+    - enemyPrefab: {fileID: 3959996388313616572, guid: 9dcdc41293e2bce49bc8eef40b402380, type: 3}
+      spawnWeight: 0.3
+      baseCount: 2
+      immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
     spawnIntervalMin: 0.4

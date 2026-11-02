@@ -8,12 +8,22 @@ public static class Currency
     public static int Grass { get; private set; }
 
     public static event Action<int> OnGrassChanged;
+    // Blades picked up off the ground (not interest or bonuses), with how many
+    public static event Action<int> OnGrassCollected;
 
     public static void AddGrass(int amount)
     {
         if (amount <= 0) return;
         Grass += amount;
         OnGrassChanged?.Invoke(Grass);
+    }
+
+    // A blade picked up off the ground
+    public static void CollectGrass(int amount)
+    {
+        if (amount <= 0) return;
+        AddGrass(amount);
+        OnGrassCollected?.Invoke(amount);
     }
 
     public static bool TrySpendGrass(int amount)
@@ -30,6 +40,7 @@ public static class Currency
         // Static state survives play sessions when domain reload is off, so clear it explicitly
         Grass = 0;
         OnGrassChanged = null;
+        OnGrassCollected = null;
         SceneManager.sceneLoaded -= HandleSceneLoaded;
         SceneManager.sceneLoaded += HandleSceneLoaded;
     }
