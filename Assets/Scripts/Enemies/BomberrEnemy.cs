@@ -13,6 +13,7 @@ public class BomberrEnemy : EnemyBase
     private static readonly int SweepId = Shader.PropertyToID("_Sweep");
     private static readonly int AlphaId = Shader.PropertyToID("_Alpha");
     private const float WarningOpenTime = 0.35f;
+    private const float BuildupPitchStep = 0.06f; // how much higher each fuse tick sounds than the last
 
     [SerializeField] private BomberrDataSO data;
     [Tooltip("Child holding the collider and the bomb. The carriers are built under it.")]
@@ -192,6 +193,7 @@ public class BomberrEnemy : EnemyBase
     // Up and over to a spot nearby, one full turn around a random axis, then a small bounce
     private IEnumerator ThrowBomb()
     {
+        Sounds.PlayAt(Sound.BombThrow, bomb.position);
         Vector2 offset = Random.insideUnitCircle * data.throwDistance;
         Vector3 landing = new Vector3(
             bomb.position.x + offset.x,
@@ -222,6 +224,7 @@ public class BomberrEnemy : EnemyBase
         Vector3 restScale = bomb.localScale;
         float elapsed = 0f;
         float phase = 0f;
+        int ticks = 0;
 
         Vector3 groundPoint = new Vector3(bomb.position.x, transform.position.y, bomb.position.z);
         float blastDiameter = data.explosionRadius * 2f;
@@ -231,7 +234,14 @@ public class BomberrEnemy : EnemyBase
         {
             float t = elapsed / data.fuseTime;
             float interval = Mathf.Lerp(data.startPulseInterval, data.endPulseInterval, t * t);
+            int beat = (int)phase;
             phase += Time.deltaTime / Mathf.Max(0.01f, interval);
+            if ((int)phase > beat)
+            {
+                // A step higher on every tick, as the fuse runs down
+                Sounds.PlayAt(Sound.BombBuildup, bomb.position, 1f + BuildupPitchStep * ticks);
+                ticks++;
+            }
 
             // Sharp peaks: bright on the beat, dark in between
             float glow = Mathf.Pow(0.5f + 0.5f * Mathf.Cos(phase * Mathf.PI * 2f), 3f);
@@ -284,6 +294,7 @@ public class BomberrEnemy : EnemyBase
         float radius = data.explosionRadius;
 
         ExplosionFX.Play(center, radius, transform.position.y);
+        Sounds.PlayAt(Sound.SporeBigExplosion, center);
         if (GroundDecorator.Instance != null)
             GroundDecorator.Instance.CutGrassInRadius(center, radius);
 

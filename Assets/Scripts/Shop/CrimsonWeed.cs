@@ -164,6 +164,7 @@ public class CrimsonWeed : MonoBehaviour
         aim.y = 0f; // flat, like the ground guns
         if (aim.sqrMagnitude < 0.0001f) return;
         aim.Normalize();
+        Sounds.PlayAt(Sound.CrimsonShot, from);
 
         int count = Mathf.Max(1, Stat(shots, stage));
         // The projectile multiplies its own damage, so ask for the share that makes this shot's damage

@@ -26,6 +26,7 @@ public class HealthBar : MonoBehaviour
     // it as they move across the screen. Measured from the sprite's pivot as laid out in the editor.
     private Vector3 pivotInParent;  // the sprite's pivot, in the parent's space
     private Vector3 offsetFromPivot; // where the bar sits relative to it, in world units, before leaning
+    private Transform followedPivot; // the sprite's pivot itself, for owners whose sprite moves on its own
 
     private void Awake()
     {
@@ -42,6 +43,10 @@ public class HealthBar : MonoBehaviour
         }
         pivotInParent = parent.InverseTransformPoint(pivot.position);
         offsetFromPivot = transform.position - pivot.position;
+
+        EnemyBase enemy = GetComponentInParent<EnemyBase>();
+        if (enemy != null && enemy.HealthBarFollowsSprite)
+            followedPivot = pivot;
     }
 
     // Shield just left of the bar for owners that ranged attacks bounce off, with the pickup shine
@@ -75,7 +80,7 @@ public class HealthBar : MonoBehaviour
         if (parent == null || camera == null) return;
 
         // Up the leaning plane by the same height, instead of straight up
-        Vector3 pivot = parent.TransformPoint(pivotInParent);
+        Vector3 pivot = followedPivot != null ? followedPivot.position : parent.TransformPoint(pivotInParent);
         Vector3 across = new Vector3(offsetFromPivot.x, 0f, offsetFromPivot.z);
         transform.position = pivot + across + camera.transform.up * offsetFromPivot.y;
     }

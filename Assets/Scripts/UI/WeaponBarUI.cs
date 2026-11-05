@@ -23,6 +23,9 @@ public class WeaponBarUI : MonoBehaviour
     [SerializeField] private Color idleColor = new Color(1f, 1f, 1f, 0.6f);
     [Tooltip("Frame colour of slots with nothing in them.")]
     [SerializeField] private Color emptyColor = new Color(1f, 1f, 1f, 0.25f);
+    [Tooltip("Screen size of each of the weapon icons' pixels, in canvas units: 0 = as big as the frame's " +
+             "(6), smaller for smaller icons. Whole numbers keep them crisp (5 or 4).")]
+    [SerializeField, Min(0)] private int iconPixelSize = 0;
 
     private WeaponInventory inventory;
     private int shownIndex = -1;
@@ -61,8 +64,10 @@ public class WeaponBarUI : MonoBehaviour
 
             if (view.icon != null)
             {
-                // Its pixels as big as the frame's
-                UIPixels.Show(view.icon, slot != null ? slot.weapon.icon : null, view.frame);
+                Sprite icon = slot != null ? slot.weapon.icon : null;
+                UIPixels.Show(view.icon, icon, view.frame); // its pixels as big as the frame's
+                if (iconPixelSize > 0)
+                    UIPixels.Fit(view.icon, iconPixelSize);
                 view.icon.color = selected ? Color.white : idleColor;
             }
             if (view.frame != null)

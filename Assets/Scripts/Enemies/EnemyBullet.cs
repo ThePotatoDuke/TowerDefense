@@ -22,6 +22,7 @@ public class EnemyBullet : MonoBehaviour
         bullet.data = data;
         bullet.transform.position = from;
         bullet.marker = GroundMarker.Show(target);
+        Sounds.PlayAt(Sound.LaserShot, from);
 
         bullet.sprite = bullet.gameObject.AddComponent<SpriteRenderer>();
         bullet.sprite.sortingOrder = 10; // over the sprites it flies past
@@ -68,6 +69,7 @@ public class EnemyBullet : MonoBehaviour
         }
 
         SparkBurst.Play(target + Vector3.up * 0.2f);
+        Sounds.PlayAt(Sound.LaserHitGround, target);
         if (marker != null)
             marker.Hide();
         Destroy(gameObject);

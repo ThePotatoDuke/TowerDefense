@@ -92,6 +92,7 @@ public abstract class MeleeWeaponBase : WeaponBase
         euler.y = startAngle;
         playerHand.localEulerAngles = euler;
         swordTrail.Begin();
+        Sounds.Play(Sound.SwordSwing);
 
         playerHand.DOLocalRotate(new Vector3(0, endAngle, 0), swingDuration)
             .SetEase(Ease.InOutSine)

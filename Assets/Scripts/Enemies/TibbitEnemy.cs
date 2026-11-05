@@ -224,6 +224,7 @@ public class TibbitEnemy : EnemyBase
             Die();
             return;
         }
+        Sounds.PlayAt(Sound.TibbitDrop, transform.position);
 
         if (jumpingAtCastle)
         {

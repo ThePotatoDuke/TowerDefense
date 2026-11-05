@@ -22,6 +22,7 @@ public class SceneTransition : MonoBehaviour
     public static void Load(string sceneName, float duration, ScrollingBackground look = null, Action beforeLoad = null)
     {
         if (current != null) return;
+        Sounds.Play(Sound.MenuTransition);
 
         var canvasObject = new GameObject("Scene Transition", typeof(RectTransform));
         DontDestroyOnLoad(canvasObject);

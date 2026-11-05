@@ -77,6 +77,7 @@ public class WeedPlanter : MonoBehaviour
         }
 
         CrimsonWeed.Plant(preview.position);
+        Sounds.Play(Sound.CrimsonPlant);
         Destroy(preview.gameObject);
         Destroy(circle.gameObject);
         preview = null;

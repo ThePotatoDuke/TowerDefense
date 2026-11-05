@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bb74f6e8e8a0db488efc5c5d511a2b2, type: 3}
+  m_Name: SlimeQueenSO
+  m_EditorClassIdentifier: Assembly-CSharp::SlimeQueenDataSO
+  enemyName: Slime Queen
+  maxHealth: 1500
+  contactDamage: 5
+  dropsFromSky: 0
+  bounceHeight: 1.2
+  bounceDuration: 0.6
+  bounceInterval: 0.9
+  baseHopDistance: 1.5
+  longHopDistanceMultiplier: 2
+  hopPattern: 0
+  maxBackForward: 3
+  minBackForward: 1
+  longHopWaitTime: 0.5
+  backChance: 0.7
+  longForwardChance: 0.8
+  longHopHeightMultiplier: 1.5
+  longHopDurationMultiplier: 1.3
+  takeoffStretch: 1.4
+  fallStretch: 1.2
+  squash: 0.6
+  brood:
+  - {fileID: 393906862470325017, guid: 62c8d32682fae324cbd5452357cea808, type: 3}
+  - {fileID: 393906862470325017, guid: a6635cd98be91e8408093dcbe51d9b45, type: 3}
+  - {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
+  broodEvery: 0.2
+  broodSize: 3
+  deathBroodSize: 6
+  broodSpread: 1.5

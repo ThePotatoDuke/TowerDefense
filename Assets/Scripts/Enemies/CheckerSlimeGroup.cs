@@ -9,7 +9,8 @@ using UnityEngine.Splines;
 // faster than the line, as the top of a wheel does, and with a big group several are up at once. With an
 // even group the checker always holds. Ones that die leave gaps that close as the line turns over; the last
 // one left hops along on its own. Each lands at the castle in turn and they pile up there like other
-// enemies, taking turns at little hops on the spot.
+// enemies, taking turns at little hops on the spot. A new group lines up behind the start of the path, in
+// the forest, so it comes in leapfrogging instead of appearing strung out along the path.
 public class CheckerSlimeGroup : MonoBehaviour
 {
     private readonly List<CheckerSlimeEnemy> members = new();
@@ -17,9 +18,11 @@ public class CheckerSlimeGroup : MonoBehaviour
     private float splineLength = 1f;
     private int nextAtCastle; // whose turn it is to hop at the castle
 
-    // A new group of the prefab at the start of the path, the front one furthest in. setUp is called on each
-    // one as it's made (the wave manager's health, immunity and bookkeeping).
-    public static void Spawn(CheckerSlimeEnemy prefab, SplineContainer path, System.Action<CheckerSlimeEnemy> setUp)
+    // A new group of the prefab, the front one at the start of the path and the rest behind it, back where
+    // the path comes in from. setUp is called on each one as it's made (the wave manager's health, immunity
+    // and bookkeeping). size sets how many (rounded up to even); 0 rolls it from the data.
+    public static void Spawn(CheckerSlimeEnemy prefab, SplineContainer path, System.Action<CheckerSlimeEnemy> setUp,
+                             int size = 0)
     {
         CheckerSlimeDataSO data = prefab.CheckerData;
         if (data == null || path == null) return;
@@ -28,13 +31,13 @@ public class CheckerSlimeGroup : MonoBehaviour
         group.data = data;
         group.splineLength = Mathf.Max(0.01f, path.CalculateLength());
 
-        int count = data.RollGroupSize();
+        int count = size > 0 ? size + size % 2 : data.RollGroupSize();
         bool white = Random.value < 0.5f; // which colour leads
         for (int i = 0; i < count; i++)
         {
             CheckerSlimeEnemy slime = Instantiate(prefab);
             slime.AssignSpline(path);
-            slime.PlaceInLine((count - 1 - i) * data.spacing / group.splineLength);
+            slime.PlaceInLine(-i * data.spacing / group.splineLength);
             slime.SetWhite(white == (i % 2 == 0));
             setUp?.Invoke(slime);
             group.members.Add(slime);

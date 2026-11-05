@@ -53,6 +53,8 @@ public class FXSettings : ScriptableObject
     public Color castleDebrisColorB = new Color(0.32f, 0.29f, 0.27f, 1f);
     [ColorUsage(false, true)] public Color castleLowHealthColor = new Color(1.6f, 0.15f, 0.1f, 1f);
     [Range(0f, 1f)] public float castleLowHealthThreshold = 0.3f;
+    [Tooltip("Seconds the low health tint pulses after each hit, then it stops until the next one.")]
+    public float castleLowHealthFlashTime = 3f;
 
     [Header("Castle Collapse (game over)")]
     [Tooltip("Seconds after the castle falls before it starts collapsing; at least the camera pan (brain blend, 2 s).")]
@@ -73,6 +75,8 @@ public class FXSettings : ScriptableObject
     public Color castleSmokeColorB = new Color(0.32f, 0.3f, 0.31f, 0.85f);
 
     // Total collapse time, for timing the game-over popup after it
+    [Tooltip("Seconds after the castle has finished collapsing before the game over screen pops up.")]
+    public float castleGameOverDelay = 0.8f;
     public float CastleCollapseDuration => castleCollapseDelay + castleCollapseRumble + castleCollapseSinkTime;
 
     [Header("Castle Warning (screen edge, while the castle is hit off screen)")]

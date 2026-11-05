@@ -45,6 +45,9 @@ public class RollerEnemy : EnemyBase
     {
         base.Awake();
 
+        // It sets off either way along the path from where it lands
+        direction = Random.value < 0.5f ? 1 : -1;
+
         // Draw the 3D cylinder as outlined pixel art, with a ground shadow like the sprites
         MeshRenderer model = GetComponentInChildren<MeshRenderer>(); // before the imposter adds its quad
         gameObject.GetOrAddComponent<PixelImposter>();
@@ -317,6 +320,7 @@ public class RollerEnemy : EnemyBase
     // Sparks a bit toward the camera, so the roller itself doesn't hide them
     private void PlaySparks(Vector3 position)
     {
+        Sounds.PlayAt(Sound.MetalSpark, position);
         if (Camera.main != null)
             position += (Camera.main.transform.position - position).normalized * data.radius * 2f;
         SparkBurst.Play(position);

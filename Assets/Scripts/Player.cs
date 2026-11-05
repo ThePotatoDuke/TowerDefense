@@ -204,10 +204,13 @@ public class Player : MonoBehaviour, IHasHealth
 
         if (currentHealth <= 0)
         {
+            Sounds.Play(Sound.PlayerHit);
+            GameEvents.PlayerFatallyHit(); // the music stops dead
             Die();
             return;
         }
 
+        Sounds.Play(Sound.PlayerHit);
         StartCoroutine(InvulnerabilityRoutine());
     }
 
@@ -276,6 +279,7 @@ public class Player : MonoBehaviour, IHasHealth
 
         // Freeze frame, zoom and shake; the death animation below then plays in slow motion
         deathFX.Play();
+        Sounds.Play(Sound.PlayerDeath);
 
         // Disable LookAtCamera
         var lookAt = playerVisualTransform.GetComponent<LookAtCamera>();
@@ -300,6 +304,7 @@ public class Player : MonoBehaviour, IHasHealth
         float targetX = 90f - initialTiltX;
 
         // Fall forward to flat
+        deathSequence.AppendCallback(() => Sounds.Play(Sound.PlayerFall));
         deathSequence.Append(pivot.DOLocalRotate(
             new Vector3(targetX, 0f, 0f),
             0.5f

@@ -3,7 +3,7 @@ using DG.Tweening;
 using UnityEngine;
 
 // Castle hit feedback: shake, white flash and a burst of pixel debris on every hit,
-// plus a pulsing red tint while health is low. When the castle falls it collapses like an old
+// plus a pulsing red tint for a while after a hit when health is low. When the castle falls it collapses like an old
 // Mario castle: it rumbles side to side, then sinks into the ground with dust pouring out at its base.
 [RequireComponent(typeof(CastleHealth))]
 public class CastleHitFX : MonoBehaviour
@@ -21,6 +21,7 @@ public class CastleHitFX : MonoBehaviour
     private ParticleSystem debris;
     private Tween shakeTween;
     private float lastRatio = 1f;
+    private float lowFlashUntil;
     private bool collapsing;
 
     private void Awake()
@@ -85,6 +86,7 @@ public class CastleHitFX : MonoBehaviour
 
         float total = settings.castleCollapseRumble + settings.castleCollapseSinkTime;
         float elapsed = 0f;
+        AudioSource rumble = Sounds.PlayLoop(Sound.CastleCollapse); // for as long as it shakes and sinks
         float nextJolt = 0f;
         bool startedSinking = false;
         while (elapsed < total)
@@ -116,6 +118,7 @@ public class CastleHitFX : MonoBehaviour
             yield return null;
         }
 
+        Sounds.StopLoop(rumble);
         visual.gameObject.SetActive(false); // fully buried
 
         // The rubble stops right away; the smoke keeps rising a little longer, then drifts off
@@ -239,7 +242,7 @@ public class CastleHitFX : MonoBehaviour
     private void Update()
     {
         FXSettings settings = FXSettings.Instance;
-        bool lowHealth = lastRatio > 0f && lastRatio <= settings.castleLowHealthThreshold;
+        bool lowHealth = lastRatio > 0f && lastRatio <= settings.castleLowHealthThreshold && Time.time < lowFlashUntil;
         float pulse = lowHealth ? (0.5f + 0.5f * Mathf.Sin(Time.time * 6f)) * 0.6f : 0f;
         spriteFX.SetTint(settings.castleLowHealthColor, pulse);
     }
@@ -257,6 +260,8 @@ public class CastleHitFX : MonoBehaviour
         FXSettings settings = FXSettings.Instance;
 
         spriteFX.Flash();
+        Sounds.PlayAt(Sound.CastleCollapse, visual.position);
+        lowFlashUntil = Time.time + settings.castleLowHealthFlashTime;
 
         shakeTween?.Kill();
         visual.localPosition = visualRestPosition;

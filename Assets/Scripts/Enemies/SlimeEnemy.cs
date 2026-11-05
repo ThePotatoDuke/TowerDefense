@@ -21,6 +21,7 @@ public class SlimeEnemy : EnemyBase
     private int consecutiveBackForwardUnits = 0;
 
     public override EnemyDataSO Data => data;
+    public override bool HealthBarFollowsSprite => true;
 
     protected override void Awake()
     {

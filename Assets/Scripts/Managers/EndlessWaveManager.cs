@@ -8,6 +8,8 @@ using UnityEngine.Splines;
 
 public class EndlessWaveManager : MonoBehaviour
 {
+    public static EndlessWaveManager Instance { get; private set; }
+
     [Header("Path")]
     [SerializeField] private SplineContainer splineContainer;
 
@@ -32,9 +34,20 @@ public class EndlessWaveManager : MonoBehaviour
     private int totalWaveCount = 0;
     // The wave the run is on (1 for the first); the last one reached once the run is over
     public int CurrentWave => totalWaveCount;
+    // The wave on now is a boss wave
+    public bool IsBossWave { get; private set; }
     private int waveLoopIndex = 0;
 
     private bool skipToNextWave; // debug
+    private bool forceBossWave;  // debug
+
+    // Boss waves: the ones still to come before any repeats, how many times each has been played, and
+    // the harvest bonus's multiplier for the wave on now (bigger for a boss wave)
+    private readonly List<int> bossBag = new();
+    private readonly Dictionary<int, int> bossPlays = new();
+    private int lastBoss = -1;
+    private float bonusMultiplier = 1f;
+    private int wavesSinceShop;
 
     // The harvest bonus timer: seconds left to clear the wave in, counting down from its first spawn while
     // the game's playing and stopping at zero. Clearing it in time pays a share of the grass picked up
@@ -42,7 +55,8 @@ public class EndlessWaveManager : MonoBehaviour
     public float TimeLeft { get; private set; }
     public bool TimerRunning { get; private set; }
     public float BonusPercentNow =>
-        WaveSettings.Instance != null && timeLimit > 0f ? WaveSettings.Instance.BonusPercent(TimeLeft / timeLimit) : 0f;
+        WaveSettings.Instance != null && timeLimit > 0f
+            ? WaveSettings.Instance.BonusPercent(TimeLeft / timeLimit) * bonusMultiplier : 0f;
     public int GrassThisWave { get; private set; }
     // The harvest bonus earned for the wave just cleared. Whoever listens adds it to the grass (the HUD
     // does once it has flown it to the counter); with no one listening it's added straight away
@@ -52,6 +66,17 @@ public class EndlessWaveManager : MonoBehaviour
     // Events
     public event Action<int> OnWaveChanged;
     public event Action<EnemyBase> OnEnemySpawned;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
 
     private void OnEnable()
     {
@@ -97,6 +122,12 @@ public class EndlessWaveManager : MonoBehaviour
         // Debug (the ` key): kill every enemy and go straight to the next wave
         if (Input.GetKeyDown(KeyCode.BackQuote) && GameStateManager.CurrentState == GameState.Playing)
             SkipToNextWave();
+        // Debug (the B key): the next wave is a boss wave
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            forceBossWave = true;
+            Debug.Log("Waves: the next wave is a boss wave.");
+        }
 
         TickTimer();
     }
@@ -166,34 +197,84 @@ public class EndlessWaveManager : MonoBehaviour
         int index = 0;
         while (true)
         {
-            // Played through: carry on from a later wave, a loop harder
-            if (index >= list.Count)
-            {
-                index = settings != null ? Mathf.Clamp(settings.loopFromWave - 1, 0, list.Count - 1) : 0;
-                waveLoopIndex++;
-            }
-            Wave wave = list[index++];
-
-            skipToNextWave = false;
             totalWaveCount++;
+            skipToNextWave = false;
+
+            // Every few waves a boss wave comes in between; the others carry on after it
+            bool boss = settings != null && settings.bossWaves.Count > 0
+                        && (settings.IsBossWave(totalWaveCount) || forceBossWave);
+            forceBossWave = false;
+            Wave wave;
+            BossWave bossWave = null;
+            float countScale = 1f;
+            if (boss)
+            {
+                int pick = NextBossWave(settings);
+                bossWave = settings.bossWaves[pick];
+                int plays = bossPlays.TryGetValue(pick, out int played) ? played : 0;
+                bossPlays[pick] = plays + 1;
+                countScale = 1f + bossWave.growthPerRepeat * plays;
+                wave = bossWave;
+            }
+            else
+            {
+                // Played through: carry on from a later wave, a loop harder
+                if (index >= list.Count)
+                {
+                    index = settings != null ? Mathf.Clamp(settings.loopFromWave - 1, 0, list.Count - 1) : 0;
+                    waveLoopIndex++;
+                }
+                wave = list[index++];
+            }
+            bonusMultiplier = boss ? settings.bossBonusMultiplier : 1f;
+            IsBossWave = boss;
+
             OnWaveChanged?.Invoke(totalWaveCount);
             GameEvents.WaveStarted(totalWaveCount);
 
+            SpikeRain rain = null;
+            if (boss)
+            {
+                // The banner shows (and the dark comes in) before the enemies do
+                GameEvents.BossWaveStarted(bossWave);
+                if (bossWave.dark)
+                    BossDarkness.FadeIn();
+                yield return Wait(settings.bossBannerTime);
+                GameEvents.BossBannerEnded();
+                if (bossWave.spikeRain != null)
+                    rain = SpikeRain.Begin(bossWave.spikeRain, bossWave.spikeRainInterval / countScale,
+                                           bossWave.spikeRainRadius);
+            }
+
             // Spawn enemies
-            yield return SpawnWave(wave, settings);
+            yield return SpawnWave(wave, settings, countScale);
 
             // Wait until all wave-blocking enemies are dead (spike balls don't count)
             yield return new WaitUntil(() => EnemyManager.Instance.GetWaveBlockingEnemyCount() == 0);
 
+            if (rain != null)
+                rain.Stop();
+            if (boss)
+            {
+                BossDarkness.FadeOut();
+                GameEvents.BossWaveEnded();
+            }
+
             PayHarvestBonus();
             GameEvents.WaveCleared();
 
-            // Every few waves, the shop (the game waits while it's open)
+            // Every few waves, and after every boss wave, the shop (the game waits while it's open)
+            wavesSinceShop++;
             ShopSettings shopSettings = ShopSettings.Instance;
             Shop shop = Shop.Instance;
-            if (shop != null && shopSettings != null && shopSettings.wavesBetweenShops > 0
-                && totalWaveCount % shopSettings.wavesBetweenShops == 0)
+            bool shopNext = shop != null && shopSettings != null && shopSettings.wavesBetweenShops > 0
+                            && (boss || wavesSinceShop >= shopSettings.wavesBetweenShops);
+            if (shopNext)
+                GameEvents.ShopComing();
+            Sounds.Play(shopNext ? Sound.ShopWaveClear : Sound.WaveClear);
+            if (shopNext)
             {
+                wavesSinceShop = 0;
                 yield return new WaitForSeconds(shopSettings.openDelay);
                 yield return shop.Visit();
             }
@@ -203,7 +284,24 @@ public class EndlessWaveManager : MonoBehaviour
         }
     }
 
-    private IEnumerator SpawnWave(Wave wave, WaveSettings settings)
+    // A random boss wave that hasn't been played since they were all last seen (never the one just played)
+    private int NextBossWave(WaveSettings settings)
+    {
+        int count = settings.bossWaves.Count;
+        if (bossBag.Count == 0)
+        {
+            for (int i = 0; i < count; i++)
+                if (count == 1 || i != lastBoss)
+                    bossBag.Add(i);
+        }
+        int at = UnityEngine.Random.Range(0, bossBag.Count);
+        lastBoss = bossBag[at];
+        bossBag.RemoveAt(at);
+        return lastBoss;
+    }
+
+    // countScale grows every Base Count (a boss wave that's come round again)
+    private IEnumerator SpawnWave(Wave wave, WaveSettings settings, float countScale = 1f)
     {
         // Build weighted list for extra/random enemies
         // Entries, not just prefabs, so per-entry settings (e.g. ranged immunity) come along
@@ -222,7 +320,7 @@ public class EndlessWaveManager : MonoBehaviour
         // Add guaranteed base counts (entries that come in a row are added as a block after the shuffle)
         foreach (var entry in wave.enemies)
             if (!entry.inARow && entry.enemyPrefab != null)
-                for (int i = 0; i < entry.baseCount; i++)
+                for (int i = 0; i < Count(entry, countScale); i++)
                     spawnList.Add(entry);
 
         // Add extra enemies: with the settings, none on the first play-through and more each loop;
@@ -256,15 +354,21 @@ public class EndlessWaveManager : MonoBehaviour
         {
             if (!entry.inARow || entry.baseCount <= 0 || entry.enemyPrefab == null) continue;
             int at = UnityEngine.Random.Range(0, spawnList.Count + 1);
-            for (int i = 0; i < entry.baseCount; i++)
+            for (int i = 0; i < Count(entry, countScale); i++)
                 spawnList.Insert(at, entry);
         }
 
-        // A Checker Slime entry spawns a whole group, counted at its average size
+        // A Checker Slime entry spawns a whole group, counted at its average size; partners count too
         float enemies = 0f;
         foreach (EnemySpawnEntry entry in spawnList)
-            enemies += entry.enemyPrefab is CheckerSlimeEnemy checker && checker.CheckerData != null
-                ? checker.CheckerData.AverageGroupSize : 1f;
+        {
+            if (entry.enemyPrefab is CheckerSlimeEnemy checker && checker.CheckerData != null)
+                enemies += entry.groupSize > 0 ? entry.groupSize : checker.CheckerData.AverageGroupSize;
+            else
+                enemies += 1f;
+            if (entry.partner != null)
+                enemies += 1f;
+        }
         StartTimer(wave, Mathf.RoundToInt(enemies), settings);
 
         // Spawn enemies (the rest are dropped if the debug skip is pressed)
@@ -272,6 +376,11 @@ public class EndlessWaveManager : MonoBehaviour
         {
             EnemySpawnEntry entry = spawnList[i];
             SpawnEnemy(entry, settings);
+            if (entry.partner != null)
+            {
+                yield return Wait(entry.partnerGap);
+                SpawnEnemy(new EnemySpawnEntry { enemyPrefab = entry.partner, immuneToRanged = entry.immuneToRanged }, settings);
+            }
 
             // One of a row is followed closely by the next
             bool rowContinues = entry.inARow && i + 1 < spawnList.Count && spawnList[i + 1] == entry;
@@ -288,7 +397,7 @@ public class EndlessWaveManager : MonoBehaviour
             {
                 PopIn(slime.transform);
                 SetUpSpawned(slime, entry, settings);
-            });
+            }, entry.groupSize);
             return;
         }
 
@@ -300,6 +409,7 @@ public class EndlessWaveManager : MonoBehaviour
             // Off until it lands on a marked spot along the path
             float progress = UnityEngine.Random.Range(skyDropRange.x, skyDropRange.y);
             instance.PlaceOnPath(progress);
+            instance.FaceAlongPath();
             instance.gameObject.SetActive(false);
             SkyDrop.Begin(instance, instance.transform.position, DropMarkers(instance, progress));
         }
@@ -308,10 +418,27 @@ public class EndlessWaveManager : MonoBehaviour
             if (splineContainer != null)
                 instance.transform.position = splineContainer.EvaluatePosition(splineContainer.Spline, 0f);
             PopIn(instance.transform);
+            instance.FaceAlongPath();
         }
 
         SetUpSpawned(instance, entry, settings);
     }
+
+    // One more enemy of the wave on now, made by another along the path (the Slime Queen's brood): it
+    // pops in at that spot, as tough as the rest of the wave
+    public EnemyBase SpawnAlongPath(EnemyBase prefab, float progress)
+    {
+        if (prefab == null || splineContainer == null) return null;
+        EnemyBase instance = Instantiate(prefab);
+        instance.AssignSpline(splineContainer);
+        instance.PlaceOnPath(Mathf.Clamp01(progress));
+        PopIn(instance.transform);
+        instance.FaceAlongPath();
+        SetUpSpawned(instance, new EnemySpawnEntry { enemyPrefab = prefab }, WaveSettings.Instance);
+        return instance;
+    }
+
+    private static int Count(EnemySpawnEntry entry, float scale) => Mathf.RoundToInt(entry.baseCount * scale);
 
     // Immunity, toughness and bookkeeping for a newly spawned enemy
     private void SetUpSpawned(EnemyBase instance, EnemySpawnEntry entry, WaveSettings settings)
@@ -392,4 +519,11 @@ public class EnemySpawnEntry
     public bool inARow;
     [Tooltip("Seconds between the ones in a row.")]
     public float rowGap = 0.35f;
+    [Tooltip("For a Checker Slime entry: how many in each group (an even number; 0 = the data's range).")]
+    public int groupSize;
+    [Tooltip("Optional: another enemy that comes right behind each one of these (a Tibbit for each Frills, " +
+             "to ride it).")]
+    public EnemyBase partner;
+    [Tooltip("Seconds after each one before its partner comes.")]
+    public float partnerGap = 0.4f;
 }

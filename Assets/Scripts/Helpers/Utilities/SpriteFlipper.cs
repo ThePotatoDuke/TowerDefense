@@ -20,7 +20,10 @@ public class SpriteFlipper : MonoBehaviour
         if (motionSource == null)
             motionSource = transform;
 
-        currentFacing = Facing.Right;
+        // Already turned round (faced along the path before it woke up) counts as facing left
+        currentFacing = spriteTransform != null
+                        && Mathf.Abs(Mathf.DeltaAngle(spriteTransform.localEulerAngles.y, 180f)) < 90f
+            ? Facing.Left : Facing.Right;
         lastPos = motionSource.position;
 
         if (flipDuration <= 0f)
@@ -53,6 +56,20 @@ public class SpriteFlipper : MonoBehaviour
             currentFacing = newFacing;
             Flip(currentFacing);
         }
+    }
+
+    // Faces this way (in the world) at once, with no turn: for an enemy just spawned, before it's moved
+    public void FaceInstantly(Vector3 direction)
+    {
+        Camera view = Camera.main;
+        float sideways = Vector3.Dot(direction, view != null ? view.transform.right : Vector3.right);
+        if (Mathf.Abs(sideways) < 0.0001f || spriteTransform == null) return;
+
+        flipTween?.Kill();
+        currentFacing = sideways > 0f ? Facing.Right : Facing.Left;
+        spriteTransform.localRotation = Quaternion.Euler(0f, currentFacing == Facing.Right ? 0f : 180f, 0f);
+        if (motionSource != null)
+            lastPos = motionSource.position;
     }
 
     private void Flip(Facing dir)

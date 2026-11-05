@@ -31,6 +31,15 @@ public class WaveUI : MonoBehaviour
     [Tooltip("Smaller pop when the next wave's number comes in.")]
     [SerializeField] private float newWavePunch = 0.15f;
 
+    [Header("Boss Banner")]
+    [Tooltip("A boss wave's name slams into the middle of the screen in this colour, in the wave text's font.")]
+    [SerializeField] private Color bannerColor = new Color(1f, 0.35f, 0.2f);
+    [SerializeField] private Color bannerSubtitleColor = new Color(1f, 0.85f, 0.3f);
+    [Tooltip("The banner's title, as a multiple of the wave text's size; the line under it is half that.")]
+    [SerializeField] private float bannerSize = 1.6f;
+    [Tooltip("How far above the middle of the screen it sits, in canvas units.")]
+    [SerializeField] private float bannerHeight = 80f;
+
     private Color baseColor;
     private Color timerColor;
     private int shownPercent = -1;
@@ -60,6 +69,7 @@ public class WaveUI : MonoBehaviour
             waveManager.OnHarvestBonus += ShowHarvestBonus;
         }
         GameEvents.OnWaveCleared += HandleWaveCleared;
+        GameEvents.OnBossWaveStarted += ShowBanner;
     }
 
     private void OnDisable()
@@ -70,6 +80,7 @@ public class WaveUI : MonoBehaviour
             waveManager.OnHarvestBonus -= ShowHarvestBonus;
         }
         GameEvents.OnWaveCleared -= HandleWaveCleared;
+        GameEvents.OnBossWaveStarted -= ShowBanner;
     }
 
     // The widest digit's width as a fraction of the font size, for TextMeshPro's <mspace> tag
@@ -164,7 +175,11 @@ public class WaveUI : MonoBehaviour
 
         waveText.text = $"Wave {waveNumber}";
         if (waveNumber > 1)
+        {
             Punch(newWavePunch, 0.25f);
+            if (waveManager == null || !waveManager.IsBossWave) // a boss wave has its banner's sound
+                Sounds.Play(Sound.NextWave);
+        }
     }
 
     // A bounce, a wiggle and a flash of color that fades back
@@ -179,6 +194,62 @@ public class WaveUI : MonoBehaviour
         waveText.DOKill();
         waveText.color = clearedColor;
         waveText.DOColor(baseColor, clearedDuration).SetEase(Ease.InQuad).SetUpdate(true).SetLink(waveText.gameObject);
+    }
+
+    // PvZ style: the boss wave's name slams in big in the middle of the screen with its subtitle under it,
+    // shakes, wobbles, and swells away as the wave's enemies start coming
+    private void ShowBanner(BossWave wave)
+    {
+        Canvas canvas = waveText != null ? waveText.canvas : null;
+        if (canvas == null) return;
+        Sounds.Play(Sound.SpecialWaveBanner);
+        float total = WaveSettings.Instance != null ? WaveSettings.Instance.bossBannerTime : 2.5f;
+
+        RectTransform banner = new GameObject("BossBanner", typeof(RectTransform), typeof(CanvasGroup)).GetComponent<RectTransform>();
+        banner.SetParent(canvas.rootCanvas.transform, false);
+        banner.anchorMin = banner.anchorMax = banner.pivot = new Vector2(0.5f, 0.5f);
+        banner.anchoredPosition = new Vector2(0f, bannerHeight);
+        banner.sizeDelta = new Vector2(1800f, 300f);
+        var group = banner.GetComponent<CanvasGroup>();
+        group.blocksRaycasts = false;
+        group.alpha = 0f;
+
+        float size = waveText.fontSize * bannerSize;
+        BannerLine(banner, wave.bannerTitle, size, bannerColor, size * 0.35f);
+        if (!string.IsNullOrEmpty(wave.bannerSubtitle))
+            BannerLine(banner, wave.bannerSubtitle, size * 0.5f, bannerSubtitleColor, -size * 0.55f);
+
+        float slam = 0.25f, fade = 0.35f;
+        float hold = Mathf.Max(0.2f, total - slam - fade);
+        banner.localScale = Vector3.one * 3f;
+        DOTween.Sequence().SetUpdate(true).SetLink(banner.gameObject)
+            .Append(banner.DOScale(1f, slam).SetEase(Ease.InQuad))
+            .Join(DOTween.To(() => group.alpha, a => group.alpha = a, 1f, slam * 0.6f))
+            .Append(banner.DOShakeAnchorPos(0.3f, 18f, 30, 90f, true))
+            .Join(banner.DOPunchRotation(new Vector3(0f, 0f, 6f), hold, 4, 0.5f))
+            .Insert(slam + hold, banner.DOScale(1.3f, fade).SetEase(Ease.InQuad))
+            .Join(DOTween.To(() => group.alpha, a => group.alpha = a, 0f, fade))
+            .OnComplete(() => Destroy(banner.gameObject));
+    }
+
+    // A line of the banner: a copy of the wave text (its font and outline), centred, at this size and height
+    private void BannerLine(RectTransform banner, string content, float size, Color color, float y)
+    {
+        TMP_Text line = Instantiate(waveText, banner);
+        line.name = "Line";
+        line.text = content;
+        line.fontSize = size;
+        line.color = color;
+        line.horizontalAlignment = HorizontalAlignmentOptions.Center;
+        line.verticalAlignment = VerticalAlignmentOptions.Middle;
+        line.textWrappingMode = TextWrappingModes.NoWrap;
+        RectTransform rect = line.rectTransform;
+        rect.DOKill();
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = new Vector2(0f, y);
+        rect.sizeDelta = new Vector2(banner.sizeDelta.x, size * 1.4f);
+        rect.localScale = Vector3.one;
+        rect.localRotation = Quaternion.identity;
     }
 
     private void Punch(float amount, float duration) => Punch(waveText.rectTransform, amount, duration);

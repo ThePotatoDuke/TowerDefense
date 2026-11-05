@@ -194,6 +194,7 @@ public class Projectile : MonoBehaviour
         transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
 
         SparkBurst.Play(transform.position);
+        Sounds.PlayAt(Sound.MetalSpark, transform.position);
         enemy.Flash();
         enemy.NotifyDeflected();
     }

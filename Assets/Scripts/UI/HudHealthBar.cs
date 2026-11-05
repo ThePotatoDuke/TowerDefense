@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 // The player's or the castle's health in the HUD (top right): a bar that fills in whole art pixels, with
 // a pale trail that catches up a moment after a hit so the loss shows, a little knock when hurt, and a
-// red pulse when low. Laid out by Tools > Create HUD Health Bars, which also switches off the bars that
+// red pulse for a while after a hit when low. Laid out by Tools > Tidy HUD, which also switches off the bars that
 // float over the player and the castle.
 public class HudHealthBar : MonoBehaviour
 {
@@ -26,6 +26,8 @@ public class HudHealthBar : MonoBehaviour
     [SerializeField] private float trailTime = 0.4f;
     [Tooltip("Below this share of health the fill pulses this colour.")]
     [SerializeField, Range(0f, 1f)] private float lowHealth = 0.3f;
+    [Tooltip("Seconds it pulses after each hit, then it stops until the next one.")]
+    [SerializeField] private float lowFlashTime = 3f;
     [SerializeField] private Color lowColor = new Color(1f, 0.3f, 0.25f);
 
     private IHasHealth target;
@@ -33,6 +35,7 @@ public class HudHealthBar : MonoBehaviour
     private float shown = 1f;
     private float trailShown = 1f;
     private Tween trailTween;
+    private float lowFlashUntil;
 
     private void Start()
     {
@@ -55,7 +58,7 @@ public class HudHealthBar : MonoBehaviour
     private void Update()
     {
         if (fill == null) return;
-        bool low = shown > 0f && shown <= lowHealth;
+        bool low = shown > 0f && shown <= lowHealth && Time.unscaledTime < lowFlashUntil;
         fill.color = low ? Color.Lerp(fillColor, lowColor, 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 10f)) : fillColor;
     }
 
@@ -69,6 +72,8 @@ public class HudHealthBar : MonoBehaviour
         trailTween?.Kill();
         if (hurt)
         {
+            lowFlashUntil = Time.unscaledTime + lowFlashTime;
+
             // The trail holds where it was, then drains down to the new health
             trailTween = DOTween.To(() => trailShown, value => { trailShown = value; Draw(); }, ratio, trailTime)
                 .SetDelay(trailDelay).SetEase(Ease.InQuad).SetUpdate(true).SetLink(gameObject);

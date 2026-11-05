@@ -291,6 +291,7 @@ public class GroundDecorator : MonoBehaviour
 
     private void Cut(Tuft tuft, Vector3 bladePosition)
     {
+        Sounds.PlayAt(Sound.GrassCut, tuft.root.position);
         tuft.isCut = true;
         tuft.regrowTime = Time.time + regrowDelay / Upgrades.Multiplier(UpgradeType.GrowthRate) * Random.Range(0.5f, 1.5f);
         tuft.angle = 0f;

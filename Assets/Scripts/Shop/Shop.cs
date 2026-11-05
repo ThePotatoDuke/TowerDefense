@@ -28,6 +28,7 @@ public class Shop : MonoBehaviour
     }
 
     public static Shop Instance { get; private set; }
+    public static bool IsOpen => Instance != null && Instance.open;
 
     // After every visit (Spore Mines grow back)
     public static event Action OnClosed;
@@ -101,6 +102,13 @@ public class Shop : MonoBehaviour
             Instance = null;
     }
 
+    // A piece of the HUD put in front of the shop (only one beside it on the same canvas)
+    private void KeepInFront(Transform hudPart)
+    {
+        if (hudPart != null && hudPart.parent == transform.parent)
+            hudPart.SetAsLastSibling();
+    }
+
     // Opens the shop and waits until it's closed
     public IEnumerator Visit()
     {
@@ -113,8 +121,15 @@ public class Shop : MonoBehaviour
 
         UINavigation.Reset();
 
-        // In front of the rest of the HUD (weapon bar, grass counter, held items)
+        // In front of the rest of the HUD (the weapon bar), except the corners, which stay in front of the
+        // shop: the grass to spend, and the health and items it can buy more of
         transform.SetAsLastSibling();
+        var grassCounter = FindAnyObjectByType<CurrencyUI>();
+        KeepInFront(grassCounter != null ? grassCounter.Counter : null);
+        var healthBar = FindAnyObjectByType<HudHealthBar>();
+        KeepInFront(healthBar != null ? healthBar.transform.parent : null);
+        var heldItems = FindAnyObjectByType<HeldItemsUI>();
+        KeepInFront(heldItems != null ? heldItems.transform : null);
 
         // The diamonds grow in, and the cards pop up once they're mostly there
         window.gameObject.SetActive(true);

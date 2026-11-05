@@ -51,6 +51,8 @@ public class SkyDrop : MonoBehaviour
                 enemy.transform.position = ground;
                 enemy.enabled = true;
                 CameraShake.Shake(ground, settings != null ? settings.dropLandShake : 0.2f, 0.25f);
+                if (enemy is RollerEnemy or SpikeBallEnemy)
+                    Sounds.PlayAt(Sound.SpikeDrop, ground);
             }
         }
 

@@ -93,6 +93,8 @@ public class SporeMines : MonoBehaviour
     private static bool Triggers(EnemyBase enemy) =>
         enemy != null && !(enemy is SpikeBallEnemy || enemy is RollerEnemy || enemy is FrillsEnemy);
 
+    private const int BigBurst = 4; // this many mushrooms or more burst with the big sound
+
     private IEnumerator Burst()
     {
         SporeMine settings = Settings;
@@ -128,6 +130,7 @@ public class SporeMines : MonoBehaviour
         float damage = settings.DamagePerMushroom * mushrooms.Count;
         HurtEnemiesAround(middle, radius, damage);
         CameraShake.Shake(middle, settings.Shake, 0.3f);
+        Sounds.PlayAt(mushrooms.Count >= BigBurst ? Sound.SporeBigExplosion : Sound.SporeSmallExplosion, middle);
 
         armed = false;
         bursting = false;

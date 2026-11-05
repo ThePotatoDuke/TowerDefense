@@ -67,8 +67,7 @@ public class GameManager : MonoBehaviour
 
         SetGameState(GameState.PlayerDead);
 
-        if (gameOverPopup != null)
-            gameOverPopup.SetActive(true);
+        ShowPopup();
 
         Debug.Log("Player died! Game Over popup shown.");
     }
@@ -80,16 +79,23 @@ public class GameManager : MonoBehaviour
         SetGameState(GameState.CastleDestroyed);
 
         // Show the popup once the castle has finished collapsing into the ground
-        float collapse = FXSettings.Instance != null ? FXSettings.Instance.CastleCollapseDuration : 2.2f;
-        StartCoroutine(ShowPopupAfterDelay(collapse + 0.8f));
+        FXSettings settings = FXSettings.Instance;
+        float delay = settings != null ? settings.CastleCollapseDuration + settings.castleGameOverDelay : 3f;
+        StartCoroutine(ShowPopupAfterDelay(delay));
     }
 
     private IEnumerator ShowPopupAfterDelay(float delay)
     {
         yield return new WaitForSecondsRealtime(delay); // ignore timeScale
-        if (gameOverPopup != null)
-            gameOverPopup.SetActive(true);
+        ShowPopup();
 
         Debug.Log("Castle died! Game Over popup shown after delay.");
+    }
+
+    private void ShowPopup()
+    {
+        if (gameOverPopup == null) return;
+        gameOverPopup.SetActive(true);
+        Sounds.Play(Sound.GameOver);
     }
 }

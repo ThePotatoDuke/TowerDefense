@@ -143,6 +143,7 @@ public class GrassPickup : MonoBehaviour
         if ((transform.position - target).sqrMagnitude <= CollectDistance * CollectDistance)
         {
             Currency.CollectGrass(1);
+            PlayCollectSound();
             Destroy(gameObject);
         }
     }
@@ -153,5 +154,16 @@ public class GrassPickup : MonoBehaviour
         sprite.DOFade(0f, FadeDuration)
               .SetLink(gameObject)
               .OnComplete(() => Destroy(gameObject));
+    }
+
+    // Blades picked up close together climb in pitch, a little more for each, up to a point
+    private static float lastCollectTime = -1f;
+    private static int collectRun;
+
+    private static void PlayCollectSound()
+    {
+        collectRun = Time.time - lastCollectTime < 0.5f ? Mathf.Min(collectRun + 1, 12) : 0;
+        lastCollectTime = Time.time;
+        Sounds.Play(Sound.Collect, 1f + 0.04f * collectRun);
     }
 }

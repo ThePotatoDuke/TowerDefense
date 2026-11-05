@@ -23,6 +23,8 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     public virtual bool IsFlying => false;
     // Enemies hop over rollers in their way; things already in the air or that are rollers themselves don't
     public virtual bool CanDodge => !IsFlying;
+    // Its health bar goes up and down with its sprite (slimes, whose hops lift only the sprite)
+    public virtual bool HealthBarFollowsSprite => false;
     [Tooltip("Ranged attacks bounce off it, flying away upward at a random angle. Shown by the pickup " +
              "shine on the enemy and a shining shield beside its health bar. Wave entries can also turn it on.")]
     [SerializeField] private bool immuneToRanged;
@@ -87,6 +89,17 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         lastProgress = distancePercentage;
         if (splineContainer != null)
             transform.position = splineContainer.EvaluatePosition(distancePercentage);
+    }
+
+    // Turns it at once to look the way the path goes from where it is, so it doesn't appear looking the
+    // wrong way and turn round as it sets off (its SpriteFlipper turns it as it moves after that)
+    public void FaceAlongPath()
+    {
+        var flipper = GetComponentInChildren<SpriteFlipper>(true);
+        if (flipper == null || splineContainer == null) return;
+        float here = Mathf.Clamp(distancePercentage, 0f, 0.99f);
+        flipper.FaceInstantly((Vector3)splineContainer.EvaluatePosition(here + 0.01f)
+                              - (Vector3)splineContainer.EvaluatePosition(here));
     }
 
     public void SetHealthMultiplier(float multiplier)
@@ -273,6 +286,8 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 
         if (currentHealth <= 0)
             Die();
+        else
+            Sounds.PlayAt(Sound.EnemyHit, transform.position);
     }
 
     // --- Dodging ---
@@ -283,6 +298,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         if (isDead || !CanDodge || IsDodging || JustLanded || jumpRoot == null) return false;
 
         dodgePathVelocity = pathVelocity;
+        Sounds.PlayAt(Sound.EnemyJump, transform.position);
         Transform root = jumpRoot;
         float restY = root.localPosition.y;
         dodgeSequence = DOTween.Sequence().SetLink(gameObject)
@@ -331,6 +347,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
 
         StopAllTweens();
         OnDied?.Invoke();
+        Sounds.PlayAt(Sound.EnemyDie, transform.position);
 
         // No more contact damage or hits while the death effect plays
         foreach (Collider col in GetComponentsInChildren<Collider>())

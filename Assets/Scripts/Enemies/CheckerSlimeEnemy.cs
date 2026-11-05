@@ -3,7 +3,9 @@ using UnityEngine;
 
 // One of a group of Checker Slimes (see CheckerSlimeDataSO). It doesn't move on its own: its group
 // (CheckerSlimeGroup) tells it when and where to jump. Each jump is an arc along the path with the slimes'
-// squash and stretch; the body collider rises with it, so it's hit where it's seen, in the air too.
+// squash and stretch; the body collider rises with it, so it's hit where it's seen, in the air too. A group
+// starts lined up behind the start of the path (progress below 0: back along the way the path comes in, in
+// the forest) and leapfrogs onto it, already facing the way the path goes.
 public class CheckerSlimeEnemy : EnemyBase
 {
     [Header("Data")]
@@ -21,6 +23,7 @@ public class CheckerSlimeEnemy : EnemyBase
     private Sequence jump;
 
     public override EnemyDataSO Data => data;
+    public override bool HealthBarFollowsSprite => true;
     public CheckerSlimeDataSO CheckerData => data;
     public bool InAir => jump != null && jump.IsActive();
     // No vaulting a roller mid-leapfrog
@@ -53,10 +56,13 @@ public class CheckerSlimeEnemy : EnemyBase
             animator.runtimeAnimatorController = controller;
     }
 
+    // Its place in the line: on the path (0 to 1) or behind its start (below 0)
     public void PlaceInLine(float progress)
     {
-        PlaceOnPath(progress);
-        LandingProgress = distancePercentage;
+        PlaceOnPath(Mathf.Max(0f, progress));
+        distancePercentage = LandingProgress = Mathf.Min(progress, 1f);
+        transform.position = PathPosition(distancePercentage);
+        FaceAlongPath();
     }
 
     // The group moves it
@@ -67,10 +73,27 @@ public class CheckerSlimeEnemy : EnemyBase
         base.Update();
         if (isDead) return;
 
+        // Behind the start of the path, it's out on the line the path comes in along
+        if (distancePercentage < 0f)
+            transform.position = PathPosition(distancePercentage);
+
         // A roller vault moves it along the path; it lands wherever that leaves it
         if (IsDodging)
             LandingProgress = distancePercentage;
     }
+
+    // On the path, or for progress below 0 that far back from its start, straight out the way it comes in
+    private Vector3 PathPosition(float progress)
+    {
+        if (splineContainer == null) return transform.position;
+        if (progress >= 0f) return splineContainer.EvaluatePosition(progress);
+
+        Vector3 start = splineContainer.EvaluatePosition(0f);
+        Vector3 along = splineContainer.EvaluateTangent(0f);
+        along.y = 0f;
+        return along.sqrMagnitude > 0.0001f ? start + along.normalized * (progress * splineLength) : start;
+    }
+
 
     protected override void LateUpdate()
     {
@@ -87,7 +110,7 @@ public class CheckerSlimeEnemy : EnemyBase
     {
         if (isDead) return;
         float from = distancePercentage;
-        LandingProgress = Mathf.Clamp01(progress);
+        LandingProgress = Mathf.Min(progress, 1f);
         float half = duration * 0.5f;
 
         jump?.Kill();

@@ -6,7 +6,9 @@ using UnityEngine;
 // they've all been played the run loops back to a later wave, each loop with more enemies arriving
 // faster, and enemies get a little tougher every wave throughout. Each wave also has a timer: clearing it
 // before the time runs out pays a harvest bonus, a share of the grass picked up during the wave that's
-// bigger the more time is left. Lives in Resources.
+// bigger the more time is left. Every few waves a boss wave comes in between (one of the boss waves at
+// random, each seen before any comes round again): a gimmick with a banner of its own, its own music, a
+// bigger harvest bonus and a shop after it. Lives in Resources.
 [CreateAssetMenu(fileName = "WaveSettings", menuName = "Waves/Wave Settings")]
 public class WaveSettings : ScriptableObject
 {
@@ -55,6 +57,20 @@ public class WaveSettings : ScriptableObject
              "away; it shrinks evenly to nothing as the timer runs down. The Bumper Crop upgrade adds to it.")]
     public float maxBonusPercent = 50f;
 
+    [Header("Boss Waves")]
+    [Tooltip("Every this many waves is a boss wave (10 = waves 10, 20, 30...), in between the waves above, " +
+             "which carry on after it. 0 = none.")]
+    public int bossWaveEvery = 10;
+    [Tooltip("A boss wave's harvest bonus is this many times the usual.")]
+    public float bossBonusMultiplier = 2f;
+    [Tooltip("Seconds the banner shows before a boss wave's enemies start coming.")]
+    public float bossBannerTime = 2.5f;
+    [Tooltip("Picked at random; each one is played before any comes round again. Tools > Set Up Boss Waves " +
+             "fills in a starting set.")]
+    public List<BossWave> bossWaves = new();
+
+    public bool IsBossWave(int wave) => bossWaveEvery > 0 && bossWaves.Count > 0 && wave % bossWaveEvery == 0;
+
     public float HealthMultiplier(int wave) => 1f + healthGrowthPerWave * Mathf.Max(0, wave - 1);
 
     // Seconds to earn the harvest bonus in for a wave of this many enemies, stretched by the Lasting Harvest
@@ -70,4 +86,31 @@ public class WaveSettings : ScriptableObject
 
     // The bonus percentage with this share of the timer left (1 = all of it)
     public float BonusPercent(float timeLeftShare) => StartBonusPercent * Mathf.Clamp01(timeLeftShare);
+}
+
+// A boss wave: a wave with a gimmick. Its enemies come like any wave's; on top of that it can darken the
+// scene (Bat Cave) and drop spike balls around the player all through it (Spike Rain). Each time it comes
+// round again it's bigger.
+[System.Serializable]
+public class BossWave : Wave
+{
+    [Tooltip("Big in the middle of the screen as it starts, e.g. \"Konga Express!\".")]
+    public string bannerTitle = "Boss Wave!";
+    [Tooltip("Smaller, under the title.")]
+    public string bannerSubtitle = "BOSS WAVE";
+
+    [Tooltip("The scene darkens through the wave.")]
+    public bool dark;
+
+    [Tooltip("Spike balls fall around the player all through the wave and burst into spikes where they land. " +
+             "Its spikes, their damage and the ball's look come from this spike ball (one with a spike burst).")]
+    public SpikeBallEnemy spikeRain;
+    [Tooltip("Seconds between falling spike balls (a little random either way).")]
+    public float spikeRainInterval = 1.6f;
+    [Tooltip("How far from the player they land, at most (world units).")]
+    public float spikeRainRadius = 4f;
+
+    [Tooltip("Each time it comes round again, its Base Counts grow by this share (0.3 = 30% more) and the " +
+             "spike rain comes this much faster.")]
+    public float growthPerRepeat = 0.3f;
 }
