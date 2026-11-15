@@ -2,7 +2,8 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 // The game scene's music: the gameplay track loops while playing, and the shop has its own music in
-// levels that follow how much grass the player has, richer levels playing when there's more to spend.
+// levels that follow what the grass held can still buy (Shop.BuyingPower): none of the cards on show, one,
+// two, all three, or all three and a reroll, richer the more there is to spend. Buying steps it down.
 // Levels 1 and up are layers of one tune the same length: they all start together when the shop opens and
 // keep playing in step, silent but for the one that fits, so a change of level fades across without losing
 // the beat. Level 0 (the poorest) is a tune of its own, any length, that loops by itself and fades across
@@ -17,11 +18,9 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private AudioClip gameplay;
     [Tooltip("Plays through special waves (every 10th) instead of the gameplay music.")]
     [SerializeField, FormerlySerializedAs("boss")] private AudioClip specialWave;
-    [Tooltip("The shop's music, poorest first. Level 0 can be any length; the rest must be the same length " +
-             "so they stay in step.")]
+    [Tooltip("The shop's music, poorest first: can't afford a card, one, two, all three, all three and a " +
+             "reroll. Level 0 can be any length; the rest must be the same length so they stay in step.")]
     [SerializeField] private AudioClip[] shopLevels;
-    [Tooltip("Grass needed for each shop level, poorest first (the first is 0): the highest one reached plays.")]
-    [SerializeField] private int[] shopLevelGrass = { 0, 40, 100, 200, 400 };
 
     [SerializeField, Range(0f, 1f)] private float volume = 0.6f;
     [Tooltip("Seconds to fade between the gameplay music and the shop's or the special wave's.")]
@@ -173,7 +172,7 @@ public class MusicManager : MonoBehaviour
             }
         }
         if (inShop)
-            shopLevel = LevelFor(Currency.Grass);
+            shopLevel = ShopLevel();
 
         // Fades run on real time: the game's stopped while the shop's open
         float shopStep = Time.unscaledDeltaTime / Mathf.Max(0.01f, shopFadeTime);
@@ -251,18 +250,11 @@ public class MusicManager : MonoBehaviour
             source.volume = 0f;
             source.PlayScheduled(start);
         }
-        shopLevel = LevelFor(Currency.Grass);
+        shopLevel = ShopLevel();
     }
 
-    private int LevelFor(int grass)
-    {
-        int level = 0;
-        int count = Mathf.Min(shopSources.Length, shopLevelGrass != null ? shopLevelGrass.Length : 0);
-        for (int i = 0; i < count; i++)
-            if (grass >= shopLevelGrass[i])
-                level = i;
-        return level;
-    }
+    private int ShopLevel() =>
+        Shop.Instance != null && shopSources.Length > 0 ? Shop.Instance.BuyingPower(shopSources.Length - 1) : 0;
 
     // A step of a fade that goes from silent to full volume in one fade time
     private void Fade(AudioSource source, float target, float step)

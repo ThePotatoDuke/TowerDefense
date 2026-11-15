@@ -325,6 +325,33 @@ public class Shop : MonoBehaviour
 
     private int RerollPrice => Settings.rerollCost + Settings.rerollCostStep * rerolls;
 
+    // How much the grass held can still buy, for the shop's music: how many of the cards on show it
+    // would pay for, cheapest first (each one bought making the rest dearer, as it would), and the top
+    // level when it would pay for every card and a reroll besides. 0 to top.
+    public int BuyingPower(int top)
+    {
+        var prices = new List<int>();
+        for (int i = 0; i < offers.Count; i++)
+            if (offers[i] != null && !sold.Contains(i))
+                prices.Add(Price(offers[i]));
+        prices.Sort();
+
+        int left = Currency.Grass;
+        int affordable = 0;
+        float markup = 1f;
+        foreach (int price in prices)
+        {
+            int cost = Mathf.RoundToInt(price * markup);
+            if (cost > left) break;
+            left -= cost;
+            affordable++;
+            markup *= 1f + Settings.visitMarkup;
+        }
+
+        bool everything = affordable == prices.Count && prices.Count >= top - 1 && left >= RerollPrice;
+        return everything ? top : Mathf.Min(affordable, top - 1);
+    }
+
     private void HandleGrassChanged(int grass) => Refresh();
 
     // Card texts, prices and which buttons can be pressed
