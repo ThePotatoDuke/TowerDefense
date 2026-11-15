@@ -23,8 +23,6 @@ public class RollerEnemy : EnemyBase
     [SerializeField] private RollerDataSO data;
     [Tooltip("Child holding the model, centered on the cylinder. The cylinder's axis must lie along this child's local X.")]
     [SerializeField] private Transform rollerVisual;
-    [Tooltip("Log each enemy the roller hurts, and why, with a red line in the Scene view.")]
-    [SerializeField] private bool debugHits;
 
     private int direction = 1; // +1 toward the castle, -1 back toward the spawn
     private float spinAngle;
@@ -263,13 +261,6 @@ public class RollerEnemy : EnemyBase
 
         lastTouchTimes[enemy] = Time.time;
         enemy.TakeDamage(data.touchDamage);
-
-        if (debugHits)
-        {
-            string reason = enemy.JustLanded ? "it had only just landed" : "it has nothing to lift (no jump root)";
-            Debug.Log($"{name} hit {enemy.name}: {reason}", enemy);
-            Debug.DrawLine(rollerVisual.position, enemy.transform.position + Vector3.up, Color.red, 1f);
-        }
     }
 
     // How fast the enemy moves along its own path during the vault, so it crosses the roller at least at

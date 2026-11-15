@@ -10,8 +10,8 @@ using UnityEngine.UI;
 // The bestiary: a grid of every enemy (BestiaryData), the ones not met yet as dark shapes, and the one
 // picked (hovered, clicked, or chosen with keys or a gamepad) shown large and animated beside it, with its
 // health, damage, traits, what it does and a tip. Opened from the main menu or the pause menu; Esc, Back
-// or a gamepad's B closes it. Runs on real time, so it works while the game's paused. Tools > Create
-// Bestiary builds it in the open scene.
+// or a gamepad's B closes it. Runs on real time, so it works while the game's paused. Laid out in
+// the main menu and game scenes.
 public class BestiaryPanel : MonoBehaviour
 {
     public static bool IsOpen { get; private set; }
@@ -77,7 +77,7 @@ public class BestiaryPanel : MonoBehaviour
         BestiaryData data = BestiaryData.Instance;
         if (data == null)
         {
-            Debug.LogWarning("Bestiary: no Resources/Bestiary asset (run Tools > Set Up Bestiary).");
+            Debug.LogWarning("Bestiary: no Resources/Bestiary asset.");
             return;
         }
 

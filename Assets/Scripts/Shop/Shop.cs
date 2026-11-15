@@ -13,7 +13,7 @@ using UnityEngine.UI;
 // visit), and leave. Its diamond background grows in over the paused game before the cards pop up, and
 // shrinks away after them when it's left. Grass left over
 // when it closes earns Savings Bloom's interest. Settings and the upgrade list are in ShopSettings; the
-// window is laid out in the scene (Tools > Create Shop builds a starting one).
+// window is laid out in the scene.
 public class Shop : MonoBehaviour
 {
     [Serializable]
@@ -465,8 +465,7 @@ public class Shop : MonoBehaviour
             return;
         }
 
-        if (!Settings.restockOnBuy || !Restock(index))
-            sold.Add(index);
+        sold.Add(index);
         Refresh();
         if (EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(null); // Update picks the next one
@@ -500,30 +499,6 @@ public class Shop : MonoBehaviour
                 if (WeedPlanter.Instance != null) WeedPlanter.Instance.GiveSeed();
                 break;
         }
-    }
-
-    // A new card in a bought one's place (not one already on show, nor the one just bought if there's
-    // anything else), popping in. False if there's nothing left to deal.
-    private bool Restock(int index)
-    {
-        UpgradeDefinition bought = offers[index];
-        List<UpgradeDefinition> pool = Settings.upgrades.FindAll(IsAvailable);
-        for (int i = 0; i < offers.Count; i++)
-            if (i != index && offers[i] != null)
-                pool.Remove(offers[i]);
-        if (pool.Count > 1)
-            pool.Remove(bought);
-        if (pool.Count == 0) return false;
-
-        offers[index] = PickWeighted(pool);
-        if (index < cards.Length && cards[index].button != null)
-        {
-            Transform card = cards[index].button.transform;
-            card.DOKill(true);
-            card.localScale = Vector3.zero;
-            card.DOScale(1f, 0.25f).SetEase(Ease.OutBack).SetUpdate(true).SetLink(card.gameObject);
-        }
-        return true;
     }
 
     private void Reroll()

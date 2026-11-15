@@ -27,18 +27,4 @@ public static class BestiaryProgress
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void Initialize() => seen.Clear();
-
-#if UNITY_EDITOR
-    [UnityEditor.MenuItem("Tools/Reset Bestiary Progress")]
-    private static void ResetProgress()
-    {
-        BestiaryData bestiary = Resources.Load<BestiaryData>("Bestiary");
-        if (bestiary != null)
-            foreach (BestiaryData.Entry entry in bestiary.entries)
-                if (entry.Data != null)
-                    PlayerPrefs.DeleteKey(Prefix + entry.Data.name);
-        seen.Clear();
-        Debug.Log("Bestiary: every enemy is unmet again.");
-    }
-#endif
 }

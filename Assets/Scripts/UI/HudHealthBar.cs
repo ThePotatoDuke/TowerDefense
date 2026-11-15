@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 // The player's or the castle's health in the HUD (top right): a bar that fills in whole art pixels, with
 // a pale trail that catches up a moment after a hit so the loss shows, a little knock when hurt, and a
-// red pulse for a while after a hit when low. Laid out by Tools > Tidy HUD, which also switches off the bars that
-// float over the player and the castle.
+// red pulse for a while after a hit when low. Laid out in the scene (the bars that float over the player
+// and the castle are switched off).
 public class HudHealthBar : MonoBehaviour
 {
     public enum Owner { Player, Castle }

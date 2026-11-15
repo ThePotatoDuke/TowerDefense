@@ -92,7 +92,7 @@ public class CrimsonWeed : MonoBehaviour
     {
         if (Prefab == null)
         {
-            Debug.LogWarning("Crimson Weed: no prefab set in ShopSettings (run Tools > Create Shop).");
+            Debug.LogWarning("Crimson Weed: no prefab set in ShopSettings.");
             return null;
         }
 

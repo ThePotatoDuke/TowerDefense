@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 
 // Fills in the wave the run reached when the game-over panel is shown. The panel itself (board, wavy
-// title, wave line, buttons) is laid out in the scene; Tools > Create UI Layout Objects builds a starting one.
+// title, wave line, buttons) is laid out in the scene.
 public class GameOverScreen : MonoBehaviour
 {
     [SerializeField] private TMP_Text waveText;

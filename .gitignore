@@ -101,8 +101,6 @@ InitTestScene*.unity*
 # IDE solution files
 *.slnx
 
-# Profiler report from Tools > Dump Profiler Spikes
-ProfilerDump.txt
 
 # Source audio and sound pack archives (the game uses the copies in Assets/Audio)
 /music/

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // A button that turns the music or the sound effects on and off (AudioToggles), showing the on sprite or
-// the off one. Tools > Add Pause Audio Toggles puts a pair on the pause menu.
+// the off one. A pair sits on the pause menu.
 [RequireComponent(typeof(Button))]
 public class AudioToggle : MonoBehaviour
 {

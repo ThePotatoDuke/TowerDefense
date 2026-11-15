@@ -16,7 +16,6 @@ MonoBehaviour:
   openDelay: 1.2
   offersPerVisit: 3
   purchasesPerVisit: 0
-  restockOnBuy: 0
   visitMarkup: 0.25
   rerollCost: 10
   rerollCostStep: 5
@@ -173,16 +172,6 @@ MonoBehaviour:
     baseCost: 40
     costGrowth: 1.5
     weight: 1
-  - type: 15
-    displayName: Fast Growth
-    icon: {fileID: 21300000, guid: 3548c22c82b3b7140aae538876bcbadc, type: 3}
-    description: Mown grass grows back {value} sooner
-    valuePerLevel: 25
-    isPercent: 1
-    maxLevel: 4
-    baseCost: 30
-    costGrowth: 1.4
-    weight: 0
   - type: 16
     displayName: Savings Bloom
     icon: {fileID: 21300000, guid: 6554da189f922444882f6729d4def444, type: 3}
@@ -276,4 +265,4 @@ MonoBehaviour:
   sporeMine: {fileID: 4718225360991827301, guid: 9336cba4e3837c0429389ee89046ccf1, type: 3}
   totem: {fileID: 1846395720571309487, guid: 3651b8f95d9336c45b05e7176831fa76, type: 3}
   crimsonWeed: {fileID: 3998397274147637024, guid: 11bf8a65e46e8ca469845001a6848f3a, type: 3}
-  testStartingUpgrades: 12000000i
+  testStartingUpgrades: []

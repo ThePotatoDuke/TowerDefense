@@ -19,7 +19,7 @@ using Random = UnityEngine.Random;
 // screen, then
 // rolls from stop to stop, its frames turning with the distance rolled. Checker Slimes come as a black and
 // white line that leapfrogs along (MenuCritters leads it: the back one jumps over the rest to the front).
-// Its numbers start as the enemy's own (Tools > Set Up Main Menu Critters) and can be changed here.
+// Its numbers were copied from the enemy's own and can be changed here.
 public class MenuCritter : MonoBehaviour
 {
     public enum Movement { Walk, Hop, Fly, Dig, Skip, Roll, CheckerHop }
@@ -849,120 +849,4 @@ public class MenuCritter : MonoBehaviour
         Play(frames, framesPerSecond);
         Animate(0f);
     }
-
-#if UNITY_EDITOR
-    // For Tools > Set Up Main Menu Critters: the enemy's numbers, read from its data
-    [Serializable]
-    public struct Settings
-    {
-        public Movement movement;
-        public Sprite[] frames, digFrames, peekFrames;
-        public float framesPerSecond, digFramesPerSecond, peekFramesPerSecond;
-        public Sprite airSprite;
-        public bool facesLeft;
-        public float speed, hopHeight, hopDuration, hopInterval, hopDistance, squash, stretch;
-        public HopPattern hopPattern;
-        public float longHopDistance, longHopHeight, longHopDuration, longHopWait, backChance, longForwardChance;
-        public int minBackForward, maxBackForward;
-        public float flyHeight, waveAmplitude, waveLength, bobHeight, bobsPerSecond;
-        public Vector2 idleTime;
-        public bool rides;
-        public Vector2 rideTime, jumpTime;
-        public float jumpRange, jumpHeight, jumpSpeed, searchInterval;
-        public int groupSize, maxGroupSize;
-        public float groupSpacing, weight;
-        public Sprite markerOuter, markerMiddle;
-        public float dropWarningTime, markerPopTime, markerSpin, dropFallTime;
-        public Sprite[] altFrames;
-        public float checkerHopHeight, checkerHopHeightPerSlime, checkerHopGap, checkerHopAirSpeed;
-    }
-
-    public void Apply(Settings settings, RectTransform bodyRect, Image bodyImage)
-    {
-        body = bodyRect;
-        image = bodyImage;
-        movement = settings.movement;
-        frames = settings.frames;
-        framesPerSecond = settings.framesPerSecond;
-        airSprite = settings.airSprite;
-        facesLeft = settings.facesLeft;
-        speed = settings.speed;
-        hopHeight = settings.hopHeight;
-        hopDuration = settings.hopDuration;
-        hopInterval = settings.hopInterval;
-        hopDistance = settings.hopDistance;
-        squash = settings.squash;
-        stretch = settings.stretch;
-        flyHeight = settings.flyHeight;
-        waveAmplitude = settings.waveAmplitude;
-        waveLength = settings.waveLength;
-        bobHeight = settings.bobHeight;
-        bobsPerSecond = settings.bobsPerSecond;
-        groupSize = settings.groupSize;
-        maxGroupSize = settings.maxGroupSize;
-        groupSpacing = settings.groupSpacing;
-        weight = settings.weight;
-        FillMissing(settings);
-    }
-
-    // Settings added since the prefab was made, filled in from the enemy without touching anything set.
-    // Returns whether anything changed.
-    public bool FillMissing(Settings settings)
-    {
-        bool changed = false;
-        if (movement == Movement.Hop && settings.hopPattern != HopPattern.Regular && hopPattern == HopPattern.Regular)
-        {
-            hopPattern = settings.hopPattern;
-            longHopDistance = settings.longHopDistance;
-            longHopHeight = settings.longHopHeight;
-            longHopDuration = settings.longHopDuration;
-            longHopWait = settings.longHopWait;
-            backChance = settings.backChance;
-            longForwardChance = settings.longForwardChance;
-            minBackForward = settings.minBackForward;
-            maxBackForward = settings.maxBackForward;
-            changed = true;
-        }
-        if (movement == Movement.Dig && (peekFrames == null || peekFrames.Length == 0))
-        {
-            digFrames = settings.digFrames;
-            digFramesPerSecond = settings.digFramesPerSecond;
-            peekFrames = settings.peekFrames;
-            peekFramesPerSecond = settings.peekFramesPerSecond;
-            idleTime = settings.idleTime;
-            changed = true;
-        }
-        if (movement == Movement.Roll && markerOuter == null && markerMiddle == null)
-        {
-            markerOuter = settings.markerOuter;
-            markerMiddle = settings.markerMiddle;
-            dropWarningTime = settings.dropWarningTime;
-            markerPopTime = settings.markerPopTime;
-            markerSpin = settings.markerSpin;
-            dropFallTime = settings.dropFallTime;
-            changed = true;
-        }
-        if (movement == Movement.CheckerHop && (altFrames == null || altFrames.Length == 0))
-        {
-            altFrames = settings.altFrames;
-            checkerHopHeight = settings.checkerHopHeight;
-            checkerHopHeightPerSlime = settings.checkerHopHeightPerSlime;
-            checkerHopGap = settings.checkerHopGap;
-            checkerHopAirSpeed = settings.checkerHopAirSpeed;
-            changed = true;
-        }
-        if (settings.rides && jumpRange <= 0f)
-        {
-            rides = true;
-            rideTime = settings.rideTime;
-            jumpRange = settings.jumpRange;
-            jumpHeight = settings.jumpHeight;
-            jumpSpeed = settings.jumpSpeed;
-            jumpTime = settings.jumpTime;
-            searchInterval = settings.searchInterval;
-            changed = true;
-        }
-        return changed;
-    }
-#endif
 }

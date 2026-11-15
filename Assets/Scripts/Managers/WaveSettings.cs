@@ -96,8 +96,7 @@ public class WaveSettings : ScriptableObject
     public float bossBonusMultiplier = 2f;
     [Tooltip("Seconds the banner shows before a boss wave's enemies start coming.")]
     public float bossBannerTime = 2.5f;
-    [Tooltip("Picked at random; each one is played before any comes round again. Tools > Set Up Boss Waves " +
-             "fills in a starting set.")]
+    [Tooltip("Picked at random; each one is played before any comes round again.")]
     public List<BossWave> bossWaves = new();
 
     public bool IsBossWave(int wave) => bossWaveEvery > 0 && bossWaves.Count > 0 && wave % bossWaveEvery == 0;

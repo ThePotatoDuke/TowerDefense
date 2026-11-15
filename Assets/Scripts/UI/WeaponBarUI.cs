@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 // The row of weapon slots: each shows the icon of the weapon carried in it, the one in hand stands out
 // (raised, full colour) and gives a little punch when switched to, and empty slots stay faint. The slots
-// themselves are laid out in the scene; Tools > Create UI Layout Objects builds a starting row.
+// themselves are laid out in the scene.
 public class WeaponBarUI : MonoBehaviour
 {
     [Serializable]

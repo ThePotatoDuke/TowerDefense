@@ -24,7 +24,7 @@ public class SporeMines : MonoBehaviour
     {
         if (Settings == null)
         {
-            Debug.LogWarning("Spore Mines: no prefab set in ShopSettings (run Tools > Create Shop).");
+            Debug.LogWarning("Spore Mines: no prefab set in ShopSettings.");
             return;
         }
         if (instance == null)

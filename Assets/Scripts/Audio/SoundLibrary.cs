@@ -4,8 +4,8 @@ using UnityEngine;
 
 // Every sound effect in the game, each picked by name (Sound) where it happens, with its clip and how it's
 // played. Sounds from things in the world are heard by the player: louder close by, fading out with
-// distance, and from the side they're on. Lives in Resources; Tools > Set Up Sounds fills it in from
-// Assets/Audio/sfx.
+// distance, and from the side they're on. Lives in Resources; a new sound gets a number here and an entry
+// (with its clip from Assets/Audio/sfx) in the library.
 // Numbered, as the library stores them by number: keep the numbers when adding or removing one.
 public enum Sound
 {

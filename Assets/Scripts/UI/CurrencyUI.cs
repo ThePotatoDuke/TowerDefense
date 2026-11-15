@@ -3,8 +3,7 @@ using TMPro;
 using UnityEngine;
 
 // Keeps the grass counter's number up to date and gives it a little punch when grass is collected.
-// The counter itself (board, icon, text) is laid out in the scene; Tools > Create UI Layout Objects
-// builds a starting one.
+// The counter itself (board, icon, text) is laid out in the scene.
 public class CurrencyUI : MonoBehaviour
 {
     [Tooltip("The whole counter; this is what punches when grass is collected.")]

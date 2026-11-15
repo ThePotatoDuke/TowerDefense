@@ -7,7 +7,7 @@ using UnityEngine.UI;
 // the weathered sign when the flash fades, then the button signs drop out from behind it, each hanging
 // from the one above by chains (children of the buttons, so they come along). Any key or click skips to
 // the end. The buttons can't be clicked until it's over. The menu's music starts as the sign changes (at
-// once if skipped) and fades out when leaving the menu. Laid out by Tools > Set Up Main Menu Intro.
+// once if skipped) and fades out when leaving the menu. Laid out in the scene.
 public class MenuIntro : MonoBehaviour
 {
     [SerializeField] private Image sign;

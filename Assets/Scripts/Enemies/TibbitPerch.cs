@@ -2,7 +2,7 @@ using UnityEngine;
 
 // Marks where a tibbit sits when it rides this enemy. Put it on a child of the enemy's sprite, so it
 // follows the sprite when it flips, hops or squashes, and move it onto the head. Enemies without one get
-// a tibbit on the top middle of their sprite. Tools > Add Tibbit Perches adds one to every enemy prefab.
+// a tibbit on the top middle of their sprite.
 public class TibbitPerch : MonoBehaviour
 {
     private void OnDrawGizmos()

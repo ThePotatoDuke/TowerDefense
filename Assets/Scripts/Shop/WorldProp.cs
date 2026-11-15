@@ -2,8 +2,8 @@ using UnityEngine;
 
 // A sprite standing on the ground facing the camera, like the characters: the root sits on the ground (so
 // scaling it squashes from the feet) and the sprite is lifted so its bottom edge rests there. The shape of
-// the things bought in the shop (mushrooms, the totem, Crimson Weed): Tools > Create Shop builds their
-// prefabs with it, and swapping their sprites in play keeps them standing on the ground.
+// the things bought in the shop (mushrooms, the totem, Crimson Weed): swapping their sprites in play keeps
+// them standing on the ground.
 public static class WorldProp
 {
     // The bare object: a camera-facing root with the sprite as a child, its bottom edge on the root

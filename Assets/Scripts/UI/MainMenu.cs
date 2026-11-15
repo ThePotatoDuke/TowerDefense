@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// The main menu scene (made by Tools > Create Main Menu): Play starts a run in the game scene (the
+// The main menu scene: Play starts a run in the game scene (the
 // background's diamonds growing over the menu, then shrinking away to show the game), Quit closes the game
 // (or stops play mode in the editor). The game-over screen's Main Menu button comes back here.
 public class MainMenu : MonoBehaviour

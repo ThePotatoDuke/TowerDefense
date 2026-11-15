@@ -4,8 +4,7 @@ using UnityEngine;
 
 // Every enemy the bestiary documents, in the order it lists them: its name, the frames it's shown with,
 // what it does and how to deal with it. The numbers (health, damage) are read from the enemy's own data, so
-// they stay right when it's rebalanced. Lives in Resources; Tools > Set Up Bestiary fills it in (entries
-// already there keep their text, so it can be edited freely).
+// they stay right when it's rebalanced. Lives in Resources; a new enemy needs an entry added here.
 [CreateAssetMenu(fileName = "Bestiary", menuName = "UI/Bestiary")]
 public class BestiaryData : ScriptableObject
 {

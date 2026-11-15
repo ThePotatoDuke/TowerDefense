@@ -66,7 +66,7 @@ public class UpgradeDefinition
 }
 
 // Everything about the shop that opens between waves: how often, how many offers, reroll prices and the
-// upgrades it can offer. Lives in Resources; Tools > Create Shop makes it with starting values.
+// upgrades it can offer. Lives in Resources.
 [CreateAssetMenu(fileName = "ShopSettings", menuName = "Shop/Shop Settings")]
 public class ShopSettings : ScriptableObject
 {
@@ -90,9 +90,6 @@ public class ShopSettings : ScriptableObject
     [Tooltip("How many cards can be bought each visit (0 = as many as the grass allows); the shop closes " +
              "once they're used up.")]
     public int purchasesPerVisit = 0;
-    [Tooltip("A bought card's slot is dealt a new card straight away, so grass, not the slots, limits how " +
-             "much can be bought in a visit. Off: it stays, marked sold.")]
-    public bool restockOnBuy;
     [Tooltip("Every card bought in a visit makes everything else that visit this much dearer, compounding " +
              "(0.25 = +25%, then +56%, +95%...). Back to normal next visit.")]
     [Range(0f, 1f)] public float visitMarkup = 0.25f;

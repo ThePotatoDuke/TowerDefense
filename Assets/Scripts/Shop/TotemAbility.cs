@@ -57,7 +57,7 @@ public class TotemAbility : MonoBehaviour
         if (HasTotem) return;
         if (Settings == null)
         {
-            Debug.LogWarning("Totem: no prefab set in ShopSettings (run Tools > Create Shop).");
+            Debug.LogWarning("Totem: no prefab set in ShopSettings.");
             return;
         }
 

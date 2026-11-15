@@ -7,8 +7,7 @@ using UnityEngine;
 // off a side (a line of Checker Slimes leapfrogs across). Ground critters (walkers, slimes, Tibbits,
 // Mollies, spike balls) walk along the bottom edge of the screen;
 // flyers go anywhere above it. Tibbits ride the others. They draw over the sign and buttons, the lower on screen the
-// nearer. How each moves is on its prefab (Prefabs/Menu/Critters); Tools > Set Up Main Menu Critters makes
-// them from the enemy prefabs.
+// nearer. How each moves is on its prefab (Prefabs/Menu/Critters).
 public class MenuCritters : MonoBehaviour
 {
     [SerializeField] private List<MenuCritter> critters = new();
@@ -247,9 +246,4 @@ public class MenuCritters : MonoBehaviour
             ? bottom + groundLine
             : bottom + Random.Range(flyBottom, Mathf.Max(flyBottom, area.rect.height * flyTop));
     }
-
-#if UNITY_EDITOR
-    // For Tools > Set Up Main Menu Critters
-    public void SetCritters(List<MenuCritter> prefabs) => critters = prefabs;
-#endif
 }

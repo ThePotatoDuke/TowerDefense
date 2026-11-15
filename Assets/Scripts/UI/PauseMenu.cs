@@ -7,8 +7,7 @@ using UnityEngine.UI;
 
 // Esc (or P, or a gamepad's Start) pauses the game while it's being played: everything stops, the music
 // with it, and the pause panel pops up (Resume, Retry, Menu). Esc again or Resume carries on. Not while the
-// shop's open, a scene's changing or the run's over. Tools > Create Pause Menu makes the panel from the
-// game-over one, for laying out in the scene.
+// shop's open, a scene's changing or the run's over. The panel is laid out in the scene.
 public class PauseMenu : MonoBehaviour
 {
     public static bool IsOpen { get; private set; }
