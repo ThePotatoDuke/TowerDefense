@@ -2031,6 +2031,10 @@ MonoBehaviour:
   spawnGapPerLoop: 0.85
   minSpawnGap: 0.2
   healthGrowthPerWave: 0.04
+  startingGrass: 0.45
+  regrowthPerWave: 0.18
+  regrowthGrowthPerWave: 0.04
+  bladesPerTuft: 1
   timerBase: 30
   timerPerEnemy: 2
   maxBonusPercent: 100
