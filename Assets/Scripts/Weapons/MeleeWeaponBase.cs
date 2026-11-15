@@ -18,6 +18,12 @@ public abstract class MeleeWeaponBase : WeaponBase
     private Vector3 holderScale;
     private Vector3 holderOffset;
 
+    // A swing is checked at least every this many degrees, however few frames it gets, so a slow
+    // computer's sword doesn't skip over grass or small enemies between frames
+    private const float MaxSweepStep = 5f;
+    private float sweptAngle; // the hand's turn when the swing was last checked
+    private static readonly Collider[] overlaps = new Collider[32];
+
     // Shop upgrade making the blade bigger (and reach further): 1 = none bought
     protected virtual float SizeMultiplier => 1f;
     protected override float RangeMultiplier => SizeMultiplier;
@@ -91,17 +97,13 @@ public abstract class MeleeWeaponBase : WeaponBase
         Vector3 euler = playerHand.localEulerAngles;
         euler.y = startAngle;
         playerHand.localEulerAngles = euler;
+        sweptAngle = startAngle;
         swordTrail.Begin();
         Sounds.Play(Sound.SwordSwing);
 
         playerHand.DOLocalRotate(new Vector3(0, endAngle, 0), swingDuration)
             .SetEase(Ease.InOutSine)
-            .OnUpdate(() =>
-            {
-                // Mow any grass the blade passes through
-                if (blade != null && GroundDecorator.Instance != null)
-                    GroundDecorator.Instance.CutGrass(blade);
-            })
+            .OnUpdate(Sweep)
             .OnComplete(() =>
             {
                 // A tuft swung at always falls, even if it sat just past the blade's tip
@@ -113,7 +115,46 @@ public abstract class MeleeWeaponBase : WeaponBase
             });
     }
 
-    protected virtual void OnTriggerEnter(Collider other)
+    // Everything the blade passed through since the last frame: grass mown, enemies hit. The hand is
+    // turned back through the angles in between (in small steps) and checked at each
+    private void Sweep()
+    {
+        if (blade == null || playerHand == null) return;
+
+        float current = playerHand.localEulerAngles.y;
+        float turned = Mathf.DeltaAngle(sweptAngle, current);
+        int steps = Mathf.Max(1, Mathf.CeilToInt(Mathf.Abs(turned) / MaxSweepStep));
+        Vector3 euler = playerHand.localEulerAngles;
+        for (int i = 1; i <= steps; i++)
+        {
+            euler.y = sweptAngle + turned * i / steps;
+            playerHand.localEulerAngles = euler;
+            if (steps > 1)
+                Physics.SyncTransforms(); // the blade's collider where the hand now is
+            CheckBlade();
+        }
+        sweptAngle = current;
+    }
+
+    private void CheckBlade()
+    {
+        if (GroundDecorator.Instance != null)
+            GroundDecorator.Instance.CutGrass(blade);
+
+        if (blade is not BoxCollider box || !box.enabled) return;
+        Transform bladeTransform = box.transform;
+        Vector3 scale = bladeTransform.lossyScale;
+        Vector3 halfExtents = Vector3.Scale(box.size, new Vector3(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z))) * 0.5f;
+        int count = Physics.OverlapBoxNonAlloc(bladeTransform.TransformPoint(box.center), halfExtents, overlaps,
+                                               bladeTransform.rotation, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide);
+        for (int i = 0; i < count; i++)
+            if (overlaps[i] != blade)
+                Hit(overlaps[i]);
+    }
+
+    protected virtual void OnTriggerEnter(Collider other) => Hit(other);
+
+    private void Hit(Collider other)
     {
         // Look for IHasHealth on the collider or any of its parents
         IHasHealth target = other.GetComponentInParent<IHasHealth>();
