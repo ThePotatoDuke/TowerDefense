@@ -104,7 +104,7 @@ public class Projectile : MonoBehaviour
     }
 
     private bool IsHomeable(EnemyBase enemy) =>
-        enemy != null && !enemy.IsDead && enemy.gameObject.activeInHierarchy && !alreadyHit.Contains(enemy)
+        enemy != null && !enemy.IsDead && enemy.CanBeHit && !enemy.Invulnerable && enemy.gameObject.activeInHierarchy && !alreadyHit.Contains(enemy)
         && (canHome == null || canHome(enemy));
 
     private EnemyBase ClosestTarget()

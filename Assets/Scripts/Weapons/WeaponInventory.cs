@@ -75,7 +75,10 @@ public class WeaponInventory : MonoBehaviour
         if (index < 0 || index >= slots.Count || index == CurrentIndex) return;
 
         if (Current != null)
+        {
             Current.gameObject.SetActive(false);
+            Sounds.Play(Sound.Pause); // swapped from one in hand: the menu's pop-up sound
+        }
         CurrentIndex = index;
 
         GameObject drawn = Current.gameObject;

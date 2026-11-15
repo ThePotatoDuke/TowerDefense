@@ -75,7 +75,7 @@ public abstract class WeaponBase : MonoBehaviour
         foreach (var c in colliders)
         {
             var enemy = c.GetComponentInParent<EnemyBase>();
-            if (enemy != null && !enemy.IsDead && CanTarget(enemy))
+            if (enemy != null && !enemy.IsDead && enemy.CanBeHit && !enemy.Invulnerable && CanTarget(enemy))
             {
                 float dist = Vector3.Distance(owner.transform.position, enemy.transform.position);
                 if (dist < closestDistance)

@@ -16,12 +16,12 @@ MonoBehaviour:
   maxHealth: 200
   contactDamage: 2
   dropsFromSky: 1
-  springK: 3
+  springK: 3.6
   damping: 3.2
   ballRadius: 1
   bouncyEase: 4
   offsetTweenDuration: 0.25
   offsetUpdateInterval: 0.6
   bouncyOffset: 0.05
-  maxSpeed: 1.5
+  maxSpeed: 1.9
   target: 0

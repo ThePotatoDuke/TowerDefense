@@ -53,11 +53,17 @@ public class Shop : MonoBehaviour
     private readonly HashSet<int> sold = new();
     private bool open;
     private int purchases;
+    // How many of each were bought this visit (for prices that grow per visit)
+    private readonly Dictionary<UpgradeType, int> boughtThisVisit = new();
     private int rerolls;
     private Color priceColor = Color.white;
     private GameObject lastSelected;
     private ScrollingBackground background;
     private readonly Dictionary<Image, Color> iconColors = new(); // as set in the scene, before dimming
+    private readonly Dictionary<TMP_Text, Color> textColors = new();
+    private RectTransform rerollGrass; // the grass icon on the reroll button, kept just after its text
+    [Tooltip("Canvas units between the reroll button's text and its grass icon.")]
+    [SerializeField] private float rerollIconGap = 12f;
 
     private ShopSettings Settings => ShopSettings.Instance;
 
@@ -73,7 +79,13 @@ public class Shop : MonoBehaviour
             if (cards[i].button != null)
                 cards[i].button.onClick.AddListener(() => Buy(index));
         }
-        if (rerollButton != null) rerollButton.onClick.AddListener(Reroll);
+        if (rerollButton != null)
+        {
+            rerollButton.onClick.AddListener(Reroll);
+            foreach (Image image in rerollButton.GetComponentsInChildren<Image>(true))
+                if (image != rerollButton.targetGraphic)
+                    rerollGrass = image.rectTransform;
+        }
         if (skipButton != null) skipButton.onClick.AddListener(Close);
 
         if (window != null)
@@ -117,6 +129,7 @@ public class Shop : MonoBehaviour
         open = true;
         purchases = 0;
         rerolls = 0;
+        boughtThisVisit.Clear();
         SetPaused(true);
 
         UINavigation.Reset();
@@ -300,8 +313,15 @@ public class Shop : MonoBehaviour
         return pool[pool.Count - 1];
     }
 
-    // Pricier with every one bought (levels, or more of the same, like weeds)
-    private int Price(UpgradeDefinition upgrade) => upgrade.CostAt(Upgrades.Level(upgrade.type));
+    // Pricier with every one bought (levels, or more of the same, like weeds), and with everything already
+    // bought this visit (the visit's markup)
+    private int Price(UpgradeDefinition upgrade)
+    {
+        int cost = upgrade.CostAt(upgrade.growsPerVisit
+            ? (boughtThisVisit.TryGetValue(upgrade.type, out int bought) ? bought : 0)
+            : Upgrades.Level(upgrade.type));
+        return Mathf.RoundToInt(cost * Mathf.Pow(1f + Settings.visitMarkup, purchases));
+    }
 
     private int RerollPrice => Settings.rerollCost + Settings.rerollCostStep * rerolls;
 
@@ -329,20 +349,24 @@ public class Shop : MonoBehaviour
             if (card.descriptionText != null) card.descriptionText.text = upgrade.Description;
             if (card.levelText != null)
                 card.levelText.text = upgrade.HasLevels ? $"Lv {level} > {level + 1}" : "";
+            bool available = !isSold && affordable;
             if (card.priceText != null)
             {
                 card.priceText.text = isSold ? "Sold" : price.ToString();
-                card.priceText.color = isSold || affordable ? priceColor : tooExpensiveColor;
+                card.priceText.color = Darken(isSold || affordable ? priceColor : tooExpensiveColor, available);
             }
             if (card.button != null)
             {
-                card.button.interactable = !isSold && affordable;
-                DimIcons(card.button);
+                card.button.interactable = available;
+                DimIcons(card.button, card.priceText);
             }
         }
 
         if (rerollText != null)
+        {
             rerollText.text = $"Reroll {RerollPrice}";
+            SnugIcon(rerollText, rerollGrass);
+        }
         if (rerollButton != null)
         {
             rerollButton.interactable = Currency.Grass >= RerollPrice && sold.Count < offers.Count; // something left to reroll
@@ -352,7 +376,9 @@ public class Shop : MonoBehaviour
 
     // The button only tints its own board, so its icons (the upgrade, the grass) take the same tint when it
     // can't be pressed
-    private void DimIcons(Button button)
+    // Everything on a button that can't be pressed (too dear, or sold) is dimmed with it: its icons and
+    // description window faded, its text darkened. skip: a text whose colour is set each time (the price)
+    private void DimIcons(Button button, TMP_Text skip = null)
     {
         Color tint = button.interactable ? Color.white : button.colors.disabledColor;
         foreach (Image image in button.GetComponentsInChildren<Image>(true))
@@ -362,6 +388,44 @@ public class Shop : MonoBehaviour
                 iconColors[image] = original = image.color;
             image.color = original * tint;
         }
+        foreach (TMP_Text text in button.GetComponentsInChildren<TMP_Text>(true))
+        {
+            if (text == skip) continue;
+            if (!textColors.TryGetValue(text, out Color original))
+                textColors[text] = original = text.color;
+            text.color = Darken(original, button.interactable);
+        }
+    }
+
+    // A text's colour, darker when its button can't be pressed (as dark as the button's dimmed by, keeping
+    // the text solid)
+    private Color Darken(Color color, bool available)
+    {
+        if (available) return color;
+        Color tint = rerollButton != null ? rerollButton.colors.disabledColor : new Color(0.6f, 0.6f, 0.6f);
+        return new Color(color.r * tint.r, color.g * tint.g, color.b * tint.b, color.a);
+    }
+
+    // The icon right after the text, the two centred together on the button, however long the text is
+    private void SnugIcon(TMP_Text text, RectTransform icon)
+    {
+        if (text == null || icon == null) return;
+        float textWidth = Mathf.Min(text.GetPreferredValues(text.text).x, text.rectTransform.rect.width);
+        float iconWidth = icon.rect.width;
+        float left = -(textWidth + rerollIconGap + iconWidth) * 0.5f;
+
+        // The text's box is stretched across the button with its words centred in it, so moving the box
+        // moves the words
+        RectTransform box = text.rectTransform;
+        Vector2 boxCentre = box.anchoredPosition;
+        boxCentre.x = left + textWidth * 0.5f - (box.anchorMin.x + box.anchorMax.x - 1f) * 0.5f * ((RectTransform)box.parent).rect.width
+                      - (0.5f - box.pivot.x) * box.rect.width;
+        box.anchoredPosition = boxCentre;
+
+        Vector2 iconPosition = icon.anchoredPosition;
+        icon.anchorMin = icon.anchorMax = new Vector2(0.5f, icon.anchorMin.y);
+        iconPosition.x = left + textWidth + rerollIconGap + iconWidth * icon.pivot.x;
+        icon.anchoredPosition = iconPosition;
     }
 
     private void SelectFirst()
@@ -391,6 +455,7 @@ public class Shop : MonoBehaviour
         if (!Currency.TrySpendGrass(Price(upgrade))) return;
 
         Upgrades.Add(upgrade.type);
+        boughtThisVisit[upgrade.type] = (boughtThisVisit.TryGetValue(upgrade.type, out int bought) ? bought : 0) + 1;
         ApplyNow(upgrade);
         purchases++;
 
@@ -400,7 +465,8 @@ public class Shop : MonoBehaviour
             return;
         }
 
-        sold.Add(index);
+        if (!Settings.restockOnBuy || !Restock(index))
+            sold.Add(index);
         Refresh();
         if (EventSystem.current != null)
             EventSystem.current.SetSelectedGameObject(null); // Update picks the next one
@@ -434,6 +500,30 @@ public class Shop : MonoBehaviour
                 if (WeedPlanter.Instance != null) WeedPlanter.Instance.GiveSeed();
                 break;
         }
+    }
+
+    // A new card in a bought one's place (not one already on show, nor the one just bought if there's
+    // anything else), popping in. False if there's nothing left to deal.
+    private bool Restock(int index)
+    {
+        UpgradeDefinition bought = offers[index];
+        List<UpgradeDefinition> pool = Settings.upgrades.FindAll(IsAvailable);
+        for (int i = 0; i < offers.Count; i++)
+            if (i != index && offers[i] != null)
+                pool.Remove(offers[i]);
+        if (pool.Count > 1)
+            pool.Remove(bought);
+        if (pool.Count == 0) return false;
+
+        offers[index] = PickWeighted(pool);
+        if (index < cards.Length && cards[index].button != null)
+        {
+            Transform card = cards[index].button.transform;
+            card.DOKill(true);
+            card.localScale = Vector3.zero;
+            card.DOScale(1f, 0.25f).SetEase(Ease.OutBack).SetUpdate(true).SetLink(card.gameObject);
+        }
+        return true;
     }
 
     private void Reroll()

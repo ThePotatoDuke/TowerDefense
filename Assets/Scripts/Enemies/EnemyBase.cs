@@ -29,6 +29,17 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
              "shine on the enemy and a shining shield beside its health bar. Wave entries can also turn it on.")]
     [SerializeField] private bool immuneToRanged;
     public bool ImmuneToRanged => immuneToRanged;
+    // Waves can give it a ranged shield at random: not flying ones (they'd be out of reach of everything
+    // but ranged weapons), not ones the shine can't show on (spike balls, rollers), not support enemies,
+    // and not ones whose data says no
+    // Off while it can't be reached (Checker Slimes waiting behind the path's start, out of sight):
+    // nothing aims at it and hits do nothing
+    public virtual bool CanBeHit => true;
+    // Can't be hurt at all (spike balls): hits spark off it, and nothing aims at it
+    public virtual bool Invulnerable => false;
+    public virtual bool CanBeShielded => Data.canBeShielded && !IsFlying && BlocksWaveProgress && spriteFX != null;
+    // Grass blades it drops when killed (one given a shield at random pays for the trouble)
+    public int GrassOnDeath { get; set; }
 
     public event Action<float> OnHealthChanged;
     public event Action OnDied;
@@ -187,6 +198,7 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         if (isRegistered || isDead || EnemyManager.Instance == null) return;
         EnemyManager.Instance.RegisterEnemy(this);
         isRegistered = true;
+        BestiaryProgress.MarkSeen(Data); // met: written up in the bestiary from now on
     }
 
     protected virtual void OnDisable()
@@ -276,7 +288,13 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     // --- Health ---
     public virtual void TakeDamage(float amount)
     {
-        if (isDead) return;
+        if (isDead || !CanBeHit) return;
+        if (Invulnerable)
+        {
+            Flash();
+            Sounds.PlayAt(Sound.MetalSpark, transform.position);
+            return;
+        }
 
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, MaxHealth);
@@ -343,6 +361,16 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
     protected virtual void Die()
     {
         if (isDead) return;
+
+        // Killed, not just removed (like by the debug skip): its pieces come first, so the wave doesn't
+        // count as cleared in between, and its grass drops
+        if (currentHealth <= 0f)
+        {
+            Split();
+            if (GrassOnDeath > 0 && GroundDecorator.Instance != null)
+                GroundDecorator.Instance.DropBlades(transform.position, GrassOnDeath);
+        }
+
         isDead = true;
 
         StopAllTweens();
@@ -356,6 +384,22 @@ public abstract class EnemyBase : MonoBehaviour, IHasHealth, IEnemy
         float deathDuration = PlayDeathEffect();
         if (deathDuration >= 0f)
             Destroy(gameObject, deathDuration);
+    }
+
+    // Splits into smaller enemies where it was (its data's Split Into), spread a little along the path
+    private void Split()
+    {
+        EnemyDataSO data = Data;
+        EndlessWaveManager waves = EndlessWaveManager.Instance;
+        if (data == null || data.splitInto == null || data.splitCount <= 0 || waves == null) return;
+
+        float spread = data.splitSpread / Mathf.Max(0.01f, splineLength);
+        for (int i = 0; i < data.splitCount; i++)
+        {
+            // Evenly across the spread, from behind it to ahead of it
+            float along = data.splitCount > 1 ? Mathf.Lerp(-spread, spread, i / (data.splitCount - 1f)) : 0f;
+            waves.SpawnAlongPath(data.splitInto, distancePercentage + along);
+        }
     }
 
     // Plays the death effect and returns how long it lasts; the enemy is destroyed after that.

@@ -6,8 +6,9 @@ using UnityEngine.Splines;
 // Scatters decorations over the ground when the game starts: flower patches lying flat on the grass,
 // and grass tufts that stand up facing the camera like the characters, sway when the player
 // walks through them, and get mown down by sword swings. Keeps clear of the enemy path and of
-// anything standing on the ground. Mown grass only grows back from each wave's allowance, so stalling a
-// wave to farm grass earns nothing once that wave's grass is mown (Abundance raises the allowance).
+// anything standing on the ground. Mown grass grows back only at the start of each wave, a set share of
+// the field (WaveSettings' Grass, raised by Abundance), sprouting over a few seconds; nothing grows during
+// the wave, so stalling to farm earns nothing, and a share not regrown (too little was mown) is lost.
 [RequireComponent(typeof(Renderer))]
 public class GroundDecorator : MonoBehaviour
 {
@@ -48,20 +49,9 @@ public class GroundDecorator : MonoBehaviour
     [SerializeField] private Color clippingColorA = new Color(0.39f, 0.67f, 0.25f, 1f);
     [SerializeField] private Color clippingColorB = new Color(0.23f, 0.49f, 0.31f, 1f);
 
-    [Header("Growth")]
-    [Tooltip("Share of the grass already grown when the game starts.")]
-    [SerializeField, Range(0f, 1f)] private float startingGrowth = 0.5f;
-    [Tooltip("Seconds over which the rest of the starting grass sprouts.")]
-    [SerializeField] private float fillTime = 30f;
-    [Tooltip("Average seconds before a cut tuft sprouts again at a new random spot (if the wave's " +
-             "allowance has any left).")]
-    [SerializeField] private float regrowDelay = 15f;
-    [Tooltip("How many cut tufts may grow back each wave, as a share of all the tufts; unused allowance " +
-             "carries over. Fast Growth only makes them come back sooner within it.")]
-    [SerializeField, Range(0f, 2f)] private float regrowthPerWave = 0.4f;
-    [Tooltip("The allowance grows by this fraction every wave after the first (0.05 = +5% a wave), so " +
-             "later waves pay more.")]
-    [SerializeField] private float regrowthGrowthPerWave = 0.05f;
+    [Header("Growth (how much: WaveSettings' Grass)")]
+    [Tooltip("Seconds over which a wave's regrowth sprouts, from the wave's start.")]
+    [SerializeField] private float refillTime = 6f;
     [Tooltip("Seconds a sprouting tuft takes to grow in.")]
     [SerializeField] private float growDuration = 0.6f;
 
@@ -69,8 +59,6 @@ public class GroundDecorator : MonoBehaviour
     [Tooltip("Each blade thrown out by a cut is one of these, picked at random.")]
     [SerializeField] private Sprite[] bladeSprites;
     [SerializeField, HideInInspector] private Sprite bladeSprite; // the single sprite before there were several
-    [Tooltip("Collectible blades thrown out by each cut.")]
-    [SerializeField] private int bladesPerCut = 3;
     [SerializeField] private GrassPickup.Settings bladeSettings = new GrassPickup.Settings();
 
     // Flat flowers draw before blob shadows (Transparent-50), so shadows fall on top of them
@@ -86,7 +74,7 @@ public class GroundDecorator : MonoBehaviour
         public float velocity;
         public bool isCut;
         public float regrowTime;
-        public bool free; // part of the starting fill, which doesn't use a wave's allowance
+        public bool due; // picked to grow back this wave, at regrowTime
     }
 
     private readonly List<Tuft> tufts = new List<Tuft>();
@@ -95,7 +83,6 @@ public class GroundDecorator : MonoBehaviour
     private Bounds groundBounds;
     private Material flowerMaterial;
     private ParticleSystem clippings;
-    private int regrowthLeft; // cut tufts that may still grow back, from the waves' allowances
 
     // Scenes saved with the single blade sprite keep it as the first of the list
     private void OnValidate()
@@ -112,10 +99,22 @@ public class GroundDecorator : MonoBehaviour
     private void OnEnable() => GameEvents.OnWaveStarted += HandleWaveStarted;
     private void OnDisable() => GameEvents.OnWaveStarted -= HandleWaveStarted;
 
+    // The wave's regrowth: that many of the cut tufts, picked at random, sprout over the next few seconds
     private void HandleWaveStarted(int wave)
     {
-        float share = regrowthPerWave * (1f + regrowthGrowthPerWave * Mathf.Max(0, wave - 1));
-        regrowthLeft += Mathf.RoundToInt(tufts.Count * share * Upgrades.Multiplier(UpgradeType.Abundance));
+        WaveSettings settings = WaveSettings.Instance;
+        float share = settings != null ? settings.RegrowthShare(wave) : 0.15f;
+        int count = Mathf.RoundToInt(tufts.Count * share * Upgrades.Multiplier(UpgradeType.Abundance));
+
+        List<Tuft> cut = tufts.FindAll(tuft => tuft.isCut && !tuft.due);
+        for (int i = 0; i < count && cut.Count > 0; i++)
+        {
+            int pick = Random.Range(0, cut.Count);
+            Tuft tuft = cut[pick];
+            cut.RemoveAt(pick);
+            tuft.due = true;
+            tuft.regrowTime = Time.time + Random.Range(0f, refillTime);
+        }
     }
 
     private void Start()
@@ -143,14 +142,14 @@ public class GroundDecorator : MonoBehaviour
 
         Random.state = previousState;
 
-        // Start partly grown; the rest sprouts at random places over the first stretch of the game
+        // Start partly grown; the rest grows in wave by wave like mown grass
+        WaveSettings settings = WaveSettings.Instance;
+        float startingGrowth = settings != null ? settings.startingGrass : 0.4f;
         foreach (Tuft tuft in tufts)
         {
             if (Random.value < startingGrowth) continue;
             tuft.isCut = true;
-            tuft.free = true;
             tuft.sprite.enabled = false;
-            tuft.regrowTime = Time.time + Random.Range(0f, fillTime);
         }
     }
 
@@ -177,7 +176,7 @@ public class GroundDecorator : MonoBehaviour
         {
             if (tuft.isCut)
             {
-                if (Time.time >= tuft.regrowTime && (tuft.free || regrowthLeft > 0))
+                if (tuft.due && Time.time >= tuft.regrowTime)
                     Regrow(tuft);
                 continue;
             }
@@ -293,7 +292,7 @@ public class GroundDecorator : MonoBehaviour
     {
         Sounds.PlayAt(Sound.GrassCut, tuft.root.position);
         tuft.isCut = true;
-        tuft.regrowTime = Time.time + regrowDelay / Upgrades.Multiplier(UpgradeType.GrowthRate) * Random.Range(0.5f, 1.5f);
+        tuft.due = false;
         tuft.angle = 0f;
         tuft.velocity = 0f;
         tuft.root.DOKill();
@@ -322,11 +321,17 @@ public class GroundDecorator : MonoBehaviour
         }
     }
 
-    private void ThrowBlades(Vector3 origin, Vector3 away, float groundY)
+    // Blades popping out of a spot on the ground, like a cut tuft's (a killed enemy that carried some)
+    public void DropBlades(Vector3 groundPoint, int count)
+    {
+        ThrowBlades(groundPoint + Vector3.up * 0.3f, Vector3.zero, groundPoint.y, count);
+    }
+
+    private void ThrowBlades(Vector3 origin, Vector3 away, float groundY, int count = -1)
     {
         if (bladeSprites == null || bladeSprites.Length == 0) return;
 
-        int blades = bladesPerCut + Mathf.RoundToInt(Upgrades.Bonus(UpgradeType.DropRate));
+        int blades = count >= 0 ? count : BladesPerTuft();
         for (int i = 0; i < blades; i++)
         {
             Sprite sprite = bladeSprites[Random.Range(0, bladeSprites.Length)];
@@ -345,6 +350,19 @@ public class GroundDecorator : MonoBehaviour
         }
     }
 
+    // The settings' blades for a mown tuft, and Lush Grass's chance (its percentage) of one more each;
+    // over 100% is a sure one more and a chance of another
+    private static int BladesPerTuft()
+    {
+        WaveSettings settings = WaveSettings.Instance;
+        int blades = settings != null ? settings.bladesPerTuft : 1;
+        float extra = Upgrades.Bonus(UpgradeType.DropRate) / 100f;
+        blades += Mathf.FloorToInt(extra);
+        if (Random.value < extra - Mathf.Floor(extra))
+            blades++;
+        return blades;
+    }
+
     // Cut tufts sprout again somewhere new, so the field keeps changing as it's mown
     private void Regrow(Tuft tuft)
     {
@@ -354,9 +372,7 @@ public class GroundDecorator : MonoBehaviour
             return;
         }
 
-        if (!tuft.free)
-            regrowthLeft--;
-        tuft.free = false;
+        tuft.due = false;
         tuft.root.position = spot;
         tuft.isCut = false;
         tuft.angle = 0f;

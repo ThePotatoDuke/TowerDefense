@@ -19,6 +19,7 @@ public class TotemAbility : MonoBehaviour
     private GameInput input;
     private Totem totem; // the one standing by the castle
     private ParticleSystem charge;
+    private AudioSource chargeSound; // the loop heard while channelling
     private float channelStart = -1f;
 
     public bool HasTotem => totem != null;
@@ -45,6 +46,7 @@ public class TotemAbility : MonoBehaviour
     {
         if (player != null)
             player.OnHurt -= Cancel;
+        Sounds.StopLoop(chargeSound);
         if (Instance == this)
             Instance = null;
     }
@@ -109,6 +111,7 @@ public class TotemAbility : MonoBehaviour
         to.y = from.y;
 
         SparkBurst.Play(from + Vector3.up * 0.4f);
+        Sounds.Play(Sound.Teleport);
         player.Teleport(to);
         CinemachineCore.OnTargetObjectWarped(player.transform, to - from);
         SparkBurst.Play(to + Vector3.up * 0.4f);
@@ -123,7 +126,10 @@ public class TotemAbility : MonoBehaviour
     private void SetCharging(bool on)
     {
         if (totem != null && totem.TryGetComponent(out SpriteFX totemFX))
-            totemFX.SetShine(on);
+            totemFX.SetShine(on, fromStart: true); // each channel's shine sweeps from the start
+
+        Sounds.StopLoop(chargeSound);
+        chargeSound = on ? Sounds.PlayLoop(Sound.TeleportCharge) : null;
 
         if (on)
         {

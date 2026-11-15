@@ -19,6 +19,8 @@ public class BatEnemy : EnemyBase
     public override bool IsFlying => height > data.aimUpHeight;
     // Already hovering over the path, and UpdateBody positions the body every frame
     public override bool CanDodge => false;
+    // Out of reach of the sword while it's up, so a ranged shield would make it unhittable
+    public override bool CanBeShielded => false;
 
     protected override void Awake()
     {

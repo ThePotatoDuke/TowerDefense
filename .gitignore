@@ -103,3 +103,11 @@ InitTestScene*.unity*
 
 # Profiler report from Tools > Dump Profiler Spikes
 ProfilerDump.txt
+
+# Source audio and sound pack archives (the game uses the copies in Assets/Audio)
+/music/
+/Assets/Audio/sfx/*.zip
+/Assets/Audio/sfx/*.zip.meta
+
+# Personal Claude Code settings
+/.claude/settings.local.json

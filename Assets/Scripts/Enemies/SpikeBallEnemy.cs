@@ -21,6 +21,7 @@ public class SpikeBallEnemy : EnemyBase
     protected override bool DamagesCastle => false;
     // Rollers knock spike balls along the path instead of them hopping over (see TryBump)
     public override bool CanDodge => false;
+    public override bool Invulnerable => data.immortal;
 
     private const float BumpDecay = 3f; // how quickly a knock slows down, per second
 
@@ -59,12 +60,12 @@ public class SpikeBallEnemy : EnemyBase
         Die();
     }
 
-    // Destroyed by damage (not by outliving its waves), a ball with a spike burst warns where the
-    // spikes will fly, then fires them before it goes
+    // Destroyed by damage (or, if it can't be hurt, when its waves are up), a ball with a spike burst warns
+    // where the spikes will fly, then fires them before it goes
     protected override float PlayDeathEffect()
     {
-        bool killed = currentHealth <= 0f;
-        if (!killed || data.deathSpikeCount <= 0 || data.spikeSprite == null)
+        bool burst = currentHealth <= 0f || data.immortal;
+        if (!burst || data.deathSpikeCount <= 0 || data.spikeSprite == null)
             return base.PlayDeathEffect();
 
         StartCoroutine(SpikeBurst());

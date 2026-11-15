@@ -269,7 +269,7 @@ public static class MenuCrittersSetup
     }
 
     // The sprites its Animator's starting animation flips through, and how fast
-    private static (Sprite[], float) AnimatorFrames(GameObject prefab)
+    internal static (Sprite[], float) AnimatorFrames(GameObject prefab)
     {
         var animator = prefab.GetComponentInChildren<Animator>(true);
         return ControllerFrames(animator != null ? animator.runtimeAnimatorController : null);

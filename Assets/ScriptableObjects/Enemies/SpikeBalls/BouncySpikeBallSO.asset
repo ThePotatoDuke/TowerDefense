@@ -16,14 +16,14 @@ MonoBehaviour:
   maxHealth: 150
   contactDamage: 2
   dropsFromSky: 1
-  springK: 6
+  springK: 7
   damping: 2
   ballRadius: 0.8
   bouncyEase: 4
   offsetTweenDuration: 0.2
   offsetUpdateInterval: 1.5
   bouncyOffset: 0.04
-  maxSpeed: 3
+  maxSpeed: 3.75
   target: 1.2
   deathSpikeCount: 6
   spikeSprite: {fileID: 21300000, guid: 8a205160915dbc64591a7160ed700d05, type: 3}

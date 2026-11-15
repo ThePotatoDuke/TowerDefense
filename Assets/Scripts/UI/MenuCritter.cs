@@ -523,11 +523,14 @@ public class MenuCritter : MonoBehaviour
                     float amount = Mathf.Lerp(stretch, 1f, Mathf.Sin(t * Mathf.PI));
                     body.localScale = new Vector3(1f / amount, amount, 1f);
                 }
-                Animate(Time.deltaTime, true);
+                // A Tibbit's skip shows its jump sprite only off the ground, sitting as it touches down
+                // between skips, as in the game
+                Animate(Time.deltaTime, squashAndStretch || Mathf.Sin(t * Mathf.PI) > 0.25f);
                 yield return null;
             }
             root.anchoredPosition = to;
             body.anchoredPosition = Vector2.zero;
+            Animate(0f);
 
             if (squashAndStretch)
             {
@@ -841,6 +844,10 @@ public class MenuCritter : MonoBehaviour
         }
         root.anchoredPosition = target();
         body.anchoredPosition = Vector2.zero;
+
+        // Landed: back to sitting straight away
+        Play(frames, framesPerSecond);
+        Animate(0f);
     }
 
 #if UNITY_EDITOR

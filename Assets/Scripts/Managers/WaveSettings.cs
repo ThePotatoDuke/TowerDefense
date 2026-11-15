@@ -8,7 +8,9 @@ using UnityEngine;
 // before the time runs out pays a harvest bonus, a share of the grass picked up during the wave that's
 // bigger the more time is left. Every few waves a boss wave comes in between (one of the boss waves at
 // random, each seen before any comes round again): a gimmick with a banner of its own, its own music, a
-// bigger harvest bonus and a shop after it. Lives in Resources.
+// bigger harvest bonus and a shop after it. Waves can have alternatives, one picked at random each time
+// the wave comes up, so runs don't all play the same; and from a few waves in, enemies can come with a
+// shield against ranged attacks at random, more often the further the run goes. Lives in Resources.
 [CreateAssetMenu(fileName = "WaveSettings", menuName = "Waves/Wave Settings")]
 public class WaveSettings : ScriptableObject
 {
@@ -32,6 +34,10 @@ public class WaveSettings : ScriptableObject
     [Header("Waves")]
     public List<Wave> waves = new();
 
+    [Tooltip("Other versions of the waves above. Whenever a wave comes up, it or one of its alternatives " +
+             "is played, picked at random, so a run doesn't play out the same every time.")]
+    public List<WaveAlternative> waveAlternatives = new();
+
     [Header("After The Last Wave")]
     [Tooltip("The run carries on from this wave (1 = the first) once the list has been played through.")]
     public int loopFromWave = 9;
@@ -46,6 +52,31 @@ public class WaveSettings : ScriptableObject
     [Tooltip("Enemy health grows by this fraction every wave after the first (0.04 = +4% a wave, " +
              "so wave 26 enemies have double health).")]
     public float healthGrowthPerWave = 0.04f;
+
+    [Header("Shields")]
+    [Tooltip("From this wave on, enemies can come with a shield against ranged attacks (the same as a wave " +
+             "entry's Immune To Ranged) at random. Never flying ones, or ones whose data says not.")]
+    public int shieldsFromWave = 6;
+    [Tooltip("Chance of a shield on that first wave.")]
+    [Range(0f, 1f)] public float shieldChanceStart = 0.04f;
+    [Tooltip("Added to the chance every wave after it.")]
+    [Range(0f, 0.1f)] public float shieldChancePerWave = 0.005f;
+    [Tooltip("The chance never goes above this.")]
+    [Range(0f, 1f)] public float maxShieldChance = 0.15f;
+    [Tooltip("Grass blades an enemy with a random shield drops when killed.")]
+    public int shieldedGrassDrop = 3;
+
+    [Header("Grass")]
+    [Tooltip("Share of the field grown when the game starts; the rest grows in wave by wave.")]
+    [Range(0f, 1f)] public float startingGrass = 0.4f;
+    [Tooltip("Share of the field that grows back at the start of each wave (as much as has been mown); " +
+             "nothing grows during a wave. Abundance raises it.")]
+    [Range(0f, 1f)] public float regrowthPerWave = 0.15f;
+    [Tooltip("The regrowth rises by this fraction every wave after the first (0.04 = +4% a wave), so later " +
+             "waves, with pricier upgrades, pay more.")]
+    public float regrowthGrowthPerWave = 0.04f;
+    [Tooltip("Grass blades from each mown tuft (Lush Grass adds a chance of more).")]
+    public int bladesPerTuft = 1;
 
     [Header("Harvest Bonus")]
     [Tooltip("Seconds every wave gives to earn the harvest bonus in, before the time per enemy is added (a " +
@@ -71,7 +102,28 @@ public class WaveSettings : ScriptableObject
 
     public bool IsBossWave(int wave) => bossWaveEvery > 0 && bossWaves.Count > 0 && wave % bossWaveEvery == 0;
 
+    public float RegrowthShare(int wave) => regrowthPerWave * (1f + regrowthGrowthPerWave * Mathf.Max(0, wave - 1));
+
     public float HealthMultiplier(int wave) => 1f + healthGrowthPerWave * Mathf.Max(0, wave - 1);
+
+    public float ShieldChance(int wave) => wave < shieldsFromWave ? 0f
+        : Mathf.Min(maxShieldChance, shieldChanceStart + shieldChancePerWave * (wave - shieldsFromWave));
+
+    // The wave at this place in the list (0 = the first), or one of its alternatives, at random
+    public Wave PickWave(List<Wave> list, int index)
+    {
+        Wave wave = list[index];
+        int number = index + 1, options = 1;
+        foreach (WaveAlternative alternative in waveAlternatives)
+        {
+            // Each one that fits has the same chance as the rest
+            if (alternative.replaces != number) continue;
+            options++;
+            if (Random.Range(0, options) == 0)
+                wave = alternative;
+        }
+        return wave;
+    }
 
     // Seconds to earn the harvest bonus in for a wave of this many enemies, stretched by the Lasting Harvest
     // upgrade (so the bonus drains slower)
@@ -86,6 +138,14 @@ public class WaveSettings : ScriptableObject
 
     // The bonus percentage with this share of the timer left (1 = all of it)
     public float BonusPercent(float timeLeftShare) => StartBonusPercent * Mathf.Clamp01(timeLeftShare);
+}
+
+// Another version of one of the waves in the list, played instead of it now and then
+[System.Serializable]
+public class WaveAlternative : Wave
+{
+    [Tooltip("The wave in the list (1 = the first) this can be played instead of.")]
+    public int replaces = 1;
 }
 
 // A boss wave: a wave with a gimmick. Its enemies come like any wave's; on top of that it can darken the

@@ -37,7 +37,10 @@ public enum Sound
     SpikeDrop = 27,
     GrassCut = 28,
     NextWave = 29,
-    EnemyJump = 30
+    EnemyJump = 30,
+    TeleportCharge = 31, // loops while the totem's warp is channelled
+    Teleport = 32,
+    MenuSignChange = 33
 }
 
 [CreateAssetMenu(fileName = "SoundLibrary", menuName = "Audio/Sound Library")]

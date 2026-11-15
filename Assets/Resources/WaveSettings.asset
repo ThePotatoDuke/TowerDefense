@@ -813,6 +813,1219 @@ MonoBehaviour:
     spawnIntervalMin: 0.4
     spawnIntervalMax: 0.7
     burstChance: 0.25
+  - name: 17 Splitters
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 62c8d32682fae324cbd5452357cea808, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: fa27f4252f7d7dd4eb6fe3c291bbc9f0, type: 3}
+      spawnWeight: 0.7
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: a0ff3f3d21dc8564fbab3a01db10d984, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
+      spawnWeight: 0.6
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.45
+    spawnIntervalMax: 0.8
+    burstChance: 0.2
+  - name: 18 Ambush
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
+      spawnWeight: 0.6
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: c648a5ab5c1697b4297f843a3d807ba1, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 3ed08bfd3cad4a9ebeb1ce7c294bbcd6, type: 3}
+      spawnWeight: 0.5
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: bf77b38580ccdd04283958c7a41a34b6, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 7894610099254780872, guid: 20b70545505f92d48b221d746efc986d, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.4
+    spawnIntervalMax: 0.75
+    burstChance: 0.25
+  - name: 19 Heavy rain
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7f55a5520f8e9984c8c813072ca52d9a, type: 3}
+      spawnWeight: 0.6
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: fa27f4252f7d7dd4eb6fe3c291bbc9f0, type: 3}
+      spawnWeight: 0.7
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 8c4f0944d2a61c849b0405709f640ff7, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a6635cd98be91e8408093dcbe51d9b45, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 4604603393713018748, guid: 446363c2f16e1584d9c0748bfd2b6bb3, type: 3}
+      spawnWeight: 1
+      baseCount: 6
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 1563687534648878750, guid: 5aa8c86cf783e9844b2df1eaf65443cb, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 1563687534648878750, guid: 5aa8c86cf783e9844b2df1eaf65443cb, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.4
+    spawnIntervalMax: 0.7
+    burstChance: 0.2
+  - name: 20 Everything
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 1563687534648878750, guid: a52a59a419bf4001a1dd373a2906faa5, type: 3}
+      spawnWeight: 0.3
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 8f7696247a6749b39abbfffd12035443, type: 3}
+      spawnWeight: 0.4
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: a0ff3f3d21dc8564fbab3a01db10d984, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 3959996388313616572, guid: 9dcdc41293e2bce49bc8eef40b402380, type: 3}
+      spawnWeight: 0.3
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
+      spawnWeight: 1
+      baseCount: 10
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.12
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.35
+    spawnIntervalMax: 0.65
+    burstChance: 0.25
+  waveAlternatives:
+  - name: 3b Quick ones
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 62c8d32682fae324cbd5452357cea808, type: 3}
+      spawnWeight: 1
+      baseCount: 5
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.8
+    spawnIntervalMax: 1.2
+    burstChance: 0.15
+    replaces: 3
+  - name: 4b Bats
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 595bb61599cc8de4fa985f7ee8fdd1e9, type: 3}
+      spawnWeight: 1
+      baseCount: 5
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
+      spawnWeight: 1
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 62c8d32682fae324cbd5452357cea808, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.8
+    spawnIntervalMax: 1.2
+    burstChance: 0.1
+    replaces: 4
+  - name: 5b Two chains
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 4604603393713018748, guid: 446363c2f16e1584d9c0748bfd2b6bb3, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 4604603393713018748, guid: 446363c2f16e1584d9c0748bfd2b6bb3, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 62c8d32682fae324cbd5452357cea808, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: da532ca4ac906c04598b011e0baafae6, type: 3}
+      spawnWeight: 1
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.7
+    spawnIntervalMax: 1.2
+    burstChance: 0.1
+    replaces: 5
+  - name: 6b Heavies
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7f55a5520f8e9984c8c813072ca52d9a, type: 3}
+      spawnWeight: 0.6
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: fa27f4252f7d7dd4eb6fe3c291bbc9f0, type: 3}
+      spawnWeight: 0.7
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a6635cd98be91e8408093dcbe51d9b45, type: 3}
+      spawnWeight: 1
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 1563687534648878750, guid: 5aa8c86cf783e9844b2df1eaf65443cb, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.7
+    spawnIntervalMax: 1.1
+    burstChance: 0.15
+    replaces: 6
+  - name: 7b Moles and splitters
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 595bb61599cc8de4fa985f7ee8fdd1e9, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: da532ca4ac906c04598b011e0baafae6, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.6
+    spawnIntervalMax: 1.1
+    burstChance: 0.15
+    replaces: 7
+  - name: 8b Riders
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+      spawnWeight: 0.5
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7f55a5520f8e9984c8c813072ca52d9a, type: 3}
+      spawnWeight: 0.6
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 62c8d32682fae324cbd5452357cea808, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.6
+    spawnIntervalMax: 1
+    burstChance: 0.15
+    replaces: 8
+  - name: 9b Up high
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: bf77b38580ccdd04283958c7a41a34b6, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 8f7696247a6749b39abbfffd12035443, type: 3}
+      spawnWeight: 0.4
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 7894610099254780872, guid: 58cdfad387488194486699c32a22371f, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.6
+    spawnIntervalMax: 1
+    burstChance: 0.2
+    replaces: 9
+  - name: 10b Checkers
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 3959996388313616572, guid: 9dcdc41293e2bce49bc8eef40b402380, type: 3}
+      spawnWeight: 0.3
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 1
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: eae5342dcbbc86e42a350684261cf254, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
+      spawnWeight: 0.6
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 4604603393713018748, guid: 446363c2f16e1584d9c0748bfd2b6bb3, type: 3}
+      spawnWeight: 1
+      baseCount: 5
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.5
+    spawnIntervalMax: 0.9
+    burstChance: 0.2
+    replaces: 10
+  - name: 11b Bomb
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 1563687534648878750, guid: a52a59a419bf4001a1dd373a2906faa5, type: 3}
+      spawnWeight: 0.3
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: fa27f4252f7d7dd4eb6fe3c291bbc9f0, type: 3}
+      spawnWeight: 0.7
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 3ed08bfd3cad4a9ebeb1ce7c294bbcd6, type: 3}
+      spawnWeight: 0.5
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.5
+    spawnIntervalMax: 0.9
+    burstChance: 0.2
+    replaces: 11
+  - name: 12b Sky hoppers
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 393906862470325017, guid: 8c4f0944d2a61c849b0405709f640ff7, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: bf77b38580ccdd04283958c7a41a34b6, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a6635cd98be91e8408093dcbe51d9b45, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 7894610099254780872, guid: 58cdfad387488194486699c32a22371f, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.5
+    spawnIntervalMax: 0.8
+    burstChance: 0.2
+    replaces: 12
+  - name: 13b Frills
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 8f7696247a6749b39abbfffd12035443, type: 3}
+      spawnWeight: 0.4
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 1376ccc5f7d24ae6859d5430b32134de, type: 3}
+      spawnWeight: 0.4
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7f55a5520f8e9984c8c813072ca52d9a, type: 3}
+      spawnWeight: 0.6
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
+      spawnWeight: 1
+      baseCount: 8
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.12
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.45
+    spawnIntervalMax: 0.8
+    burstChance: 0.2
+    replaces: 13
+  - name: 14b Swarm
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
+      spawnWeight: 1
+      baseCount: 6
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
+      spawnWeight: 1
+      baseCount: 8
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.12
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
+      spawnWeight: 1
+      baseCount: 8
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.12
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 595bb61599cc8de4fa985f7ee8fdd1e9, type: 3}
+      spawnWeight: 1
+      baseCount: 5
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 3ed08bfd3cad4a9ebeb1ce7c294bbcd6, type: 3}
+      spawnWeight: 0.5
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.35
+    spawnIntervalMax: 0.6
+    burstChance: 0.3
+    replaces: 14
+  - name: 15b Fortress
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7f55a5520f8e9984c8c813072ca52d9a, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: fa27f4252f7d7dd4eb6fe3c291bbc9f0, type: 3}
+      spawnWeight: 0.7
+      baseCount: 3
+      immuneToRanged: 1
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 4604603393713018748, guid: 446363c2f16e1584d9c0748bfd2b6bb3, type: 3}
+      spawnWeight: 1
+      baseCount: 6
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+      spawnWeight: 0.5
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 1563687534648878750, guid: 5aa8c86cf783e9844b2df1eaf65443cb, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.45
+    spawnIntervalMax: 0.8
+    burstChance: 0.2
+    replaces: 15
+  - name: 16b Siege
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 1563687534648878750, guid: a52a59a419bf4001a1dd373a2906faa5, type: 3}
+      spawnWeight: 0.3
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 61a8c23c9f134660844f8520d4896514, type: 3}
+      spawnWeight: 0.4
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 8c4f0944d2a61c849b0405709f640ff7, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: c648a5ab5c1697b4297f843a3d807ba1, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 3959996388313616572, guid: 9dcdc41293e2bce49bc8eef40b402380, type: 3}
+      spawnWeight: 0.3
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a6635cd98be91e8408093dcbe51d9b45, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.4
+    spawnIntervalMax: 0.7
+    burstChance: 0.25
+    replaces: 16
+  - name: 17b Splitters
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 5
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 595bb61599cc8de4fa985f7ee8fdd1e9, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7f55a5520f8e9984c8c813072ca52d9a, type: 3}
+      spawnWeight: 0.6
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.45
+    spawnIntervalMax: 0.8
+    burstChance: 0.2
+    replaces: 17
+  - name: 18b Ambush
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+      spawnWeight: 0.5
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: a0ff3f3d21dc8564fbab3a01db10d984, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: eae5342dcbbc86e42a350684261cf254, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 7894610099254780872, guid: 58cdfad387488194486699c32a22371f, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 1
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.4
+    spawnIntervalMax: 0.75
+    burstChance: 0.25
+    replaces: 18
+  - name: 19b Heavy rain
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 5527085464277909099, guid: fa27f4252f7d7dd4eb6fe3c291bbc9f0, type: 3}
+      spawnWeight: 0.7
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7f55a5520f8e9984c8c813072ca52d9a, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 4604603393713018748, guid: 446363c2f16e1584d9c0748bfd2b6bb3, type: 3}
+      spawnWeight: 1
+      baseCount: 8
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 7894610099254780872, guid: 04cd67e1f4f025c44a78d7fb8122869a, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 1563687534648878750, guid: 5aa8c86cf783e9844b2df1eaf65443cb, type: 3}
+      spawnWeight: 0
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.4
+    spawnIntervalMax: 0.7
+    burstChance: 0.2
+    replaces: 19
+  - name: 20b Everything
+    timeLimit: 0
+    enemies:
+    - enemyPrefab: {fileID: 1563687534648878750, guid: a52a59a419bf4001a1dd373a2906faa5, type: 3}
+      spawnWeight: 0.3
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: 61a8c23c9f134660844f8520d4896514, type: 3}
+      spawnWeight: 0.4
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: c648a5ab5c1697b4297f843a3d807ba1, type: 3}
+      spawnWeight: 1
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 8c4f0944d2a61c849b0405709f640ff7, type: 3}
+      spawnWeight: 1
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: fa27f4252f7d7dd4eb6fe3c291bbc9f0, type: 3}
+      spawnWeight: 0.7
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 3959996388313616572, guid: 9dcdc41293e2bce49bc8eef40b402380, type: 3}
+      spawnWeight: 0.3
+      baseCount: 1
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
+      spawnWeight: 0.6
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
+      spawnWeight: 1
+      baseCount: 10
+      immuneToRanged: 0
+      inARow: 1
+      rowGap: 0.12
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.35
+    spawnIntervalMax: 0.65
+    burstChance: 0.25
+    replaces: 20
   loopFromWave: 9
   extraEnemiesPerLoop: 3
   spawnGapPerLoop: 0.85
@@ -820,7 +2033,7 @@ MonoBehaviour:
   healthGrowthPerWave: 0.04
   timerBase: 30
   timerPerEnemy: 2
-  maxBonusPercent: 50
+  maxBonusPercent: 100
   bossWaveEvery: 10
   bossBonusMultiplier: 2
   bossBannerTime: 2.5
@@ -861,7 +2074,7 @@ MonoBehaviour:
     enemies:
     - enemyPrefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
       spawnWeight: 0
-      baseCount: 15
+      baseCount: 12
       immuneToRanged: 0
       inARow: 1
       rowGap: 0.12
@@ -870,7 +2083,7 @@ MonoBehaviour:
       partnerGap: 0.4
     - enemyPrefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
       spawnWeight: 0
-      baseCount: 15
+      baseCount: 12
       immuneToRanged: 0
       inARow: 1
       rowGap: 0.12
@@ -879,25 +2092,79 @@ MonoBehaviour:
       partnerGap: 0.4
     - enemyPrefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
       spawnWeight: 0
-      baseCount: 15
+      baseCount: 12
       immuneToRanged: 0
       inARow: 1
       rowGap: 0.12
       groupSize: 0
       partner: {fileID: 0}
       partnerGap: 0.4
-    - enemyPrefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
+    - enemyPrefab: {fileID: 393906862470325017, guid: 62c8d32682fae324cbd5452357cea808, type: 3}
       spawnWeight: 0
-      baseCount: 15
+      baseCount: 6
       immuneToRanged: 0
-      inARow: 1
-      rowGap: 0.12
+      inARow: 0
+      rowGap: 0.35
       groupSize: 0
       partner: {fileID: 0}
       partnerGap: 0.4
-    spawnIntervalMin: 3
-    spawnIntervalMax: 5
-    burstChance: 0
+    - enemyPrefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+      spawnWeight: 0
+      baseCount: 4
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: a6635cd98be91e8408093dcbe51d9b45, type: 3}
+      spawnWeight: 0
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: eae5342dcbbc86e42a350684261cf254, type: 3}
+      spawnWeight: 0
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: c648a5ab5c1697b4297f843a3d807ba1, type: 3}
+      spawnWeight: 0
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: da532ca4ac906c04598b011e0baafae6, type: 3}
+      spawnWeight: 0
+      baseCount: 3
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    - enemyPrefab: {fileID: 393906862470325017, guid: 8c4f0944d2a61c849b0405709f640ff7, type: 3}
+      spawnWeight: 0
+      baseCount: 2
+      immuneToRanged: 0
+      inARow: 0
+      rowGap: 0.35
+      groupSize: 0
+      partner: {fileID: 0}
+      partnerGap: 0.4
+    spawnIntervalMin: 0.6
+    spawnIntervalMax: 1.2
+    burstChance: 0.15
     bannerTitle: The Horde!
     bannerSubtitle: BOSS WAVE
     dark: 0
@@ -972,7 +2239,7 @@ MonoBehaviour:
     enemies:
     - enemyPrefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
       spawnWeight: 0
-      baseCount: 12
+      baseCount: 8
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
@@ -981,7 +2248,7 @@ MonoBehaviour:
       partnerGap: 0.4
     - enemyPrefab: {fileID: 393906862470325017, guid: da532ca4ac906c04598b011e0baafae6, type: 3}
       spawnWeight: 0
-      baseCount: 12
+      baseCount: 6
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
@@ -990,7 +2257,7 @@ MonoBehaviour:
       partnerGap: 0.4
     - enemyPrefab: {fileID: 1563687534648878750, guid: 5aa8c86cf783e9844b2df1eaf65443cb, type: 3}
       spawnWeight: 0
-      baseCount: 3
+      baseCount: 2
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
@@ -999,7 +2266,7 @@ MonoBehaviour:
       partnerGap: 0.4
     - enemyPrefab: {fileID: 7894610099254780872, guid: 20b70545505f92d48b221d746efc986d, type: 3}
       spawnWeight: 0
-      baseCount: 2
+      baseCount: 1
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
@@ -1008,15 +2275,15 @@ MonoBehaviour:
       partnerGap: 0.4
     - enemyPrefab: {fileID: 7894610099254780872, guid: 58cdfad387488194486699c32a22371f, type: 3}
       spawnWeight: 0
-      baseCount: 2
+      baseCount: 1
       immuneToRanged: 0
       inARow: 0
       rowGap: 0.35
       groupSize: 0
       partner: {fileID: 0}
       partnerGap: 0.4
-    spawnIntervalMin: 0.15
-    spawnIntervalMax: 0.35
+    spawnIntervalMin: 0.3
+    spawnIntervalMax: 0.6
     burstChance: 0
     bannerTitle: Stampede!
     bannerSubtitle: BOSS WAVE

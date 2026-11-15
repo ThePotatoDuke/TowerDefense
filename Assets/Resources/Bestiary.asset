@@ -1,0 +1,288 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b46924d94f044ee4caf16cd4b5598fe0, type: 3}
+  m_Name: Bestiary
+  m_EditorClassIdentifier: Assembly-CSharp::BestiaryData
+  showAll: 0
+  entries:
+  - displayName: Green Slime
+    prefab: {fileID: 393906862470325017, guid: 62c8d32682fae324cbd5452357cea808, type: 3}
+    frames:
+    - {fileID: -1426534852, guid: b86859c7fbd82134ebc641d77aaf76a1, type: 3}
+    - {fileID: 1989540208, guid: b86859c7fbd82134ebc641d77aaf76a1, type: 3}
+    framesPerSecond: 2
+    description: The most common slime. Hops steadily down the path towards the castle.
+    tip: One sword sweep can take out a whole line of them.
+  - displayName: Mini Slime
+    prefab: {fileID: 393906862470325017, guid: 7bc1a4e2c0f86634b8979ea0fcf3e606, type: 3}
+    frames:
+    - {fileID: 1677109674, guid: 6878030650c63bf45b37fbae9bfe08a2, type: 3}
+    - {fileID: -1831193814, guid: 6878030650c63bf45b37fbae9bfe08a2, type: 3}
+    framesPerSecond: 2
+    description: 'Small, weak and quick, and never alone: they come in tight swarms of a dozen or more.'
+    tip: Swing through the pack. The sword hits every slime it touches.
+  - displayName: Charger Slime
+    prefab: {fileID: 393906862470325017, guid: a6635cd98be91e8408093dcbe51d9b45, type: 3}
+    frames:
+    - {fileID: 1256577932, guid: 493770b0879809542a18799020978ce9, type: 3}
+    - {fileID: -630426161, guid: 493770b0879809542a18799020978ce9, type: 3}
+    framesPerSecond: 2
+    description: Sits still gathering itself, then leaps a long way down the path in one bound.
+    tip: Hit it while it's resting between leaps.
+  - displayName: Rhythm Slime
+    prefab: {fileID: 393906862470325017, guid: eae5342dcbbc86e42a350684261cf254, type: 3}
+    frames:
+    - {fileID: -2115513549, guid: f33ef7670f644aa47a91bda42d06f852, type: 3}
+    - {fileID: -1920149485, guid: f33ef7670f644aa47a91bda42d06f852, type: 3}
+    framesPerSecond: 2
+    description: 'Hops to a beat: two short hops, then a big, high leap that takes a while to come down.'
+    tip: Time your swings for its landings.
+  - displayName: Trickster Slime
+    prefab: {fileID: 393906862470325017, guid: c648a5ab5c1697b4297f843a3d807ba1, type: 3}
+    frames:
+    - {fileID: 36693584, guid: 653e38b7d4e882b4db9dada7b719e16d, type: 3}
+    - {fileID: -387451813, guid: 653e38b7d4e882b4db9dada7b719e16d, type: 3}
+    framesPerSecond: 2
+    description: Never goes straight. It hops back and forth at random, so it's hard to tell where it'll be next.
+    tip: Let it come to you; chasing it wastes time.
+  - displayName: Hyper Slime
+    prefab: {fileID: 393906862470325017, guid: da532ca4ac906c04598b011e0baafae6, type: 3}
+    frames:
+    - {fileID: 1701587394, guid: e185cbd0cc842e64d9f23ec059040dfb, type: 3}
+    - {fileID: -2052044711, guid: e185cbd0cc842e64d9f23ec059040dfb, type: 3}
+    framesPerSecond: 2
+    description: Tiny and frantic, hopping without a pause. Fragile, but it hits hard, and it never carries a shield.
+    tip: Ranged weapons pick it off before it gets close.
+  - displayName: Heavy Leaper
+    prefab: {fileID: 393906862470325017, guid: 7f55a5520f8e9984c8c813072ca52d9a, type: 3}
+    frames:
+    - {fileID: -1877887149, guid: 33d975fa3c8fb7b42b27ea41d9d2c16f, type: 3}
+    - {fileID: -1808122133, guid: 33d975fa3c8fb7b42b27ea41d9d2c16f, type: 3}
+    framesPerSecond: 2
+    description: A big, tough slime with slow, heavy hops. Lots of health, and it hurts to be landed on.
+    tip: Wear it down early; it takes a while to get through.
+  - displayName: Sky Hopper
+    prefab: {fileID: 393906862470325017, guid: 8c4f0944d2a61c849b0405709f640ff7, type: 3}
+    frames:
+    - {fileID: 886458999, guid: 877ccd016ff29dc4cb78eff4991e403b, type: 3}
+    - {fileID: 1176754894, guid: 877ccd016ff29dc4cb78eff4991e403b, type: 3}
+    framesPerSecond: 2
+    description: Bounds high into the air with every hop, covering a lot of ground at once.
+    tip: Strike as it lands.
+  - displayName: Splitter Slime
+    prefab: {fileID: 393906862470325017, guid: a56aff4e05e740f59c3712dcbaba37f2, type: 3}
+    frames:
+    - {fileID: -933659132, guid: 900a630e86511ef4ca946958acb48c65, type: 3}
+    - {fileID: -113241155, guid: 900a630e86511ef4ca946958acb48c65, type: 3}
+    framesPerSecond: 2
+    description: Bursts into three Mini Slimes when it's killed.
+    tip: Have a swing ready for the pieces.
+  - displayName: Checker Slime
+    prefab: {fileID: 3959996388313616572, guid: 9dcdc41293e2bce49bc8eef40b402380, type: 3}
+    frames:
+    - {fileID: 1256577932, guid: 3d2c1f7dcdc85fa4e951e8e97b385a19, type: 3}
+    - {fileID: -630426161, guid: 3d2c1f7dcdc85fa4e951e8e97b385a19, type: 3}
+    framesPerSecond: 2
+    description: 'Comes in black and white lines that leapfrog along the path: the slime at the back jumps over the rest, like a wheel rolling.'
+    tip: Gaps in the line slow the whole group down.
+  - displayName: Slime Queen
+    prefab: {fileID: 152766530418823847, guid: f806dffe715ef2744b572c099ef3babe, type: 3}
+    frames:
+    - {fileID: -1499591369, guid: b5a9f514bd4cdd84aa3e78cade94edbe, type: 3}
+    - {fileID: 648258640, guid: b5a9f514bd4cdd84aa3e78cade94edbe, type: 3}
+    - {fileID: 154112043, guid: b5a9f514bd4cdd84aa3e78cade94edbe, type: 3}
+    - {fileID: 31936245, guid: b5a9f514bd4cdd84aa3e78cade94edbe, type: 3}
+    - {fileID: -1986441000, guid: b5a9f514bd4cdd84aa3e78cade94edbe, type: 3}
+    - {fileID: -284989606, guid: b5a9f514bd4cdd84aa3e78cade94edbe, type: 3}
+    - {fileID: -1847456881, guid: b5a9f514bd4cdd84aa3e78cade94edbe, type: 3}
+    - {fileID: -324187610, guid: b5a9f514bd4cdd84aa3e78cade94edbe, type: 3}
+    - {fileID: -324187610, guid: b5a9f514bd4cdd84aa3e78cade94edbe, type: 3}
+    framesPerSecond: 8
+    description: A boss. She throws out a brood of slimes each time she loses a fifth of her health, and a bigger one when she dies.
+    tip: Clear each brood before pushing her further.
+  - displayName: Walker
+    prefab: {fileID: 5527085464277909099, guid: d63e9bd1002d1d64e9c5be7204395e8c, type: 3}
+    frames:
+    - {fileID: -7911572535675539837, guid: 5d4daff38e3d9174b873918abcf2c1d4, type: 3}
+    - {fileID: 5398807837072792716, guid: 5d4daff38e3d9174b873918abcf2c1d4, type: 3}
+    - {fileID: -3763824636803078212, guid: 5d4daff38e3d9174b873918abcf2c1d4, type: 3}
+    - {fileID: 8273598715916126338, guid: 5d4daff38e3d9174b873918abcf2c1d4, type: 3}
+    framesPerSecond: 4
+    description: Walks steadily along the path. Nothing fancy, just sturdy.
+    tip: 
+  - displayName: Heavy Walker
+    prefab: {fileID: 5527085464277909099, guid: fa27f4252f7d7dd4eb6fe3c291bbc9f0, type: 3}
+    frames:
+    - {fileID: 10104058, guid: 795a927579cff28459c24f2aa9990736, type: 3}
+    - {fileID: 6797471, guid: 795a927579cff28459c24f2aa9990736, type: 3}
+    - {fileID: -448948817, guid: 795a927579cff28459c24f2aa9990736, type: 3}
+    - {fileID: 518043649, guid: 795a927579cff28459c24f2aa9990736, type: 3}
+    framesPerSecond: 4
+    description: Slow, but with well over twice a Walker's health.
+    tip: Don't let a crowd build up behind it.
+  - displayName: Hyper Walker
+    prefab: {fileID: 5527085464277909099, guid: aa2e8908e60ea63488229431034046f9, type: 3}
+    frames:
+    - {fileID: 1060151893, guid: 7b0d67aadcffbcc45bcdf7f64334bac4, type: 3}
+    - {fileID: 620314, guid: 7b0d67aadcffbcc45bcdf7f64334bac4, type: 3}
+    - {fileID: 1906066664, guid: 7b0d67aadcffbcc45bcdf7f64334bac4, type: 3}
+    - {fileID: -943305640, guid: 7b0d67aadcffbcc45bcdf7f64334bac4, type: 3}
+    framesPerSecond: 4
+    description: Fast and frail, sprinting for the castle.
+    tip: Catch it early, before it's past you.
+  - displayName: Bat
+    prefab: {fileID: 5527085464277909099, guid: 595bb61599cc8de4fa985f7ee8fdd1e9, type: 3}
+    frames:
+    - {fileID: 21300000, guid: 800bf18e9a93c4942b6b042a0f7efffc, type: 3}
+    - {fileID: 21300000, guid: 9e2b863953ff0d246aeded16473d14b7, type: 3}
+    - {fileID: 21300000, guid: c856cf5cc8dd8874d916ae61b037b933, type: 3}
+    - {fileID: 21300000, guid: c4c96d7205bed104f81f04f404b7560d, type: 3}
+    - {fileID: 21300000, guid: 722d97f61267a854788954cb63978641, type: 3}
+    framesPerSecond: 11.999999
+    description: Flies low along the path, weaving from side to side.
+    tip: 'Lead your swings: it won''t be where it is now.'
+  - displayName: Purple Bat
+    prefab: {fileID: 5527085464277909099, guid: bf77b38580ccdd04283958c7a41a34b6, type: 3}
+    frames:
+    - {fileID: 5310228961843047101, guid: 5a95598aaf0017a43900d944cb62a9da, type: 3}
+    - {fileID: -2687452209935114602, guid: 5a95598aaf0017a43900d944cb62a9da, type: 3}
+    - {fileID: 7718430520964193303, guid: 5a95598aaf0017a43900d944cb62a9da, type: 3}
+    - {fileID: -4129756381057720884, guid: 5a95598aaf0017a43900d944cb62a9da, type: 3}
+    - {fileID: 1864203397561185305, guid: 5a95598aaf0017a43900d944cb62a9da, type: 3}
+    framesPerSecond: 11.999999
+    description: Climbs high and dives back down as it flies. Up high, only the Blaster can aim at it.
+    tip: Hit it on the way down.
+  - displayName: Red Bat
+    prefab: {fileID: 5527085464277909099, guid: a0ff3f3d21dc8564fbab3a01db10d984, type: 3}
+    frames:
+    - {fileID: 5310228961843047101, guid: 857d298ccc14431b8bd8cf64e2330864, type: 3}
+    - {fileID: -2687452209935114602, guid: 857d298ccc14431b8bd8cf64e2330864, type: 3}
+    - {fileID: 7718430520964193303, guid: 857d298ccc14431b8bd8cf64e2330864, type: 3}
+    - {fileID: -4129756381057720884, guid: 857d298ccc14431b8bd8cf64e2330864, type: 3}
+    - {fileID: 1864203397561185305, guid: 857d298ccc14431b8bd8cf64e2330864, type: 3}
+    framesPerSecond: 11.999999
+    description: Weaves and climbs at once, the hardest bat to pin down.
+    tip: The Blaster can reach it wherever it is.
+  - displayName: Green Frills
+    prefab: {fileID: 5527085464277909099, guid: 8f7696247a6749b39abbfffd12035443, type: 3}
+    frames:
+    - {fileID: 841000000000000, guid: 60c278eb72767a9479bdd06e9b9a32a0, type: 3}
+    - {fileID: 841000000000001, guid: 60c278eb72767a9479bdd06e9b9a32a0, type: 3}
+    - {fileID: 841000000000002, guid: 60c278eb72767a9479bdd06e9b9a32a0, type: 3}
+    - {fileID: 841000000000003, guid: 60c278eb72767a9479bdd06e9b9a32a0, type: 3}
+    framesPerSecond: 8
+    description: Floats high over the path at a steady pace, out of reach of all but the Blaster, shooting at you. A marker shows where each shot will land.
+    tip: Step off the marker before the shot lands.
+  - displayName: Pink Frills
+    prefab: {fileID: 5527085464277909099, guid: 61a8c23c9f134660844f8520d4896514, type: 3}
+    frames:
+    - {fileID: 841200000000000, guid: 3f0cf511968a1ae4ea231b58b33667d8, type: 3}
+    - {fileID: 841200000000001, guid: 3f0cf511968a1ae4ea231b58b33667d8, type: 3}
+    - {fileID: 841200000000002, guid: 3f0cf511968a1ae4ea231b58b33667d8, type: 3}
+    - {fileID: 841200000000003, guid: 3f0cf511968a1ae4ea231b58b33667d8, type: 3}
+    framesPerSecond: 8
+    description: A Frills that starts slow and speeds up as it nears the castle.
+    tip: Deal with it early, while it's slow.
+  - displayName: White Frills
+    prefab: {fileID: 5527085464277909099, guid: 1376ccc5f7d24ae6859d5430b32134de, type: 3}
+    frames:
+    - {fileID: 841100000000000, guid: cc80662a478351e4e8582a3a7a0b3441, type: 3}
+    - {fileID: 841100000000001, guid: cc80662a478351e4e8582a3a7a0b3441, type: 3}
+    - {fileID: 841100000000002, guid: cc80662a478351e4e8582a3a7a0b3441, type: 3}
+    - {fileID: 841100000000003, guid: cc80662a478351e4e8582a3a7a0b3441, type: 3}
+    framesPerSecond: 8
+    description: A Frills that rushes in fast, then slows down near the castle, shooting at you for longer.
+    tip: Keep moving near the castle.
+  - displayName: Konga
+    prefab: {fileID: 4604603393713018748, guid: 446363c2f16e1584d9c0748bfd2b6bb3, type: 3}
+    frames:
+    - {fileID: 21300000, guid: 106a484b5ad586c41bd764512b305e99, type: 3}
+    - {fileID: 21300000, guid: 5146ee850403c514cb821dd7e269d432, type: 3}
+    - {fileID: 21300000, guid: 270b542834c76964ab5b6e99ff823b77, type: 3}
+    - {fileID: 21300000, guid: 79f7730b3bd00b64c8a57a113d37b3a4, type: 3}
+    framesPerSecond: 6
+    description: Travels in long chains, each one following the one ahead. Break the chain and the ones behind rush forward to close the gap.
+    tip: Cutting the front of the chain holds up the rest for a moment.
+  - displayName: Molly
+    prefab: {fileID: 5527085464277909099, guid: aae8c8bef5dc4cf4ba5808234076860e, type: 3}
+    frames:
+    - {fileID: 614740000000000, guid: 561d2409f49634648a722cd994c69225, type: 3}
+    - {fileID: 614740000000001, guid: 561d2409f49634648a722cd994c69225, type: 3}
+    framesPerSecond: 4
+    description: A mole that tunnels along the path. Underground she can't be hit; she pops up to look around, then digs on. At the castle she stays up and attacks it.
+    tip: Be ready the moment she surfaces.
+  - displayName: Tibbit
+    prefab: {fileID: 5527085464277909099, guid: d1d8d9170a96409dbe099af0304c45c1, type: 3}
+    frames:
+    - {fileID: 621340000000000, guid: 331520110c8c01440af90b871b543346, type: 3}
+    - {fileID: 621340000000001, guid: 331520110c8c01440af90b871b543346, type: 3}
+    framesPerSecond: 4
+    description: A little frog that rides other enemies' heads, hopping forward from one to the next. It can't be hit while riding; when its ride dies it falls off dazed and carries on alone.
+    tip: Catch it on the ground or mid-jump. Rollers flatten it too.
+  - displayName: Orange Tibbit
+    prefab: {fileID: 5527085464277909099, guid: 3ed08bfd3cad4a9ebeb1ce7c294bbcd6, type: 3}
+    frames:
+    - {fileID: 621350000000000, guid: 3b043a08bc2143d6836f12fb0267029b, type: 3}
+    - {fileID: 621350000000001, guid: 3b043a08bc2143d6836f12fb0267029b, type: 3}
+    framesPerSecond: 4
+    description: A quicker, frailer Tibbit. It barely stops on each ride, and dies along with whatever it's riding.
+    tip: Kill its ride and it goes too.
+  - displayName: Roller
+    prefab: {fileID: 1563687534648878750, guid: 5aa8c86cf783e9844b2df1eaf65443cb, type: 3}
+    frames:
+    - {fileID: 21300000, guid: a6c67df057c7291499ab4053d4937d99, type: 3}
+    - {fileID: 21300000, guid: c3c1df8202d3c79439c663f35ac93ba3, type: 3}
+    - {fileID: 21300000, guid: 869ed58129001c24e98f22b9127a3cb3, type: 3}
+    - {fileID: 21300000, guid: 477d8f2421472ba4c9d5ba35655231c4, type: 3}
+    - {fileID: 21300000, guid: e8f338f77287e9f4abd8cfddc46bbb59, type: 3}
+    framesPerSecond: 8
+    description: A spiked cylinder that drops onto the path and rolls back and forth along it for a few waves. Other enemies hop over it, spike balls get bumped along, Tibbits on the ground get flattened, and it mows the grass as it goes.
+    tip: Stay out of its way, and let it do some of your work.
+  - displayName: Spike Ball
+    prefab: {fileID: 7894610099254780872, guid: 58cdfad387488194486699c32a22371f, type: 3}
+    frames:
+    - {fileID: 21300000, guid: f7cfa40b28508aa41b1238a8feef4b06, type: 3}
+    - {fileID: 21300000, guid: 2a75e4c19db725f47bd5380af888fa92, type: 3}
+    - {fileID: 21300000, guid: deec6c12049cbda4e86e68daebe9207f, type: 3}
+    framesPerSecond: 8
+    description: A big, slow spike ball that drops onto the path and rolls along with the enemies, soaking up shots meant for them. It can't be hurt, and leaves after a few waves.
+    tip: Aim around it, or fight where it isn't.
+  - displayName: Red Spike Ball
+    prefab: {fileID: 7894610099254780872, guid: 20b70545505f92d48b221d746efc986d, type: 3}
+    frames:
+    - {fileID: 21300000, guid: 42caf7b78138d7843902161be637d3c7, type: 3}
+    - {fileID: 21300000, guid: 38937b4133014284d9166721467809fe, type: 3}
+    - {fileID: 21300000, guid: 530c1905354ad9c4389c0ca49706ab91, type: 3}
+    framesPerSecond: 8
+    description: A fast spike ball that darts about among the enemies, shielding them from shots. It can't be hurt, and leaves after a few waves.
+    tip: Its contact hurts. Keep your distance.
+  - displayName: Yellow Spike Ball
+    prefab: {fileID: 7894610099254780872, guid: 04cd67e1f4f025c44a78d7fb8122869a, type: 3}
+    frames:
+    - {fileID: 21300000, guid: 8c86a6ec7bf8cb14a8b4b9956990111d, type: 3}
+    - {fileID: 21300000, guid: b83dbf5558d2e104ebe9bd39a826bce3, type: 3}
+    - {fileID: 21300000, guid: 622cee911e41eb34fbb4a15dae231c26, type: 3}
+    framesPerSecond: 8
+    description: A wobbly spike ball that can't be hurt. When its time is up it bursts, firing spikes in every direction; red lines show where they'll fly.
+    tip: Step off the red lines before it bursts.
+  - displayName: Bomberr
+    prefab: {fileID: 1563687534648878750, guid: a52a59a419bf4001a1dd373a2906faa5, type: 3}
+    frames:
+    - {fileID: 514730000000000, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+    - {fileID: 514730000000001, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+    - {fileID: 514730000000002, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+    - {fileID: 514730000000003, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+    - {fileID: 514730000000004, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+    - {fileID: 514730000000005, guid: 7417dfcd0574e594ead4b24b2713d81a, type: 3}
+    framesPerSecond: 10
+    description: 'A bomb carried by a crew of little bomberrs. Beat it, or let it reach the castle, and they throw the bomb: it lands nearby and explodes after a short fuse, hurting enemies, you and the castle.'
+    tip: Pop it in a crowd of enemies, then get clear.

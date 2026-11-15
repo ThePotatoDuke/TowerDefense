@@ -24,6 +24,9 @@ public class CheckerSlimeEnemy : EnemyBase
 
     public override EnemyDataSO Data => data;
     public override bool HealthBarFollowsSprite => true;
+    // Lined up behind the path's start (off screen, in the forest) it can't be hurt, so a group isn't wiped
+    // out by weapons, weeds or blasts near the start before it's even been seen
+    public override bool CanBeHit => distancePercentage >= 0f;
     public CheckerSlimeDataSO CheckerData => data;
     public bool InAir => jump != null && jump.IsActive();
     // No vaulting a roller mid-leapfrog

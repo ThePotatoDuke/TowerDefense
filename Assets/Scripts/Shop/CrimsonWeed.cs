@@ -142,7 +142,7 @@ public class CrimsonWeed : MonoBehaviour
         foreach (Collider c in Physics.OverlapSphere(transform.position, radius))
         {
             var enemy = c.GetComponentInParent<EnemyBase>();
-            if (enemy == null || enemy.IsDead || enemy.IsFlying || enemy.ImmuneToRanged) continue;
+            if (enemy == null || enemy.IsDead || !enemy.CanBeHit || enemy.Invulnerable || enemy.IsFlying || enemy.ImmuneToRanged) continue;
             if (enemy is TibbitEnemy tibbit && !tibbit.IsVulnerable) continue;
 
             float distance = Vector3.Distance(transform.position, enemy.transform.position);

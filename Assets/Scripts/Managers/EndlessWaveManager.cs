@@ -27,6 +27,12 @@ public class EndlessWaveManager : MonoBehaviour
     [Header("Scaling")]
     [SerializeField] private int enemiesPerWaveIncrement = 2;
 
+    [Header("Testing")]
+    [Tooltip("With a boss wave's name here (e.g. Checkmate!), the B key plays that one instead of a random one.")]
+    [SerializeField] private string testBossWave;
+    [Tooltip("Logs each wave's grass (picked up, bonus, held) to the console, for balancing.")]
+    [SerializeField] private bool logEconomy = true;
+
     [Header("Starting Weapons")]
     [Tooltip("Weapon pickups whose weapons the player starts the run carrying, in slot order.")]
     [SerializeField] private List<GameObject> weaponPrefabs;
@@ -40,6 +46,7 @@ public class EndlessWaveManager : MonoBehaviour
 
     private bool skipToNextWave; // debug
     private bool forceBossWave;  // debug
+    private int forcedBoss = -1; // debug: the boss wave B asked for
 
     // Boss waves: the ones still to come before any repeats, how many times each has been played, and
     // the harvest bonus's multiplier for the wave on now (bigger for a boss wave)
@@ -126,7 +133,10 @@ public class EndlessWaveManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.B))
         {
             forceBossWave = true;
-            Debug.Log("Waves: the next wave is a boss wave.");
+            WaveSettings settings = WaveSettings.Instance;
+            forcedBoss = settings != null && !string.IsNullOrEmpty(testBossWave)
+                ? settings.bossWaves.FindIndex(wave => wave.name == testBossWave || wave.bannerTitle == testBossWave) : -1;
+            Debug.Log("Waves: the next wave is a boss wave" + (forcedBoss >= 0 ? $" ({testBossWave})." : "."));
         }
 
         TickTimer();
@@ -150,6 +160,9 @@ public class EndlessWaveManager : MonoBehaviour
     private void PayHarvestBonus()
     {
         int bonus = TimerRunning ? Mathf.FloorToInt(GrassThisWave * BonusPercentNow / 100f) : 0;
+        if (logEconomy)
+            Debug.Log($"Grass: wave {CurrentWave} picked up {GrassThisWave} in time, bonus {bonus} " +
+                      $"({BonusPercentNow:0}%), {Currency.Grass} held before the bonus.");
         TimerRunning = false;
         if (bonus <= 0) return;
         if (OnHarvestBonus != null)
@@ -209,7 +222,8 @@ public class EndlessWaveManager : MonoBehaviour
             float countScale = 1f;
             if (boss)
             {
-                int pick = NextBossWave(settings);
+                int pick = forcedBoss >= 0 ? forcedBoss : NextBossWave(settings);
+                forcedBoss = -1;
                 bossWave = settings.bossWaves[pick];
                 int plays = bossPlays.TryGetValue(pick, out int played) ? played : 0;
                 bossPlays[pick] = plays + 1;
@@ -224,7 +238,8 @@ public class EndlessWaveManager : MonoBehaviour
                     index = settings != null ? Mathf.Clamp(settings.loopFromWave - 1, 0, list.Count - 1) : 0;
                     waveLoopIndex++;
                 }
-                wave = list[index++];
+                wave = settings != null && list == settings.waves ? settings.PickWave(list, index) : list[index];
+                index++;
             }
             bonusMultiplier = boss ? settings.bossBonusMultiplier : 1f;
             IsBossWave = boss;
@@ -445,6 +460,13 @@ public class EndlessWaveManager : MonoBehaviour
     {
         if (entry.immuneToRanged)
             instance.SetImmuneToRanged(true);
+        else if (settings != null && instance.CanBeShielded
+                 && UnityEngine.Random.value < settings.ShieldChance(totalWaveCount))
+        {
+            // A shield at random, and some grass for getting past it
+            instance.SetImmuneToRanged(true);
+            instance.GrassOnDeath = settings.shieldedGrassDrop;
+        }
 
         instance.SetHealthMultiplier(settings != null ? settings.HealthMultiplier(totalWaveCount) : 1f);
         OnEnemySpawned?.Invoke(instance);

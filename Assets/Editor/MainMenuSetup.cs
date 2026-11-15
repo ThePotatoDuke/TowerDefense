@@ -195,7 +195,7 @@ public static class MainMenuSetup
         Debug.Log("Main menu: intro set up (timings are on the Canvas's MenuIntro). Save the scene to keep it.");
     }
 
-    // The sign at the top, Play hanging from it on two chains and Quit from Play, everything at the menu's
+    // The sign at the top, Play hanging from it on two chains, the Bestiary from Play and Quit from that, everything at the menu's
     // pixel size, ordered so each button is behind the one above (it drops out from behind it), and the
     // MenuIntro that plays it all
     private static void SetUpIntro(Canvas canvas)
@@ -222,7 +222,7 @@ public static class MainMenuSetup
 
         var buttons = new List<Button>();
         float top = SignTop - sign.rectTransform.sizeDelta.y - ChainGap;
-        foreach (string name in new[] { "Play", "Quit" })
+        foreach (string name in new[] { "Play", "Bestiary", "Quit" })
         {
             Button button = root.Find(name)?.GetComponent<Button>();
             if (button == null) continue;

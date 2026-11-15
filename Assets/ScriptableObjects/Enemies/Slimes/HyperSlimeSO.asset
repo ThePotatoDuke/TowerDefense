@@ -15,6 +15,7 @@ MonoBehaviour:
   enemyName: HyperHopperSlime
   maxHealth: 35
   contactDamage: 2
+  canBeShielded: 0
   bounceHeight: 2
   bounceDuration: 0.15
   bounceInterval: 0

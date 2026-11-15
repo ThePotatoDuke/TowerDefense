@@ -139,10 +139,19 @@ public class SpriteFX : MonoBehaviour
         material.SetFloat(TintAmountId, amount);
     }
 
-    public void SetShine(bool on)
+    // fromStart: the band starts its sweep from the sprite's corner now, instead of wherever it's got to
+    public void SetShine(bool on, bool fromStart = false)
     {
         if (!IsReady) return;
         material.SetFloat(ShineStrengthId, on ? 1f : 0f);
+        if (on && fromStart)
+        {
+            // The shader's band sits where (x + y + offset - time * speed) wraps round the spacing; this puts
+            // it just short of the corner at this moment (its time is the time since the scene loaded)
+            float spacing = Mathf.Max(0.01f, material.GetFloat(ShineSpacingId));
+            float offset = Time.timeSinceLevelLoad * material.GetFloat(ShineSpeedId) + material.GetFloat(ShineWidthId);
+            material.SetFloat(ShineOffsetId, Mathf.Repeat(offset, spacing));
+        }
     }
 
     public void SetEmission(float emission)

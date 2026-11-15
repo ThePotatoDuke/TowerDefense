@@ -40,10 +40,12 @@ public class SpikeBallDataSO : EnemyDataSO
     public float maxSpeed = 2.5f;
 
     [Header("Lifetime")]
+    [Tooltip("Can't be hurt: hits spark off it, and it's gone only when its waves are up.")]
+    public bool immortal = true;
     [Tooltip("Number of cleared waves after which the spike ball destroys itself.")]
-    public int wavesToSurvive = 2;
+    public int wavesToSurvive = 3;
 
-    [Header("Spike Burst (when destroyed)")]
+    [Header("Spike Burst (when destroyed, or when an immortal one's waves are up)")]
     [Tooltip("Spikes fired at equal angles when the ball is destroyed by damage. 0 = no burst.")]
     public int deathSpikeCount = 0;
     public Sprite spikeSprite;

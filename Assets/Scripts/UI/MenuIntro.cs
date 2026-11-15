@@ -6,7 +6,8 @@ using UnityEngine.UI;
 // The main menu's opening: the clean title sign slides up from below the screen, flashes white and is
 // the weathered sign when the flash fades, then the button signs drop out from behind it, each hanging
 // from the one above by chains (children of the buttons, so they come along). Any key or click skips to
-// the end. The buttons can't be clicked until it's over. Laid out by Tools > Set Up Main Menu Intro.
+// the end. The buttons can't be clicked until it's over. The menu's music starts as the sign changes (at
+// once if skipped) and fades out when leaving the menu. Laid out by Tools > Set Up Main Menu Intro.
 public class MenuIntro : MonoBehaviour
 {
     [SerializeField] private Image sign;
@@ -28,8 +29,16 @@ public class MenuIntro : MonoBehaviour
     [Tooltip("Seconds between one button starting to drop and the next.")]
     [SerializeField] private float dropGap = 0.25f;
 
+    [Header("Music")]
+    [Tooltip("Loops from the moment the sign changes.")]
+    [SerializeField] private AudioClip music;
+    [SerializeField, Range(0f, 1f)] private float musicVolume = 0.6f;
+    [Tooltip("Seconds it takes to fade out when leaving the menu (Play pressed).")]
+    [SerializeField] private float musicFadeOutTime = 0.6f;
+
     private Sequence intro;
     private CanvasGroup clicks;
+    private AudioSource musicSource;
 
     private void Start()
     {
@@ -85,7 +94,12 @@ public class MenuIntro : MonoBehaviour
         if (flash != null)
             intro.Insert(time, flash.DOFade(1f, flashInTime));
         time += flashInTime;
-        intro.InsertCallback(time, () => { if (dirtySign != null) sign.sprite = dirtySign; });
+        intro.InsertCallback(time, () =>
+        {
+            if (dirtySign != null) sign.sprite = dirtySign;
+            Sounds.Play(Sound.MenuSignChange);
+            StartMusic();
+        });
         intro.Insert(time, signRect.DOPunchScale(Vector3.one * 0.06f, 0.3f, 6, 0.5f));
         if (flash != null)
             intro.Insert(time, flash.DOFade(0f, flashOutTime));
@@ -99,8 +113,25 @@ public class MenuIntro : MonoBehaviour
         intro.OnComplete(() => clicks.blocksRaycasts = true);
     }
 
+    private void StartMusic()
+    {
+        if (music == null || musicSource != null) return;
+        musicSource = gameObject.AddComponent<AudioSource>();
+        musicSource.clip = music;
+        musicSource.loop = true;
+        musicSource.playOnAwake = false;
+        musicSource.volume = musicVolume;
+        musicSource.mute = !AudioToggles.MusicOn;
+        musicSource.Play();
+    }
+
     private void Update()
     {
+        // Leaving the menu: the music fades away with the transition
+        if (musicSource != null && SceneTransition.Busy)
+            musicSource.volume = Mathf.MoveTowards(musicSource.volume, 0f,
+                Time.unscaledDeltaTime * musicVolume / Mathf.Max(0.01f, musicFadeOutTime));
+
         if (intro == null || !intro.IsActive() || !intro.IsPlaying()) return;
 
         bool pressed = (Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame)

@@ -45,6 +45,7 @@ public static class Sounds
 
     private static void Play(Sound sound, float pitch, float loudness, float pan)
     {
+        if (!AudioToggles.SfxOn) return;
         SoundLibrary library = SoundLibrary.Instance;
         SoundLibrary.Entry entry = library != null ? library.Get(sound) : null;
         if (entry == null || entry.clip == null) return;
@@ -73,6 +74,7 @@ public static class Sounds
         source.clip = entry.clip;
         source.loop = true;
         source.volume = entry.volume * library.masterVolume;
+        source.mute = !AudioToggles.SfxOn;
         source.Play();
         return source;
     }

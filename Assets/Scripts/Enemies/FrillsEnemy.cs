@@ -25,6 +25,8 @@ public class FrillsEnemy : EnemyBase
     public override bool IsFlying => height > FlyingFrom;
     // High above anything rolling along the path
     public override bool CanDodge => false;
+    // Out of reach of the sword while it's up, so a ranged shield would make it unhittable
+    public override bool CanBeShielded => false;
 
     // Speed for where it is along the path
     private float CurrentSpeed => Mathf.Lerp(data.startSpeed, data.endSpeed, distancePercentage);

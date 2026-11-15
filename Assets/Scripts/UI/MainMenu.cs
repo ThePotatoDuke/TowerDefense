@@ -28,7 +28,7 @@ public class MainMenu : MonoBehaviour
         // With keys or a gamepad keep something picked (a mouse click on empty space clears it); with the
         // mouse pick nothing, hovering shows it
         EventSystem events = EventSystem.current;
-        if (events == null) return;
+        if (events == null || BestiaryPanel.IsOpen) return;
         if (!UINavigation.UsingKeys)
         {
             if (events.currentSelectedGameObject != null)

@@ -11,7 +11,7 @@ using UnityEngine.Serialization;
 // while the shop's open or a boss wave's on and carries on where it left off. When a wave that opens the
 // shop is cleared the music fades out quickly, so its clear sound plays in a moment of quiet before the
 // shop's music comes in. When the castle falls the music slows down to a stop, like a tape running out; when
-// the player's killed it cuts off at once.
+// the player's killed it cuts off at once. The pause menu pauses it, and it carries on from there.
 public class MusicManager : MonoBehaviour
 {
     [SerializeField] private AudioClip gameplay;
@@ -49,6 +49,8 @@ public class MusicManager : MonoBehaviour
     private float slowPitch = 1f;
     private float startFade; // time left on the opening fade in
     private int shopLevel = -1;
+    private bool paused; // the pause menu's open
+    private bool muted; // music switched off on the pause menu (AudioToggles)
 
     private void Awake()
     {
@@ -148,7 +150,12 @@ public class MusicManager : MonoBehaviour
 
     private void Update()
     {
+        if (muted == AudioToggles.MusicOn)
+            SetMuted(!AudioToggles.MusicOn);
         if (silenced) return;
+        if (PauseMenu.IsOpen != paused)
+            SetPaused(PauseMenu.IsOpen);
+        if (paused) return;
         if (slowingDown)
         {
             SlowDown();
@@ -204,6 +211,33 @@ public class MusicManager : MonoBehaviour
             if (!inShop && source.volume <= 0f && source.isPlaying)
                 source.Stop();
         }
+    }
+
+    // Every track stops where it is, and carries on from there (ones that weren't playing stay as they were)
+    private void SetPaused(bool pause)
+    {
+        paused = pause;
+        Pause(gameplaySource, pause);
+        Pause(bossSource, pause);
+        foreach (AudioSource source in shopSources)
+            Pause(source, pause);
+    }
+
+    // Switched off, every track carries on silently, so switching back on comes in where it would be
+    private void SetMuted(bool mute)
+    {
+        muted = mute;
+        gameplaySource.mute = bossSource.mute = mute;
+        foreach (AudioSource source in shopSources)
+            source.mute = mute;
+    }
+
+    private static void Pause(AudioSource source, bool pause)
+    {
+        if (pause)
+            source.Pause();
+        else
+            source.UnPause();
     }
 
     // Every level starts at once, silent, so the layers stay in step; the one that fits fades in

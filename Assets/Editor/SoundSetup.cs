@@ -39,6 +39,9 @@ public static class SoundSetup
         Sound.GrassCut => "gameplay/grass_cut_2.wav",
         Sound.NextWave => "ui/next_wave.wav",
         Sound.EnemyJump => "enemies/enemy_jump.wav",
+        Sound.TeleportCharge => "gameplay/teleport_loop.wav",
+        Sound.Teleport => "gameplay/teleport.wav",
+        Sound.MenuSignChange => "ui/menu_sign_change.wav",
         _ => null
     };
 

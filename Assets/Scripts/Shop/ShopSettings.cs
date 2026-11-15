@@ -50,6 +50,9 @@ public class UpgradeDefinition
     public int baseCost = 30;
     [Tooltip("Each level costs this much more than the one before (1.5 = +50%).")]
     public float costGrowth = 1.4f;
+    [Tooltip("Cost Growth only counts the ones bought in the same visit: the price is back to the base at " +
+             "the next shop (the heals, so they can't be bought over and over at one price).")]
+    public bool growsPerVisit;
     [Tooltip("How likely it is to be offered, compared to the others (lower = rarer).")]
     public float weight = 1f;
 
@@ -87,6 +90,12 @@ public class ShopSettings : ScriptableObject
     [Tooltip("How many cards can be bought each visit (0 = as many as the grass allows); the shop closes " +
              "once they're used up.")]
     public int purchasesPerVisit = 0;
+    [Tooltip("A bought card's slot is dealt a new card straight away, so grass, not the slots, limits how " +
+             "much can be bought in a visit. Off: it stays, marked sold.")]
+    public bool restockOnBuy;
+    [Tooltip("Every card bought in a visit makes everything else that visit this much dearer, compounding " +
+             "(0.25 = +25%, then +56%, +95%...). Back to normal next visit.")]
+    [Range(0f, 1f)] public float visitMarkup = 0.25f;
 
     [Header("Reroll")]
     public int rerollCost = 10;

@@ -8,6 +8,8 @@ public class SlimeQueenEnemy : SlimeEnemy
 {
     private SlimeQueenDataSO QueenData => Data as SlimeQueenDataSO;
     private int broodsThrown;
+    // Her boss wave is hers: no random shield on top
+    public override bool CanBeShielded => false;
 
     public override void TakeDamage(float amount)
     {
